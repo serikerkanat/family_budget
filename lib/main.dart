@@ -9,6 +9,8 @@ import 'package:uuid/uuid.dart';
 import 'models/transaction_model.dart';
 import 'services/local_storage_service.dart';
 import 'widgets/category_selector.dart';
+import 'pages/transaction_details_page.dart';
+import 'pages/settings_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,32 +27,66 @@ class BudgetApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Family Budget',
       theme: ThemeData(
-        primarySwatch: Colors.green,
-        scaffoldBackgroundColor: Colors.grey[100],
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.green,
+          brightness: Brightness.light,
+        ),
+        scaffoldBackgroundColor: const Color(0xFFF8F9FA),
         appBarTheme: const AppBarTheme(
           elevation: 0,
           centerTitle: true,
+          backgroundColor: Colors.transparent,
+          surfaceTintColor: Colors.transparent,
           titleTextStyle: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF1A1A1A),
           ),
         ),
         inputDecorationTheme: InputDecorationTheme(
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none,
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(color: Colors.grey[300]!),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(color: Colors.grey[300]!),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: Colors.green, width: 2),
           ),
           filled: true,
           fillColor: Colors.white,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          labelStyle: const TextStyle(
+            color: Color(0xFF6B7280),
+            fontWeight: FontWeight.w500,
+          ),
+          hintStyle: TextStyle(
+            color: Colors.grey[400],
+          ),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 16),
+            padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 24),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
             ),
+            elevation: 2,
+            shadowColor: Colors.black.withOpacity(0.1),
+            textStyle: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        cardTheme: CardThemeData(
+          elevation: 4,
+          shadowColor: Colors.black.withOpacity(0.08),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
         ),
       ),
@@ -83,7 +119,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 
   Future<void> _loadTransactions() async {
-    _transactions = await _storage.getTransactions();
+    _transactions = _storage.getTransactions();
     _calculateTotals();
     setState(() {});
   }
@@ -124,26 +160,73 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     return Scaffold(
       appBar: AppBar(
         title: const Text('Family Budget'),
-        backgroundColor: Colors.white.withAlpha(77), // ✅ правильный параметр
+        backgroundColor: Colors.transparent,
         actions: [
           IconButton(
-            icon: const Icon(Icons.pie_chart),
+            icon: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Icon(
+                Icons.settings,
+                color: Colors.grey[700],
+                size: 20,
+              ),
+            ),
             onPressed: () {
-              // TODO: Implement charts view
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SettingsPage()),
+              );
             },
           ),
         ],
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: _tabs.map((tab) => Tab(text: tab)).toList(),
-          onTap: (index) {
-            setState(() {
-              _currentTabIndex = index;
-            });
-          },
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white70,
-          indicatorColor: Colors.white,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(80),
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: TabBar(
+              controller: _tabController,
+              tabs: _tabs.map((tab) => Tab(text: tab)).toList(),
+              onTap: (index) {
+                setState(() {
+                  _currentTabIndex = index;
+                });
+              },
+              labelColor: const Color(0xFF10B981),
+              unselectedLabelColor: const Color(0xFF6B7280),
+              indicator: UnderlineTabIndicator(
+                borderSide: const BorderSide(
+                  color: Color(0xFF10B981),
+                  width: 3,
+                ),
+                insets: const EdgeInsets.symmetric(horizontal: 24),
+              ),
+              dividerColor: Colors.transparent,
+              splashFactory: NoSplash.splashFactory,
+              overlayColor: MaterialStateProperty.all(Colors.transparent),
+            ),
+          ),
         ),
       ),
 
@@ -159,6 +242,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         },
         icon: const Icon(Icons.add),
         label: const Text('Add'),
+        backgroundColor: const Color(0xFF10B981),
+        foregroundColor: Colors.white,
+        elevation: 6,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
       ),
 
       body: Column(
@@ -177,31 +266,44 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   Widget _buildSummary(double balance) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Theme.of(context).primaryColor,
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(24),
-          bottomRight: Radius.circular(24),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            const Color(0xFF10B981),
+            const Color(0xFF059669),
+          ],
         ),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF10B981).withOpacity(0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Column(
         children: [
           Text(
             'Total Balance',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            style: const TextStyle(
               color: Colors.white70,
               fontSize: 16,
+              fontWeight: FontWeight.w500,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             '\$${balance.toStringAsFixed(2)}',
             style: const TextStyle(
-              fontSize: 36,
-              fontWeight: FontWeight.bold,
+              fontSize: 42,
+              fontWeight: FontWeight.w800,
               color: Colors.white,
-              letterSpacing: 1.1,
+              letterSpacing: 1.2,
             ),
           ),
           const SizedBox(height: 24),
@@ -209,11 +311,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _buildSummaryItem('Income', _totalIncome, true),
-              Container(
-                width: 1,
-                height: 40,
-                color: Colors.white.withOpacity(0.3),
-              ),
               _buildSummaryItem('Expense', _totalExpense, false),
             ],
           ),
@@ -230,15 +327,16 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           style: const TextStyle(
             color: Colors.white70,
             fontSize: 14,
+            fontWeight: FontWeight.w500,
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 6),
         Text(
           '${isIncome ? '+' : '-'}\$${amount.toStringAsFixed(2)}',
           style: TextStyle(
-            color: isIncome ? Colors.greenAccent : Colors.redAccent,
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
+            color: isIncome ? const Color(0xFF86EFAC) : const Color(0xFFFCA5A5),
+            fontWeight: FontWeight.w700,
+            fontSize: 18,
           ),
         ),
       ],
@@ -327,7 +425,16 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             transaction: tx,
             category: category,
             onTap: () {
-              // TODO: Implement transaction details/edit
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => TransactionDetailsPage(
+                    transaction: tx,
+                    category: category,
+                    onDelete: () => _deleteTransaction(tx.id),
+                  ),
+                ),
+              );
             },
           ),
         );
@@ -353,29 +460,53 @@ class _TransactionCard extends StatelessWidget {
     final date = DateFormat('MMM dd, yyyy').format(transaction.date);
 
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      elevation: 1,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      elevation: 3,
+      shadowColor: Colors.black.withOpacity(0.1),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            gradient: LinearGradient(
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+              colors: [
+                Colors.white,
+                isIncome ? Colors.green.withOpacity(0.02) : Colors.red.withOpacity(0.02),
+              ],
+            ),
+          ),
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: isIncome
-                      ? Colors.green.withOpacity(0.1)
-                      : Colors.red.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(10),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: isIncome
+                        ? [const Color(0xFF10B981), const Color(0xFF059669)]
+                        : [const Color(0xFFEF4444), const Color(0xFFDC2626)],
+                  ),
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: [
+                    BoxShadow(
+                      color: (isIncome ? const Color(0xFF10B981) : const Color(0xFFEF4444))
+                          .withOpacity(0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
                 child: Icon(
                   category.icon,
-                  color: isIncome ? Colors.green : Colors.red,
+                  color: Colors.white,
                   size: 24,
                 ),
               ),
@@ -387,27 +518,49 @@ class _TransactionCard extends StatelessWidget {
                     Text(
                       transaction.title,
                       style: const TextStyle(
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w700,
                         fontSize: 16,
+                        color: Color(0xFF1A1A1A),
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${category.name} • $date',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 13,
-                      ),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            category.name,
+                            style: TextStyle(
+                              color: Colors.grey[700],
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          date,
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
                     ),
                     if (transaction.notes?.isNotEmpty ?? false) ...[
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
                       Text(
                         transaction.notes!,
                         style: TextStyle(
                           color: Colors.grey[600],
-                          fontSize: 13,
+                          fontSize: 12,
                           fontStyle: FontStyle.italic,
                         ),
                         maxLines: 1,
@@ -420,21 +573,30 @@ class _TransactionCard extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(
-                    '${isIncome ? '+' : '-'}\$${transaction.amount.toStringAsFixed(2)}',
-                    style: TextStyle(
-                      color: isIncome ? Colors.green : Colors.red,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: isIncome 
+                          ? const Color(0xFF10B981).withOpacity(0.1)
+                          : const Color(0xFFEF4444).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      '${isIncome ? '+' : '-'}\$${transaction.amount.toStringAsFixed(2)}',
+                      style: TextStyle(
+                        color: isIncome ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                   if (transaction.receiptImagePath != null) ...[
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 6),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                       decoration: BoxDecoration(
                         color: Colors.blue[50],
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(8),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -444,13 +606,13 @@ class _TransactionCard extends StatelessWidget {
                             size: 12,
                             color: Colors.blue[700],
                           ),
-                          const SizedBox(width: 2),
+                          const SizedBox(width: 3),
                           Text(
                             'Receipt',
                             style: TextStyle(
                               color: Colors.blue[700],
                               fontSize: 10,
-                              fontWeight: FontWeight.w500,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ],
@@ -552,12 +714,30 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
         title: const Text('Add Transaction'),
+        backgroundColor: Colors.transparent,
         actions: [
-          TextButton(
-            onPressed: _submitForm,
-            child: const Text('Save', style: TextStyle(color: Colors.white)),
+          Container(
+            margin: const EdgeInsets.only(right: 16),
+            child: ElevatedButton(
+              onPressed: _submitForm,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF10B981),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text(
+                'Save',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
           ),
         ],
       ),
@@ -571,65 +751,79 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Amount Input
-              TextFormField(
-                controller: _amountController,
-                keyboardType: TextInputType.number,
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
-                ],
-                decoration: const InputDecoration(
-                  labelText: 'Amount',
-                  prefixText: '\$ ',
-                  hintText: '0.00',
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+                child: TextFormField(
+                  controller: _amountController,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+                  ],
+                  decoration: const InputDecoration(
+                    labelText: 'Amount',
+                    prefixText: '\$ ',
+                    hintText: '0.00',
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.all(20),
+                  ),
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF1A1A1A),
+                  ),
+                  textAlign: TextAlign.center,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter an amount';
+                    }
+                    final amount = double.tryParse(value);
+                    if (amount == null || amount <= 0) {
+                      return 'Please enter a valid amount';
+                    }
+                    return null;
+                  },
                 ),
-                textAlign: TextAlign.center,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter an amount';
-                  }
-                  final amount = double.tryParse(value);
-                  if (amount == null || amount <= 0) {
-                    return 'Please enter a valid amount';
-                  }
-                  return null;
-                },
               ),
               const SizedBox(height: 24),
 
               // Type Toggle
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 6,
-                ),
+                padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(12),
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.circular(16),
                 ),
                 child: Row(
                   children: [
                     Expanded(
-                      child: ChoiceChip(
-                        label: const Text('Expense'),
-                        selected: _type == TransactionType.expense,
-                        selectedColor: Colors.red[100],
-                        labelStyle: TextStyle(
-                          color: _type == TransactionType.expense
-                              ? Colors.red[900]
-                              : Colors.grey[800],
-                          fontWeight: _type == TransactionType.expense
-                              ? FontWeight.bold
-                              : FontWeight.normal,
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          gradient: _type == TransactionType.expense
+                              ? LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [const Color(0xFFEF4444), const Color(0xFFDC2626)],
+                                )
+                              : null,
+                          color: _type == TransactionType.expense ? null : Colors.transparent,
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        onSelected: (selected) {
-                          if (selected) {
+                        child: InkWell(
+                          onTap: () {
                             setState(() {
                               _type = TransactionType.expense;
-                              // Update category to first expense category
                               final expenseCategories = defaultCategories
                                   .where((cat) => cat.type == TransactionType.expense)
                                   .toList();
@@ -637,29 +831,43 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                                 _selectedCategoryId = expenseCategories.first.id;
                               }
                             });
-                          }
-                        },
+                          },
+                          borderRadius: BorderRadius.circular(12),
+                          child: Text(
+                            'Expense',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: _type == TransactionType.expense
+                                  ? Colors.white
+                                  : Colors.grey[700],
+                              fontWeight: _type == TransactionType.expense
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 8),
                     Expanded(
-                      child: ChoiceChip(
-                        label: const Text('Income'),
-                        selected: _type == TransactionType.income,
-                        selectedColor: Colors.green[100],
-                        labelStyle: TextStyle(
-                          color: _type == TransactionType.income
-                              ? Colors.green[900]
-                              : Colors.grey[800],
-                          fontWeight: _type == TransactionType.income
-                              ? FontWeight.bold
-                              : FontWeight.normal,
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          gradient: _type == TransactionType.income
+                              ? LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [const Color(0xFF10B981), const Color(0xFF059669)],
+                                )
+                              : null,
+                          color: _type == TransactionType.income ? null : Colors.transparent,
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        onSelected: (selected) {
-                          if (selected) {
+                        child: InkWell(
+                          onTap: () {
                             setState(() {
                               _type = TransactionType.income;
-                              // Update category to first income category
                               final incomeCategories = defaultCategories
                                   .where((cat) => cat.type == TransactionType.income)
                                   .toList();
@@ -667,8 +875,22 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                                 _selectedCategoryId = incomeCategories.first.id;
                               }
                             });
-                          }
-                        },
+                          },
+                          borderRadius: BorderRadius.circular(12),
+                          child: Text(
+                            'Income',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: _type == TransactionType.income
+                                  ? Colors.white
+                                  : Colors.grey[700],
+                              fontWeight: _type == TransactionType.income
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ],
