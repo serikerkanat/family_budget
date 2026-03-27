@@ -2,11 +2,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'dart:convert';
 import '../models/transaction_model.dart';
+import '../models/budget_model.dart';
 import 'package:flutter/material.dart';
 
 class LocalStorageService {
   static const String _transactionsKey = 'transactions';
   static const String _categoriesKey = 'categories';
+  static const String _budgetsKey = 'budgets';
   
   static final LocalStorageService _instance = LocalStorageService._internal();
   late SharedPreferences _prefs;
@@ -129,5 +131,47 @@ class LocalStorageService {
           ? TransactionType.income 
           : TransactionType.expense,
     );
+  }
+
+  // Budget methods
+  Future<void> saveBudget(BudgetModel budget) async {
+    final budgets = getBudgets();
+    budgets.add(budget);
+    await _saveBudgets(budgets);
+  }
+
+  Future<void> updateBudget(BudgetModel updatedBudget) async {
+    final budgets = getBudgets();
+    final index = budgets.indexWhere((b) => b.id == updatedBudget.id);
+    if (index != -1) {
+      budgets[index] = updatedBudget;
+      await _saveBudgets(budgets);
+    }
+  }
+
+  Future<void> deleteBudget(String id) async {
+    final budgets = getBudgets();
+    budgets.removeWhere((b) => b.id == id);
+    await _saveBudgets(budgets);
+  }
+
+  List<BudgetModel> getBudgets() {
+    final budgetsJson = _prefs.getStringList(_budgetsKey) ?? [];
+    return budgetsJson.map((json) => _budgetFromJson(json)).toList();
+  }
+
+  Future<void> _saveBudgets(List<BudgetModel> budgets) async {
+    final budgetsJson = budgets.map((b) => _budgetToJson(b)).toList();
+    await _prefs.setStringList(_budgetsKey, budgetsJson);
+  }
+
+  // Budget JSON serialization/deserialization
+  String _budgetToJson(BudgetModel budget) {
+    return jsonEncode(budget.toMap());
+  }
+
+  BudgetModel _budgetFromJson(String jsonStr) {
+    final Map<String, dynamic> json = jsonDecode(jsonStr);
+    return BudgetModel.fromMap(json);
   }
 }
