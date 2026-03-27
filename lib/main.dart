@@ -11,6 +11,7 @@ import 'services/local_storage_service.dart';
 import 'widgets/category_selector.dart';
 import 'pages/transaction_details_page.dart';
 import 'pages/settings_page.dart';
+import 'pages/analytics_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -162,6 +163,33 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         title: const Text('Family Budget'),
         backgroundColor: Colors.transparent,
         actions: [
+          IconButton(
+            icon: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Icon(
+                Icons.analytics_outlined,
+                color: Colors.grey[700],
+                size: 20,
+              ),
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AnalyticsPage()),
+              );
+            },
+          ),
           IconButton(
             icon: Container(
               padding: const EdgeInsets.all(8),
@@ -643,7 +671,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   final _notesController = TextEditingController();
 
   TransactionType _type = TransactionType.expense;
-  String _selectedCategoryId = 'other';
+  String _selectedCategoryId = 'salary';
   String? _receiptImagePath;
   final ImagePicker _picker = ImagePicker();
   bool _isLoading = false;
@@ -651,12 +679,16 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   @override
   void initState() {
     super.initState();
-    // Set default category based on the default transaction type
-    final defaultCategoriesForType = defaultCategories
+    // Initialize with income categories first to show all categories
+    _updateSelectedCategory();
+  }
+
+  void _updateSelectedCategory() {
+    final categoriesForType = defaultCategories
         .where((cat) => cat.type == _type)
         .toList();
-    if (defaultCategoriesForType.isNotEmpty) {
-      _selectedCategoryId = defaultCategoriesForType.first.id;
+    if (categoriesForType.isNotEmpty) {
+      _selectedCategoryId = categoriesForType.first.id;
     }
   }
 
@@ -824,12 +856,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                           onTap: () {
                             setState(() {
                               _type = TransactionType.expense;
-                              final expenseCategories = defaultCategories
-                                  .where((cat) => cat.type == TransactionType.expense)
-                                  .toList();
-                              if (expenseCategories.isNotEmpty) {
-                                _selectedCategoryId = expenseCategories.first.id;
-                              }
+                              _updateSelectedCategory();
                             });
                           },
                           borderRadius: BorderRadius.circular(12),
@@ -868,12 +895,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                           onTap: () {
                             setState(() {
                               _type = TransactionType.income;
-                              final incomeCategories = defaultCategories
-                                  .where((cat) => cat.type == TransactionType.income)
-                                  .toList();
-                              if (incomeCategories.isNotEmpty) {
-                                _selectedCategoryId = incomeCategories.first.id;
-                              }
+                              _updateSelectedCategory();
                             });
                           },
                           borderRadius: BorderRadius.circular(12),
