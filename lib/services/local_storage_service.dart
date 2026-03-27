@@ -1,5 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
+import 'dart:convert';
 import '../models/transaction_model.dart';
 import 'package:flutter/material.dart';
 
@@ -81,76 +82,52 @@ class LocalStorageService {
   
   // JSON serialization/deserialization
   String _transactionToJson(TransactionModel transaction) {
-    return '''
-    {
-      "id": "${transaction.id}",
-      "title": "${transaction.title}",
-      "amount": ${transaction.amount},
-      "date": "${transaction.date.toIso8601String()}",
-      "type": "${transaction.type}",
-      "categoryId": "${transaction.categoryId}",
-      "receiptImagePath": ${transaction.receiptImagePath != null ? '"${transaction.receiptImagePath}"' : 'null'},
-      "notes": ${transaction.notes != null ? '"${transaction.notes}"' : 'null'}
-    }
-    ''';
+    return jsonEncode({
+      'id': transaction.id,
+      'title': transaction.title,
+      'amount': transaction.amount,
+      'date': transaction.date.toIso8601String(),
+      'type': transaction.type.toString(),
+      'categoryId': transaction.categoryId,
+      'receiptImagePath': transaction.receiptImagePath,
+      'notes': transaction.notes,
+    });
   }
   
   TransactionModel _transactionFromJson(String jsonStr) {
-    // Simple JSON parsing (for demo purposes, in production use json_serializable)
-    final id = _extractJsonValue(jsonStr, 'id') ?? const Uuid().v4();
-    final title = _extractJsonValue(jsonStr, 'title') ?? '';
-    final amount = double.tryParse(_extractJsonValue(jsonStr, 'amount') ?? '0') ?? 0;
-    final dateStr = _extractJsonValue(jsonStr, 'date') ?? DateTime.now().toIso8601String();
-    final typeStr = _extractJsonValue(jsonStr, 'type') ?? 'expense';
-    final categoryId = _extractJsonValue(jsonStr, 'categoryId') ?? 'other';
-    final receiptImagePath = _extractJsonValue(jsonStr, 'receiptImagePath');
-    final notes = _extractJsonValue(jsonStr, 'notes');
-    
+    final Map<String, dynamic> json = jsonDecode(jsonStr);
     return TransactionModel(
-      id: id,
-      title: title,
-      amount: amount,
-      date: DateTime.parse(dateStr),
-      type: typeStr.contains('income') ? TransactionType.income : TransactionType.expense,
-      categoryId: categoryId,
-      receiptImagePath: receiptImagePath,
-      notes: notes,
+      id: json['id'] ?? const Uuid().v4(),
+      title: json['title'] ?? '',
+      amount: (json['amount'] as num?)?.toDouble() ?? 0.0,
+      date: DateTime.parse(json['date'] ?? DateTime.now().toIso8601String()),
+      type: json['type']?.toString().contains('income') == true 
+          ? TransactionType.income 
+          : TransactionType.expense,
+      categoryId: json['categoryId'] ?? 'other',
+      receiptImagePath: json['receiptImagePath'],
+      notes: json['notes'],
     );
   }
   
   String _categoryToJson(Category category) {
-    return '''
-    {
-      "id": "${category.id}",
-      "name": "${category.name}",
-      "icon": ${category.icon.codePoint},
-      "type": "${category.type}"
-    }
-    ''';
+    return jsonEncode({
+      'id': category.id,
+      'name': category.name,
+      'icon': category.icon.codePoint,
+      'type': category.type.toString(),
+    });
   }
   
   Category _categoryFromJson(String jsonStr) {
-    final id = _extractJsonValue(jsonStr, 'id') ?? '';
-    final name = _extractJsonValue(jsonStr, 'name') ?? '';
-    final iconCodePoint = int.tryParse(_extractJsonValue(jsonStr, 'icon') ?? '0') ?? 0;
-    final typeStr = _extractJsonValue(jsonStr, 'type') ?? 'expense';
-    
+    final Map<String, dynamic> json = jsonDecode(jsonStr);
     return Category(
-      id: id,
-      name: name,
-      icon: IconData(iconCodePoint, fontFamily: 'MaterialIcons'),
-      type: typeStr.contains('income') ? TransactionType.income : TransactionType.expense,
+      id: json['id'] ?? '',
+      name: json['name'] ?? '',
+      icon: IconData(json['icon'] ?? 0, fontFamily: 'MaterialIcons'),
+      type: json['type']?.toString().contains('income') == true 
+          ? TransactionType.income 
+          : TransactionType.expense,
     );
-  }
-  
-  String? _extractJsonValue(String json, String key) {
-    final pattern = '"$key"\s*:\s*"?([^,"\n}]+)"?[,\n}]';
-    final regExp = RegExp(pattern);
-    final match = regExp.firstMatch(json);
-    if (match != null && match.groupCount >= 1) {
-      // Remove any trailing quotes or commas
-      return match.group(1)?.replaceAll('"', '').trim();
-    }
-    return null;
   }
 }
