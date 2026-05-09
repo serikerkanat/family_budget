@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "879491336934",
+    "project_id": "family-budget-flutter-2c3cf",
+    "storage_bucket": "family-budget-flutter-2c3cf.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:879491336934:android:4f8cee799b608a31e8c927",
+        "android_client_info": {
+          "package_name": "com.example.family_budget_flutter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA6mHZZLDhHJC-O5RI9Jg-qEo7_uAKOSGU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
