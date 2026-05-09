@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/transaction_model.dart';
+import '../models/category_model.dart';
 
 class TransactionDetailsPage extends StatelessWidget {
   final TransactionModel transaction;

@@ -1,4 +1,4 @@
-// main.dart - Firebase версия
+// main_simple.dart - Версия только с Firebase
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -126,7 +126,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
-  late List<TransactionModel> _transactions = [];
+  List<TransactionModel> _transactions = [];
   double _totalIncome = 0;
   double _totalExpense = 0;
   late TabController _tabController;
@@ -565,7 +565,6 @@ class _TransactionCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
             gradient: LinearGradient(
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
@@ -611,8 +610,8 @@ class _TransactionCard extends StatelessWidget {
                     Text(
                       transaction.title,
                       style: const TextStyle(
-                        fontWeight: FontWeight.w700,
                         fontSize: 16,
+                        fontWeight: FontWeight.w700,
                         color: Color(0xFF1A1A1A),
                       ),
                       maxLines: 1,
@@ -646,28 +645,10 @@ class _TransactionCard extends StatelessWidget {
                           ),
                         ),
                       ],
-                    ),
-                    if (transaction.notes?.isNotEmpty ?? false) ...[
-                      const SizedBox(height: 6),
-                      Text(
-                        transaction.notes!,
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 12,
-                          fontStyle: FontStyle.italic,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
                     ],
-                  ],
-                ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
+                  ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
                       color: isIncome 
                           ? const Color(0xFF10B981).withOpacity(0.1)
@@ -686,7 +667,7 @@ class _TransactionCard extends StatelessWidget {
                   if (transaction.receiptImagePath != null) ...[
                     const SizedBox(height: 6),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: Colors.blue[50],
                         borderRadius: BorderRadius.circular(8),
@@ -699,7 +680,7 @@ class _TransactionCard extends StatelessWidget {
                             size: 12,
                             color: Colors.blue[700],
                           ),
-                          const SizedBox(width: 3),
+                          const SizedBox(width: 4),
                           Text(
                             'Receipt',
                             style: TextStyle(
@@ -736,7 +717,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   final _notesController = TextEditingController();
 
   TransactionType _type = TransactionType.expense;
-  String _selectedCategoryId = 'salary';
+  String _selectedCategoryId = 'other';
   String? _receiptImagePath;
   final ImagePicker _picker = ImagePicker();
   bool _isLoading = false;
@@ -744,7 +725,6 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   @override
   void initState() {
     super.initState();
-    // Initialize with income categories first to show all categories
     _updateSelectedCategory();
   }
 
@@ -913,7 +893,11 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                                   end: Alignment.bottomRight,
                                   colors: [const Color(0xFFEF4444), const Color(0xFFDC2626)],
                                 )
-                              : null,
+                              : LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [const Color(0xFF10B981), const Color(0xFF059669)],
+                                ),
                           color: _type == TransactionType.expense ? null : Colors.transparent,
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -952,7 +936,11 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                                   end: Alignment.bottomRight,
                                   colors: [const Color(0xFF10B981), const Color(0xFF059669)],
                                 )
-                              : null,
+                              : LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [const Color(0xFFEF4444), const Color(0xFFDC2626)],
+                                ),
                           color: _type == TransactionType.income ? null : Colors.transparent,
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -992,6 +980,10 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                   labelText: 'Title',
                   hintText: 'e.g. Groceries, Salary, etc.',
                   prefixIcon: Icon(Icons.title),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide(color: Colors.grey[300]!),
+                  ),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
@@ -1023,7 +1015,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: Colors.grey,
+                      color: Color(0xFF6B7280),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -1033,38 +1025,35 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                       height: 120,
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.grey[300]!,
-                          width: 1,
-                        ),
+                        border: Border.all(color: Colors.grey[300]!),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: _receiptImagePath == null
                           ? Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.receipt,
-                            size: 40,
-                            color: Colors.grey[400],
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Tap to add receipt',
-                            style: TextStyle(
-                              color: Colors.grey[500],
-                            ),
-                          ),
-                        ],
-                      )
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                    Icon(
+                                      Icons.receipt,
+                                      size: 40,
+                                      color: Colors.grey[400],
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'Tap to add receipt',
+                                      style: TextStyle(
+                                        color: Colors.grey[500],
+                                      ),
+                                    ),
+                                  ],
+                            )
                           : ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.file(
-                          File(_receiptImagePath!),
-                          fit: BoxFit.cover,
-                        ),
+                              borderRadius: BorderRadius.circular(12),
+                              child: Image.file(
+                                File(_receiptImagePath!),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
                       ),
-                    ),
                   ),
                 ],
               ),
@@ -1077,8 +1066,12 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                   labelText: 'Notes (Optional)',
                   hintText: 'Add any additional notes...',
                   prefixIcon: Icon(Icons.notes),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide(color: Colors.grey[300]!),
+                  ),
+                  maxLines: 3,
                 ),
-                maxLines: 3,
               ),
               const SizedBox(height: 24),
 
@@ -1086,6 +1079,14 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
               ElevatedButton(
                 onPressed: _submitForm,
                 child: const Text('Save Transaction'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF10B981),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 24),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
               ),
               const SizedBox(height: 16),
             ],

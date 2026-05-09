@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
 import '../models/transaction_model.dart';
-import '../services/local_storage_service.dart';
+import '../models/category_model.dart';
+import '../services/firestore_service.dart';
 
 class AnalyticsPage extends StatefulWidget {
   const AnalyticsPage({super.key});
@@ -11,7 +13,6 @@ class AnalyticsPage extends StatefulWidget {
 }
 
 class _AnalyticsPageState extends State<AnalyticsPage> {
-  final LocalStorageService _storage = LocalStorageService();
   List<TransactionModel> _transactions = [];
   bool _isLoading = true;
 
@@ -22,9 +23,14 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
   }
 
   Future<void> _loadTransactions() async {
-    _transactions = _storage.getTransactions();
-    setState(() {
-      _isLoading = false;
+    final transactionsStream = FirestoreService.getTransactions();
+    transactionsStream.listen((transactions) {
+      if (mounted) {
+        setState(() {
+          _transactions = transactions;
+          _isLoading = false;
+        });
+      }
     });
   }
 
