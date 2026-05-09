@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'user_service.dart';
 
 class AuthService {
   static final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -19,6 +20,10 @@ class AuthService {
         email: email, 
         password: password
       );
+      
+      // Create user document in Firestore
+      await UserService.createUserDocument();
+      
       return result;
     } on FirebaseAuthException catch (e) {
       throw _getErrorMessage(e);
@@ -37,6 +42,10 @@ class AuthService {
         email: email, 
         password: password
       );
+      
+      // Update user document (create if doesn't exist)
+      await UserService.createUserDocument();
+      
       return result;
     } on FirebaseAuthException catch (e) {
       throw _getErrorMessage(e);

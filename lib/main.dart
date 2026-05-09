@@ -17,6 +17,7 @@ import 'pages/transaction_details_page.dart';
 import 'pages/settings_page.dart';
 import 'pages/analytics_page.dart';
 import 'pages/auth_page.dart';
+import 'pages/family_management_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -175,6 +176,34 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         title: const Text('Family Budget'),
         backgroundColor: Colors.transparent,
         actions: [
+          IconButton(
+            icon: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Icon(
+                Icons.family_restroom,
+                color: Colors.grey[700],
+                size: 20,
+              ),
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const FamilyManagementPage()),
+              );
+            },
+            tooltip: 'Family Management',
+          ),
           IconButton(
             icon: Container(
               padding: const EdgeInsets.all(8),
