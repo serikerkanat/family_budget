@@ -5,6 +5,9 @@ import '../models/transaction_model.dart';
 import '../models/category_model.dart';
 import '../services/family_service.dart';
 import '../services/user_service.dart';
+import '../services/bank_notification_parser.dart';
+import '../services/notification_permission_service.dart';
+import '../services/transaction_deduplication_service.dart';
 
 class FirestoreService {
   static final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -81,7 +84,75 @@ class FirestoreService {
     
     await _db.collection('transactions').doc(id).delete();
   }
-  
+
+  // Add transaction from notification
+  static Future<void> addTransactionFromNotification(
+    ParsedTransaction parsedTransaction,
+  ) async {
+    final familyId = await UserService.getUserFamilyId();
+    if (familyId == null) throw Exception('User not in family');
+
+    // Check if notification tracking is enabled
+    final isTrackingEnabled = await NotificationPermissionService.isNotificationTrackingEnabled();
+    if (!isTrackingEnabled) return;
+
+    // Get settings to check if bank is enabled
+    final settings = await NotificationPermissionService.getNotificationSettings();
+    if (settings != null && !settings.enabledBanks.contains(parsedTransaction.bankName)) {
+      return;
+    }
+
+    // Suggest category
+    final categoryId = BankNotificationParser.suggestCategory(parsedTransaction);
+
+    // Create transaction
+    final transaction = parsedTransaction.toTransactionModel(categoryId).copyWith(
+      source: TransactionSource.notification,
+      bankName: parsedTransaction.bankName,
+      rawNotificationText: '${parsedTransaction.rawTitle}\n${parsedTransaction.rawText}',
+    );
+
+    // Try to merge with existing manual transaction
+    final merged = await TransactionDeduplicationService.mergeWithNotification(transaction);
+    if (merged) {
+      // Successfully merged with existing transaction
+      await NotificationPermissionService.updateLastSync();
+      return;
+    }
+
+    // Check for exact duplicates
+    final existingTransaction = await TransactionDeduplicationService.findDuplicate(transaction);
+    if (existingTransaction != null) {
+      // Update existing transaction instead of creating duplicate
+      await _db.collection('transactions').doc(existingTransaction.id).update({
+        'bankName': transaction.bankName,
+        'rawNotificationText': transaction.rawNotificationText,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    } else {
+      // Add new transaction
+      await _db.collection('transactions').add({
+        'id': transaction.id,
+        'title': transaction.title,
+        'amount': transaction.amount,
+        'date': transaction.date.toIso8601String(),
+        'type': transaction.type.toString(),
+        'categoryId': transaction.categoryId,
+        'receiptImagePath': transaction.receiptImagePath,
+        'notes': transaction.notes,
+        'source': transaction.source.toString(),
+        'bankName': transaction.bankName,
+        'rawNotificationText': transaction.rawNotificationText,
+        'familyId': familyId,
+        'createdBy': currentUserId,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+    }
+
+    // Update last sync timestamp
+    await NotificationPermissionService.updateLastSync();
+  }
+
   // Get default categories
   static List<Category> getDefaultCategories() => defaultCategories;
   

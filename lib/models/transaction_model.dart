@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 enum TransactionType { income, expense }
 
+enum TransactionSource { manual, notification, import }
+
 class TransactionModel {
   final String id;
   final String title;
@@ -11,6 +13,9 @@ class TransactionModel {
   final String categoryId;
   final String? receiptImagePath;
   final String? notes;
+  final TransactionSource source;
+  final String? bankName;
+  final String? rawNotificationText;
 
   TransactionModel({
     required this.id,
@@ -21,6 +26,9 @@ class TransactionModel {
     required this.categoryId,
     this.receiptImagePath,
     this.notes,
+    this.source = TransactionSource.manual,
+    this.bankName,
+    this.rawNotificationText,
   });
 
   TransactionModel copyWith({
@@ -32,6 +40,9 @@ class TransactionModel {
     String? categoryId,
     String? receiptImagePath,
     String? notes,
+    TransactionSource? source,
+    String? bankName,
+    String? rawNotificationText,
   }) {
     return TransactionModel(
       id: id ?? this.id,
@@ -42,6 +53,9 @@ class TransactionModel {
       categoryId: categoryId ?? this.categoryId,
       receiptImagePath: receiptImagePath ?? this.receiptImagePath,
       notes: notes ?? this.notes,
+      source: source ?? this.source,
+      bankName: bankName ?? this.bankName,
+      rawNotificationText: rawNotificationText ?? this.rawNotificationText,
     );
   }
 
@@ -55,6 +69,9 @@ class TransactionModel {
       'categoryId': categoryId,
       'receiptImagePath': receiptImagePath,
       'notes': notes,
+      'source': source.toString(),
+      'bankName': bankName,
+      'rawNotificationText': rawNotificationText,
     };
   }
 
@@ -70,6 +87,13 @@ class TransactionModel {
       categoryId: json['categoryId'] ?? 'other',
       receiptImagePath: json['receiptImagePath'],
       notes: json['notes'],
+      source: json['source']?.toString().contains('notification') == true
+          ? TransactionSource.notification
+          : json['source']?.toString().contains('import') == true
+              ? TransactionSource.import
+              : TransactionSource.manual,
+      bankName: json['bankName'],
+      rawNotificationText: json['rawNotificationText'],
     );
   }
 }

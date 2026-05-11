@@ -12,12 +12,15 @@ import 'models/transaction_model.dart';
 import 'models/category_model.dart';
 import 'services/auth_service.dart';
 import 'services/firestore_service.dart';
+import 'services/permission_service.dart';
+import 'services/auto_transaction_service.dart';
 import 'widgets/category_selector.dart';
 import 'pages/transaction_details_page.dart';
 import 'pages/settings_page.dart';
 import 'pages/analytics_page.dart';
 import 'pages/auth_page.dart';
 import 'pages/family_management_page.dart';
+import 'pages/notification_settings_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -138,6 +141,15 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   void initState() {
     super.initState();
     _tabController = TabController(length: _tabs.length, vsync: this);
+    // Start auto transaction service
+    AutoTransactionService.start();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    AutoTransactionService.stop();
+    super.dispose();
   }
 
   void _calculateTotals() {
@@ -203,6 +215,34 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               );
             },
             tooltip: 'Family Management',
+          ),
+          IconButton(
+            icon: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Icon(
+                Icons.notifications_active,
+                color: Colors.grey[700],
+                size: 20,
+              ),
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const NotificationSettingsPage()),
+              );
+            },
+            tooltip: 'Notification Settings',
           ),
           IconButton(
             icon: Container(
@@ -497,68 +537,81 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 
   Widget _buildTransactionList() {
-    return ListView.builder(
-      padding: const EdgeInsets.only(top: 8, bottom: 100),
-      itemCount: _filteredTransactions.length,
-      itemBuilder: (context, index) {
-        final tx = _filteredTransactions[index];
-        final category = defaultCategories.firstWhere(
-              (cat) => cat.id == tx.categoryId,
-          orElse: () => defaultCategories.last,
-        );
+    return FutureBuilder<bool>(
+      future: PermissionService.canDeleteTransactions(),
+      builder: (context, snapshot) {
+        final canDelete = snapshot.data ?? false;
+        
+        return ListView.builder(
+          padding: const EdgeInsets.only(top: 8, bottom: 100),
+          itemCount: _filteredTransactions.length,
+          itemBuilder: (context, index) {
+            final tx = _filteredTransactions[index];
+            final category = defaultCategories.firstWhere(
+                  (cat) => cat.id == tx.categoryId,
+              orElse: () => defaultCategories.last,
+            );
 
-        return Dismissible(
-          key: Key(tx.id),
-          direction: DismissDirection.endToStart,
-          background: Container(
-            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-            padding: const EdgeInsets.only(right: 20),
-            decoration: BoxDecoration(
-              color: Colors.red,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            alignment: Alignment.centerRight,
-            child: const Icon(Icons.delete, color: Colors.white),
-          ),
-          confirmDismiss: (direction) async {
-            return await showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: const Text('Delete Transaction'),
-                content: const Text('Are you sure you want to delete this transaction?'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(false),
-                    child: const Text('Cancel'),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(true),
-                    style: TextButton.styleFrom(
-                      foregroundColor: Colors.red,
+            final card = _TransactionCard(
+              transaction: tx,
+              category: category,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => TransactionDetailsPage(
+                      transaction: tx,
+                      category: category,
+                      onDelete: canDelete ? () => _deleteTransaction(tx.id) : () {},
                     ),
-                    child: const Text('Delete'),
                   ),
-                ],
+                );
+              },
+            );
+
+            if (!canDelete) {
+              return card;
+            }
+
+            return Dismissible(
+              key: Key(tx.id),
+              direction: DismissDirection.endToStart,
+              background: Container(
+                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                padding: const EdgeInsets.only(right: 20),
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                alignment: Alignment.centerRight,
+                child: const Icon(Icons.delete, color: Colors.white),
               ),
+              confirmDismiss: (direction) async {
+                return await showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Delete Transaction'),
+                    content: const Text('Are you sure you want to delete this transaction?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.red,
+                        ),
+                        child: const Text('Delete'),
+                      ),
+                    ],
+                  ),
+                );
+              },
+              onDismissed: (direction) => _deleteTransaction(tx.id),
+              child: card,
             );
           },
-          onDismissed: (direction) => _deleteTransaction(tx.id),
-          child: _TransactionCard(
-            transaction: tx,
-            category: category,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => TransactionDetailsPage(
-                    transaction: tx,
-                    category: category,
-                    onDelete: () => _deleteTransaction(tx.id),
-                  ),
-                ),
-              );
-            },
-          ),
         );
       },
     );
