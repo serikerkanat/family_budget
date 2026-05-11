@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../services/family_service.dart';
 import '../services/auth_service.dart';
 import '../services/user_service.dart';
+import '../services/permission_service.dart';
+import '../models/role_model.dart';
 
 class FamilyManagementPage extends StatefulWidget {
   const FamilyManagementPage({super.key});
@@ -17,6 +19,7 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
   bool _isInFamily = false;
   Map<String, dynamic>? _currentFamily;
   List<Map<String, dynamic>> _familyMembers = [];
+  UserRole? _selectedRole;
   
   final _familyNameController = TextEditingController();
   final _joinCodeController = TextEditingController();
@@ -100,14 +103,23 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
       return;
     }
 
+    if (_selectedRole == null) {
+      _showErrorSnackBar('Please select your role');
+      return;
+    }
+
     setState(() => _isLoading = true);
     
     try {
-      final success = await FamilyService.joinFamily(_joinCodeController.text.trim());
+      final success = await FamilyService.joinFamily(
+        _joinCodeController.text.trim(),
+        role: _selectedRole!,
+      );
       
       if (success) {
-        _showSuccessSnackBar('Successfully joined the family!');
+        _showSuccessSnackBar('Successfully joined the family as ${_selectedRole!.displayName}!');
         _joinCodeController.clear();
+        _selectedRole = null;
         await _checkFamilyStatus();
       } else {
         _showErrorSnackBar('Invalid family code. Please check and try again.');
@@ -146,6 +158,85 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
 
     await Clipboard.setData(ClipboardData(text: code));
     _showSuccessSnackBar('Family code copied to clipboard!');
+  }
+
+  Future<void> _changeMemberRole(String memberId, String currentRole) async {
+    final canManage = await PermissionService.canManageFamily();
+    if (!canManage) {
+      _showErrorSnackBar('Only parents can change member roles');
+      return;
+    }
+
+    final newRole = await showDialog<UserRole>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Change Role'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: const Text('Parent'),
+              leading: Radio<UserRole>(
+                value: UserRole.parent,
+                groupValue: currentRole == 'parent' || currentRole == 'owner' 
+                    ? UserRole.parent 
+                    : null,
+                onChanged: (value) => Navigator.pop(context, value),
+              ),
+            ),
+            ListTile(
+              title: const Text('Child'),
+              leading: Radio<UserRole>(
+                value: UserRole.child,
+                groupValue: currentRole == 'child' || currentRole == 'member' 
+                    ? UserRole.child 
+                    : null,
+                onChanged: (value) => Navigator.pop(context, value),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+        ],
+      ),
+    );
+
+    if (newRole != null) {
+      try {
+        await FamilyService.updateMemberRole(memberId, newRole);
+        _showSuccessSnackBar('Role updated successfully');
+        await _checkFamilyStatus();
+      } catch (e) {
+        _showErrorSnackBar('Error updating role: $e');
+      }
+    }
+  }
+
+  Future<void> _removeMember(String memberId, String memberEmail) async {
+    final canManage = await PermissionService.canManageFamily();
+    if (!canManage) {
+      _showErrorSnackBar('Only parents can remove members');
+      return;
+    }
+
+    final confirmed = await _showConfirmDialog(
+      'Remove Member',
+      'Are you sure you want to remove $memberEmail from the family?',
+    );
+
+    if (!confirmed) return;
+
+    try {
+      await FamilyService.removeMember(memberId);
+      _showSuccessSnackBar('Member removed successfully');
+      await _checkFamilyStatus();
+    } catch (e) {
+      _showErrorSnackBar('Error removing member: $e');
+    }
   }
 
   void _showErrorSnackBar(String message) {
@@ -278,6 +369,41 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
                       textCapitalization: TextCapitalization.characters,
                     ),
                     const SizedBox(height: 16),
+                    const Text(
+                      'Select your role:',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: RadioListTile<UserRole>(
+                            title: const Text('Parent'),
+                            subtitle: const Text('Full access', style: TextStyle(fontSize: 12)),
+                            value: UserRole.parent,
+                            groupValue: _selectedRole,
+                            onChanged: (value) {
+                              setState(() => _selectedRole = value);
+                            },
+                          ),
+                        ),
+                        Expanded(
+                          child: RadioListTile<UserRole>(
+                            title: const Text('Child'),
+                            subtitle: const Text('Limited access', style: TextStyle(fontSize: 12)),
+                            value: UserRole.child,
+                            groupValue: _selectedRole,
+                            onChanged: (value) {
+                              setState(() => _selectedRole = value);
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -394,24 +520,89 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
                     if (_familyMembers.isEmpty)
                       const Text('No members found')
                     else
-                      ..._familyMembers.map((member) => ListTile(
-                        leading: CircleAvatar(
-                          child: Icon(Icons.person),
-                        ),
-                        title: Text(member['email'] ?? 'Unknown'),
-                        subtitle: Text(
-                          member['role'] == 'owner' ? 'Family Owner' : 'Family Member',
-                          style: TextStyle(
-                            color: member['role'] == 'owner' 
-                                ? Colors.green 
-                                : Colors.grey[600],
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        trailing: member['id'] == FirebaseAuth.instance.currentUser?.uid
-                            ? const Icon(Icons.star, color: Colors.amber)
-                            : null,
-                      )),
+                      FutureBuilder<bool>(
+                        future: PermissionService.canManageFamily(),
+                        builder: (context, snapshot) {
+                          final canManage = snapshot.data ?? false;
+                          
+                          return Column(
+                            children: _familyMembers.map((member) {
+                              final isCurrentUser = member['id'] == FirebaseAuth.instance.currentUser?.uid;
+                              final role = member['role'] as String?;
+                              final isParent = role == 'parent' || role == 'owner';
+                              
+                              return ListTile(
+                                leading: CircleAvatar(
+                                  child: Icon(isParent ? Icons.admin_panel_settings : Icons.person),
+                                  backgroundColor: isParent ? Colors.amber[100] : Colors.grey[200],
+                                ),
+                                title: Text(member['email'] ?? 'Unknown'),
+                                subtitle: Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: isParent 
+                                            ? Colors.green.withOpacity(0.1)
+                                            : Colors.blue.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Text(
+                                        isParent ? 'Parent' : 'Child',
+                                        style: TextStyle(
+                                          color: isParent ? Colors.green : Colors.blue,
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                    if (isCurrentUser) ...[
+                                      const SizedBox(width: 8),
+                                      const Icon(Icons.star, size: 14, color: Colors.amber),
+                                    ],
+                                  ],
+                                ),
+                                trailing: canManage && !isCurrentUser
+                                    ? PopupMenuButton<String>(
+                                        icon: const Icon(Icons.more_vert),
+                                        onSelected: (value) async {
+                                          if (value == 'change_role') {
+                                            await _changeMemberRole(member['id'], role ?? '');
+                                          } else if (value == 'remove') {
+                                            await _removeMember(member['id'], member['email'] ?? 'Unknown');
+                                          }
+                                        },
+                                        itemBuilder: (context) => [
+                                          const PopupMenuItem(
+                                            value: 'change_role',
+                                            child: Row(
+                                              children: [
+                                                Icon(Icons.swap_horiz),
+                                                SizedBox(width: 8),
+                                                Text('Change Role'),
+                                              ],
+                                            ),
+                                          ),
+                                          const PopupMenuItem(
+                                            value: 'remove',
+                                            child: Row(
+                                              children: [
+                                                Icon(Icons.person_remove, color: Colors.red),
+                                                SizedBox(width: 8),
+                                                Text('Remove', style: TextStyle(color: Colors.red)),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    : isCurrentUser
+                                        ? const Icon(Icons.star, color: Colors.amber)
+                                        : null,
+                              );
+                            }).toList(),
+                          );
+                        },
+                      ),
                   ],
                 ),
               ),

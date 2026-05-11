@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:uuid/uuid.dart';
 import '../models/transaction_model.dart';
 import '../models/category_model.dart';
 import '../services/firestore_service.dart';
+import '../services/prediction_service.dart';
 
 class AnalyticsPage extends StatefulWidget {
   const AnalyticsPage({super.key});
@@ -15,6 +15,8 @@ class AnalyticsPage extends StatefulWidget {
 class _AnalyticsPageState extends State<AnalyticsPage> {
   List<TransactionModel> _transactions = [];
   bool _isLoading = true;
+  ForecastResult? _forecast;
+  DateTime? _nextPayday;
 
   @override
   void initState() {
@@ -30,8 +32,37 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
           _transactions = transactions;
           _isLoading = false;
         });
+        _generateForecast();
       }
     });
+  }
+
+  Future<void> _generateForecast() async {
+    final totalIncome = _transactions
+        .where((t) => t.type == TransactionType.income)
+        .fold(0.0, (sum, t) => sum + t.amount);
+    
+    final totalExpense = _transactions
+        .where((t) => t.type == TransactionType.expense)
+        .fold(0.0, (sum, t) => sum + t.amount);
+    
+    final balance = totalIncome - totalExpense;
+    
+    // Set next payday to 30 days from now (this could be user-configurable)
+    _nextPayday = DateTime.now().add(const Duration(days: 30));
+    
+    final forecast = await PredictionService.generateForecast(
+      transactions: _transactions,
+      currentBalance: balance,
+      nextPayday: _nextPayday!,
+      analysisMonths: 6,
+    );
+    
+    if (mounted) {
+      setState(() {
+        _forecast = forecast;
+      });
+    }
   }
 
   Map<String, double> _getCategoryData(TransactionType type) {
@@ -145,6 +176,12 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
             ),
             const SizedBox(height: 24),
 
+            // AI Forecast
+            if (_forecast != null) ...[
+              _buildForecastCard(),
+              const SizedBox(height: 24),
+            ],
+
             // Category Breakdown
             if (expenseCategories.isNotEmpty) ...[
               _buildSectionTitle('Expense Categories'),
@@ -241,6 +278,195 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
               fontWeight: FontWeight.w700,
               color: isBalance ? color : Colors.black87,
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildForecastCard() {
+    if (_forecast == null) return const SizedBox.shrink();
+    
+    final isWarning = _forecast!.daysUntilBudgetDepleted >= 0 && 
+                      _forecast!.daysUntilBudgetDepleted < 7;
+    final isGood = _forecast!.daysUntilBudgetDepleted > 
+                   (_nextPayday?.difference(DateTime.now()).inDays ?? 30);
+    
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: isWarning
+              ? [const Color(0xFFFEE2E2), const Color(0xFFFECACA)]
+              : isGood
+                  ? [const Color(0xFFD1FAE5), const Color(0xFFA7F3D0)]
+                  : [const Color(0xFFDBEAFE), const Color(0xFFBFDBFE)],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: (isWarning ? const Color(0xFFEF4444) : 
+                   isGood ? const Color(0xFF10B981) : 
+                   const Color(0xFF3B82F6)).withOpacity(0.2),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  isWarning ? Icons.warning_amber_rounded : 
+                  isGood ? Icons.check_circle_rounded : 
+                  Icons.info_rounded,
+                  color: isWarning ? const Color(0xFFEF4444) : 
+                         isGood ? const Color(0xFF10B981) : 
+                         const Color(0xFF3B82F6),
+                  size: 28,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'AI Forecast',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[700],
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      isWarning ? 'Budget Alert!' : 
+                      isGood ? 'Looking Good!' : 
+                      'On Track',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                        color: isWarning ? const Color(0xFFDC2626) : 
+                               isGood ? const Color(0xFF059669) : 
+                               const Color(0xFF1D4ED8),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  '${_forecast!.probability.toStringAsFixed(0)}%',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: isWarning ? const Color(0xFFDC2626) : 
+                           isGood ? const Color(0xFF059669) : 
+                           const Color(0xFF1D4ED8),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.8),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _forecast!.recommendation,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey[800],
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    _buildForecastStat(
+                      'Daily Spend',
+                      '\$${_forecast!.predictedDailySpend.toStringAsFixed(2)}',
+                      Icons.attach_money,
+                    ),
+                    const SizedBox(width: 16),
+                    _buildForecastStat(
+                      'Days Left',
+                      _forecast!.daysUntilBudgetDepleted >= 0 
+                          ? '${_forecast!.daysUntilBudgetDepleted}'
+                          : '∞',
+                      Icons.calendar_today,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildForecastStat(String label, String value, IconData icon) {
+    return Expanded(
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            size: 16,
+            color: Colors.grey[600],
+          ),
+          const SizedBox(width: 8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: Colors.grey[600],
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF1A1A1A),
+                ),
+              ),
+            ],
           ),
         ],
       ),

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:math';
 import 'user_service.dart';
+import '../models/role_model.dart';
 
 class FamilyService {
   static final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -57,13 +58,13 @@ class FamilyService {
     });
 
     // Update user with familyId using UserService
-    await UserService.updateUserFamily(familyId, 'owner');
+    await UserService.updateUserFamily(familyId, UserRole.parent.value);
 
     return familyCode;
   }
 
-  // Join existing family by code
-  static Future<bool> joinFamily(String familyCode) async {
+  // Join existing family by code with role selection
+  static Future<bool> joinFamily(String familyCode, {UserRole role = UserRole.child}) async {
     final userId = currentUserId;
     if (userId == null) throw Exception('User not authenticated');
 
@@ -101,7 +102,7 @@ class FamilyService {
     });
 
     // Update user with familyId using UserService
-    await UserService.updateUserFamily(familyId, 'member');
+    await UserService.updateUserFamily(familyId, role.value);
 
     return true;
   }
@@ -186,5 +187,49 @@ class FamilyService {
   // Check if user is in family
   static Future<bool> isUserInFamily() async {
     return await UserService.isUserInFamily();
+  }
+
+  // Update member role (only for parents)
+  static Future<void> updateMemberRole(String userId, UserRole newRole) async {
+    final familyId = await UserService.getUserFamilyId();
+    if (familyId == null) throw Exception('User not in family');
+
+    // Check if current user is a parent
+    final currentUserRole = await UserService.getCurrentUserData();
+    final currentRole = currentUserRole?['role'] as String?;
+    if (currentRole != 'parent' && currentRole != 'owner') {
+      throw Exception('Only parents can change member roles');
+    }
+
+    // Update the member's role
+    await _db.collection('users').doc(userId).update({
+      'role': newRole.value,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  // Remove member from family (only for parents)
+  static Future<void> removeMember(String userId) async {
+    final familyId = await UserService.getUserFamilyId();
+    if (familyId == null) throw Exception('User not in family');
+
+    // Check if current user is a parent
+    final currentUserRole = await UserService.getCurrentUserData();
+    final currentRole = currentUserRole?['role'] as String?;
+    if (currentRole != 'parent' && currentRole != 'owner') {
+      throw Exception('Only parents can remove members');
+    }
+
+    // Remove user from family members
+    await _familiesRef.doc(familyId).update({
+      'members': FieldValue.arrayRemove([userId]),
+    });
+
+    // Remove familyId from user
+    await _db.collection('users').doc(userId).update({
+      'familyId': FieldValue.delete(),
+      'role': FieldValue.delete(),
+      'joinedAt': FieldValue.delete(),
+    });
   }
 }
