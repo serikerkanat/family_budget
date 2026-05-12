@@ -20,7 +20,9 @@ import 'pages/settings_page.dart';
 import 'pages/analytics_page.dart';
 import 'pages/auth_page.dart';
 import 'pages/family_management_page.dart';
+import 'pages/budget_management_page.dart';
 import 'pages/notification_settings_page.dart';
+import 'pages/recurring_payments_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -231,6 +233,34 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 ],
               ),
               child: Icon(
+                Icons.account_balance_wallet,
+                color: Colors.grey[700],
+                size: 20,
+              ),
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const BudgetManagementPage()),
+              );
+            },
+            tooltip: 'Budget Management',
+          ),
+          IconButton(
+            icon: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Icon(
                 Icons.notifications_active,
                 color: Colors.grey[700],
                 size: 20,
@@ -242,7 +272,35 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 MaterialPageRoute(builder: (_) => const NotificationSettingsPage()),
               );
             },
-            tooltip: 'Notification Settings',
+            tooltip: 'Notifications',
+          ),
+          IconButton(
+            icon: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Icon(
+                Icons.repeat,
+                color: Colors.grey[700],
+                size: 20,
+              ),
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const RecurringPaymentsPage()),
+              );
+            },
+            tooltip: 'Recurring Payments',
           ),
           IconButton(
             icon: Container(
@@ -270,6 +328,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 MaterialPageRoute(builder: (_) => const AnalyticsPage()),
               );
             },
+            tooltip: 'Analytics',
           ),
           IconButton(
             icon: Container(

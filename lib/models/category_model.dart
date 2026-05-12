@@ -6,12 +6,14 @@ class Category {
   final String name;
   final IconData icon;
   final TransactionType type;
+  final Color color;
 
   const Category({
     required this.id,
     required this.name,
     required this.icon,
     required this.type,
+    required this.color,
   });
 
   Category copyWith({
@@ -19,12 +21,14 @@ class Category {
     String? name,
     IconData? icon,
     TransactionType? type,
+    Color? color,
   }) {
     return Category(
       id: id ?? this.id,
       name: name ?? this.name,
       icon: icon ?? this.icon,
       type: type ?? this.type,
+      color: color ?? this.color,
     );
   }
 
@@ -34,7 +38,30 @@ class Category {
       'name': name,
       'icon': icon.codePoint,
       'type': type.toString(),
+      'color': color.value,
     };
+  }
+
+  Map<String, dynamic> toFirestore() {
+    return {
+      'id': id,
+      'name': name,
+      'icon': icon.codePoint,
+      'type': type.toString(),
+      'color': color.value,
+    };
+  }
+
+  factory Category.fromFirestore(Map<String, dynamic> data) {
+    return Category(
+      id: data['id'] ?? '',
+      name: data['name'] ?? '',
+      icon: IconData(data['icon'] ?? 0, fontFamily: 'MaterialIcons'),
+      type: data['type']?.toString().contains('income') == true 
+          ? TransactionType.income 
+          : TransactionType.expense,
+      color: Color(data['color'] ?? 0xFFE53935),
+    );
   }
 
   factory Category.fromJson(Map<String, dynamic> json) {
@@ -45,97 +72,96 @@ class Category {
       type: json['type']?.toString().contains('income') == true 
           ? TransactionType.income 
           : TransactionType.expense,
+      color: Color(json['color'] ?? 0xFFE53935),
     );
   }
 }
 
-// Default categories
-final List<Category> defaultCategories = [
-  // Income categories
-  const Category(
-    id: 'salary',
-    name: 'Salary',
-    icon: Icons.work,
-    type: TransactionType.income,
-  ),
-  const Category(
-    id: 'freelance',
-    name: 'Freelance',
-    icon: Icons.laptop_mac,
-    type: TransactionType.income,
-  ),
-  const Category(
-    id: 'investment',
-    name: 'Investment',
-    icon: Icons.trending_up,
-    type: TransactionType.income,
-  ),
-  const Category(
-    id: 'gift',
-    name: 'Gift',
-    icon: Icons.card_giftcard,
-    type: TransactionType.income,
-  ),
-  const Category(
-    id: 'other_income',
-    name: 'Other Income',
-    icon: Icons.add_circle,
-    type: TransactionType.income,
-  ),
-  
-  // Expense categories
-  const Category(
-    id: 'food',
-    name: 'Food & Dining',
-    icon: Icons.restaurant,
+// Default categories with colors
+const List<Category> defaultCategories = [
+  Category(
+    id: 'groceries',
+    name: 'Продукты',
+    icon: Icons.shopping_cart,
     type: TransactionType.expense,
+    color: Color(0xFFE53935),
   ),
-  const Category(
+  Category(
     id: 'transport',
-    name: 'Transportation',
+    name: 'Транспорт',
     icon: Icons.directions_car,
     type: TransactionType.expense,
+    color: Color(0xFF3B82F6),
   ),
-  const Category(
-    id: 'shopping',
-    name: 'Shopping',
-    icon: Icons.shopping_bag,
+  Category(
+    id: 'utilities',
+    name: 'Коммунальные услуги',
+    icon: Icons.lightbulb,
     type: TransactionType.expense,
+    color: Color(0xFFF59E0B),
   ),
-  const Category(
+  Category(
     id: 'entertainment',
-    name: 'Entertainment',
+    name: 'Развлечения',
     icon: Icons.movie,
     type: TransactionType.expense,
+    color: Color(0xFF9C27B0),
   ),
-  const Category(
-    id: 'bills',
-    name: 'Bills & Utilities',
-    icon: Icons.receipt,
-    type: TransactionType.expense,
-  ),
-  const Category(
+  Category(
     id: 'healthcare',
-    name: 'Healthcare',
+    name: 'Здоровье',
     icon: Icons.local_hospital,
     type: TransactionType.expense,
+    color: Color(0xFFE91E63),
   ),
-  const Category(
+  Category(
     id: 'education',
-    name: 'Education',
+    name: 'Образование',
     icon: Icons.school,
     type: TransactionType.expense,
+    color: Color(0xFF2196F3),
   ),
-  const Category(
-    id: 'travel',
-    name: 'Travel',
-    icon: Icons.flight,
-    type: TransactionType.expense,
-  ),
-  const Category(
+  Category(
     id: 'other',
-    name: 'Other',
+    name: 'Другое',
     icon: Icons.more_horiz,
     type: TransactionType.expense,
+    color: Color(0xFF607D8B),
+  ),
+  // Income categories
+  Category(
+    id: 'salary',
+    name: 'Зарплата',
+    icon: Icons.attach_money,
+    type: TransactionType.income,
+    color: Color(0xFF4CAF50),
+  ),
+  Category(
+    id: 'freelance',
+    name: 'Фриланс',
+    icon: Icons.work,
+    type: TransactionType.income,
+    color: Color(0xFF2196F3),
+  ),
+  Category(
+    id: 'investment',
+    name: 'Инвестиции',
+    icon: Icons.trending_up,
+    type: TransactionType.income,
+    color: Color(0xFF9C27B0),
+  ),
+  Category(
+    id: 'gift',
+    name: 'Подарки',
+    icon: Icons.card_giftcard,
+    type: TransactionType.income,
+    color: Color(0xFFFF9800),
+  ),
+  Category(
+    id: 'other_income',
+    name: 'Другой доход',
+    icon: Icons.add_circle,
+    type: TransactionType.income,
+    color: Color(0xFF795548),
   ),
 ];

@@ -5,6 +5,7 @@ import '../models/transaction_model.dart';
 import '../models/category_model.dart';
 import '../services/family_service.dart';
 import '../services/user_service.dart';
+import '../services/budget_service.dart';
 import '../services/bank_notification_parser.dart';
 import '../services/notification_permission_service.dart';
 import '../services/transaction_deduplication_service.dart';
@@ -40,11 +41,11 @@ class FirestoreService {
     );
   }
   
-  // Add transaction with familyId
+  // Add transaction
   static Future<void> addTransaction(TransactionModel transaction) async {
     final familyId = await UserService.getUserFamilyId();
     if (familyId == null) throw Exception('User not in family');
-    
+
     await _db.collection('transactions').add({
       'id': transaction.id,
       'title': transaction.title,
@@ -58,6 +59,14 @@ class FirestoreService {
       'createdBy': currentUserId,
       'createdAt': FieldValue.serverTimestamp(),
     });
+    
+    // Update budget spending if this is an expense transaction
+    if (transaction.type == TransactionType.expense) {
+      await BudgetService.updateBudgetSpending(
+        transaction.categoryId, 
+        transaction.amount,
+      );
+    }
   }
   
   // Update transaction
@@ -185,6 +194,7 @@ class FirestoreService {
       type: data['type']?.toString().contains('income') == true 
           ? TransactionType.income 
           : TransactionType.expense,
+      color: Color(data['color'] ?? 0xFFE53935),
     );
   }
 }
