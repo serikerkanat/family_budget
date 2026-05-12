@@ -35,68 +35,97 @@ class BudgetApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Family Budget',
+      title: 'FamilyBank',
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.green,
+          seedColor: const Color(0xFF1E3A8A),
           brightness: Brightness.light,
         ),
-        scaffoldBackgroundColor: const Color(0xFFF8F9FA),
+        scaffoldBackgroundColor: const Color(0xFFF5F7FA),
         appBarTheme: const AppBarTheme(
           elevation: 0,
           centerTitle: true,
-          backgroundColor: Colors.transparent,
+          backgroundColor: Color(0xFF1E3A8A),
           surfaceTintColor: Colors.transparent,
           titleTextStyle: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF1A1A1A),
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+            letterSpacing: 0.5,
           ),
+          iconTheme: IconThemeData(color: Colors.white),
         ),
         inputDecorationTheme: InputDecorationTheme(
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide(color: Colors.grey[300]!),
+            borderRadius: BorderRadius.circular(8),
+            borderSide: const BorderSide(color: Color(0xFFD1D5DB)),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide(color: Colors.grey[300]!),
+            borderRadius: BorderRadius.circular(8),
+            borderSide: const BorderSide(color: Color(0xFFD1D5DB)),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: Colors.green, width: 2),
+            borderRadius: BorderRadius.circular(8),
+            borderSide: const BorderSide(color: Color(0xFF1E3A8A), width: 2),
           ),
           filled: true,
           fillColor: Colors.white,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           labelStyle: const TextStyle(
             color: Color(0xFF6B7280),
             fontWeight: FontWeight.w500,
+            fontSize: 14,
           ),
-          hintStyle: TextStyle(
-            color: Colors.grey[400],
+          hintStyle: const TextStyle(
+            color: Color(0xFF9CA3AF),
+            fontSize: 14,
           ),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 24),
+            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(8),
             ),
-            elevation: 2,
-            shadowColor: Colors.black.withOpacity(0.1),
+            elevation: 0,
+            backgroundColor: const Color(0xFF1E3A8A),
+            foregroundColor: Colors.white,
             textStyle: const TextStyle(
-              fontSize: 16,
+              fontSize: 15,
               fontWeight: FontWeight.w600,
+              letterSpacing: 0.3,
             ),
           ),
         ),
         cardTheme: CardThemeData(
-          elevation: 4,
-          shadowColor: Colors.black.withOpacity(0.08),
+          elevation: 0,
+          shadowColor: Colors.black.withOpacity(0.05),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(12),
+            side: const BorderSide(color: Color(0xFFE5E7EB), width: 1),
+          ),
+        ),
+        textTheme: const TextTheme(
+          headlineLarge: TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF111827),
+          ),
+          headlineMedium: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF111827),
+          ),
+          bodyLarge: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w400,
+            color: Color(0xFF374151),
+          ),
+          bodyMedium: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+            color: Color(0xFF6B7280),
           ),
         ),
       ),
@@ -185,159 +214,60 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Family Budget'),
-        backgroundColor: Colors.transparent,
+        title: const Text('FamilyBank'),
         actions: [
           IconButton(
-            icon: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Icon(
-                Icons.family_restroom,
-                color: Colors.grey[700],
-                size: 20,
-              ),
-            ),
+            icon: const Icon(Icons.people_outline, size: 22),
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const FamilyManagementPage()),
               );
             },
-            tooltip: 'Family Management',
+            tooltip: 'Family',
           ),
           IconButton(
-            icon: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Icon(
-                Icons.notifications_active,
-                color: Colors.grey[700],
-                size: 20,
-              ),
-            ),
+            icon: const Icon(Icons.notifications_outlined, size: 22),
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const NotificationSettingsPage()),
               );
             },
-            tooltip: 'Notification Settings',
+            tooltip: 'Notifications',
           ),
           IconButton(
-            icon: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Icon(
-                Icons.analytics_outlined,
-                color: Colors.grey[700],
-                size: 20,
-              ),
-            ),
+            icon: const Icon(Icons.bar_chart_outlined, size: 22),
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const AnalyticsPage()),
               );
             },
+            tooltip: 'Analytics',
           ),
           IconButton(
-            icon: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Icon(
-                Icons.settings,
-                color: Colors.grey[700],
-                size: 20,
-              ),
-            ),
+            icon: const Icon(Icons.settings_outlined, size: 22),
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const SettingsPage()),
               );
             },
+            tooltip: 'Settings',
           ),
           IconButton(
-            icon: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Icon(
-                Icons.logout,
-                color: Colors.grey[700],
-                size: 20,
-              ),
-            ),
+            icon: const Icon(Icons.logout, size: 22),
             onPressed: () async {
               await AuthService.signOut();
             },
+            tooltip: 'Sign Out',
           ),
         ],
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(80),
+          preferredSize: const Size.fromHeight(60),
           child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
+            color: const Color(0xFF1E3A8A),
             child: TabBar(
               controller: _tabController,
               tabs: _tabs.map((tab) => Tab(text: tab)).toList(),
@@ -346,11 +276,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   _currentTabIndex = index;
                 });
               },
-              labelColor: const Color(0xFF10B981),
-              unselectedLabelColor: const Color(0xFF6B7280),
+              labelColor: Colors.white,
+              unselectedLabelColor: Colors.white70,
               indicator: UnderlineTabIndicator(
                 borderSide: const BorderSide(
-                  color: Color(0xFF10B981),
+                  color: Colors.white,
                   width: 3,
                 ),
                 insets: const EdgeInsets.symmetric(horizontal: 24),
@@ -358,6 +288,14 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               dividerColor: Colors.transparent,
               splashFactory: NoSplash.splashFactory,
               overlayColor: MaterialStateProperty.all(Colors.transparent),
+              labelStyle: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 15,
+              ),
+              unselectedLabelStyle: const TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 15,
+              ),
             ),
           ),
         ),
@@ -373,13 +311,13 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             await _addTransaction(result);
           }
         },
-        icon: const Icon(Icons.add),
-        label: const Text('Add'),
-        backgroundColor: const Color(0xFF10B981),
+        icon: const Icon(Icons.add_circle_outline),
+        label: const Text('New Transaction'),
+        backgroundColor: const Color(0xFF1E3A8A),
         foregroundColor: Colors.white,
-        elevation: 6,
+        elevation: 4,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(12),
         ),
       ),
 
@@ -428,52 +366,80 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   Widget _buildSummary(double balance) {
     return Container(
-      margin: const EdgeInsets.all(16),
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            const Color(0xFF10B981),
-            const Color(0xFF059669),
+            const Color(0xFF1E3A8A),
+            const Color(0xFF1E40AF),
+            const Color(0xFF2563EB),
           ],
         ),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF10B981).withOpacity(0.3),
+            color: const Color(0xFF1E3A8A).withOpacity(0.25),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
         ],
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Total Balance',
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Total Balance',
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Text(
+                  'FamilyBank',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 1.0,
+                  ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 16),
           Text(
             '\$${balance.toStringAsFixed(2)}',
             style: const TextStyle(
-              fontSize: 42,
-              fontWeight: FontWeight.w800,
+              fontSize: 36,
+              fontWeight: FontWeight.w700,
               color: Colors.white,
-              letterSpacing: 1.2,
+              letterSpacing: 0.5,
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildSummaryItem('Income', _totalIncome, true),
-              _buildSummaryItem('Expense', _totalExpense, false),
+              Expanded(
+                child: _buildSummaryItem('Income', _totalIncome, true),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildSummaryItem('Expense', _totalExpense, false),
+              ),
             ],
           ),
         ],
@@ -482,26 +448,34 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 
   Widget _buildSummaryItem(String label, double amount, bool isIncome) {
-    return Column(
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            color: Colors.white70,
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
           ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          '${isIncome ? '+' : '-'}\$${amount.toStringAsFixed(2)}',
-          style: TextStyle(
-            color: isIncome ? const Color(0xFF86EFAC) : const Color(0xFFFCA5A5),
-            fontWeight: FontWeight.w700,
-            fontSize: 18,
+          const SizedBox(height: 4),
+          Text(
+            '${isIncome ? '+' : '-'}\$${amount.toStringAsFixed(2)}',
+            style: TextStyle(
+              color: isIncome ? const Color(0xFF86EFAC) : const Color(0xFFFCA5A5),
+              fontWeight: FontWeight.w700,
+              fontSize: 16,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -634,54 +608,35 @@ class _TransactionCard extends StatelessWidget {
     final isIncome = transaction.type == TransactionType.income;
     final date = DateFormat('MMM dd, yyyy').format(transaction.date);
 
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      elevation: 3,
-      shadowColor: Colors.black.withOpacity(0.1),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: const Color(0xFFE5E7EB),
+          width: 1,
+        ),
       ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
           padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            gradient: LinearGradient(
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-              colors: [
-                Colors.white,
-                isIncome ? Colors.green.withOpacity(0.02) : Colors.red.withOpacity(0.02),
-              ],
-            ),
-          ),
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(12),
+                width: 48,
+                height: 48,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: isIncome
-                        ? [const Color(0xFF10B981), const Color(0xFF059669)]
-                        : [const Color(0xFFEF4444), const Color(0xFFDC2626)],
-                  ),
-                  borderRadius: BorderRadius.circular(14),
-                  boxShadow: [
-                    BoxShadow(
-                      color: (isIncome ? const Color(0xFF10B981) : const Color(0xFFEF4444))
-                          .withOpacity(0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+                  color: isIncome 
+                      ? const Color(0xFF1E3A8A).withOpacity(0.1)
+                      : const Color(0xFFDC2626).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
                   category.icon,
-                  color: Colors.white,
+                  color: isIncome ? const Color(0xFF1E3A8A) : const Color(0xFFDC2626),
                   size: 24,
                 ),
               ),
@@ -693,29 +648,31 @@ class _TransactionCard extends StatelessWidget {
                     Text(
                       transaction.title,
                       style: const TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 16,
-                        color: Color(0xFF1A1A1A),
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                        color: Color(0xFF111827),
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 4),
                     Row(
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[100],
-                            borderRadius: BorderRadius.circular(8),
+                        Text(
+                          category.name,
+                          style: const TextStyle(
+                            color: Color(0xFF6B7280),
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
                           ),
-                          child: Text(
-                            category.name,
-                            style: TextStyle(
-                              color: Colors.grey[700],
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                            ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          width: 3,
+                          height: 3,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF9CA3AF),
+                            shape: BoxShape.circle,
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -748,50 +705,20 @@ class _TransactionCard extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: isIncome 
-                          ? const Color(0xFF10B981).withOpacity(0.1)
-                          : const Color(0xFFEF4444).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      '${isIncome ? '+' : '-'}\$${transaction.amount.toStringAsFixed(2)}',
-                      style: TextStyle(
-                        color: isIncome ? const Color(0xFF10B981) : const Color(0xFFEF4444),
-                        fontWeight: FontWeight.w700,
-                        fontSize: 16,
-                      ),
+                  Text(
+                    '${isIncome ? '+' : '-'}\$${transaction.amount.toStringAsFixed(2)}',
+                    style: TextStyle(
+                      color: isIncome ? const Color(0xFF1E3A8A) : const Color(0xFFDC2626),
+                      fontWeight: FontWeight.w700,
+                      fontSize: 16,
                     ),
                   ),
                   if (transaction.receiptImagePath != null) ...[
-                    const SizedBox(height: 6),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: Colors.blue[50],
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.receipt,
-                            size: 12,
-                            color: Colors.blue[700],
-                          ),
-                          const SizedBox(width: 3),
-                          Text(
-                            'Receipt',
-                            style: TextStyle(
-                              color: Colors.blue[700],
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
+                    const SizedBox(height: 4),
+                    const Icon(
+                      Icons.receipt_long,
+                      size: 14,
+                      color: Color(0xFF9CA3AF),
                     ),
                   ],
                 ],
@@ -893,30 +820,21 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
-        title: const Text('Add Transaction'),
-        backgroundColor: Colors.transparent,
+        title: const Text('New Transaction'),
+        backgroundColor: const Color(0xFF1E3A8A),
         actions: [
-          Container(
-            margin: const EdgeInsets.only(right: 16),
-            child: ElevatedButton(
-              onPressed: _submitForm,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF10B981),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Text(
-                'Save',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                ),
+          TextButton(
+            onPressed: _submitForm,
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.white,
+              textStyle: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 15,
               ),
             ),
+            child: const Text('Save'),
           ),
         ],
       ),
@@ -933,14 +851,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFE5E7EB)),
                 ),
                 child: TextFormField(
                   controller: _amountController,
@@ -953,12 +865,12 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                     prefixText: '\$ ',
                     hintText: '0.00',
                     border: InputBorder.none,
-                    contentPadding: EdgeInsets.all(20),
+                    contentPadding: EdgeInsets.all(16),
                   ),
                   style: const TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w800,
-                    color: Color(0xFF1A1A1A),
+                    fontSize: 32,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF111827),
                   ),
                   textAlign: TextAlign.center,
                   validator: (value) {
@@ -979,8 +891,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
               Container(
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  borderRadius: BorderRadius.circular(16),
+                  color: const Color(0xFFE5E7EB),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
                   children: [
@@ -989,15 +901,10 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                         duration: const Duration(milliseconds: 200),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         decoration: BoxDecoration(
-                          gradient: _type == TransactionType.expense
-                              ? LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [const Color(0xFFEF4444), const Color(0xFFDC2626)],
-                                )
-                              : null,
-                          color: _type == TransactionType.expense ? null : Colors.transparent,
-                          borderRadius: BorderRadius.circular(12),
+                          color: _type == TransactionType.expense
+                              ? const Color(0xFFDC2626)
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(8),
                         ),
                         child: InkWell(
                           onTap: () {
@@ -1006,18 +913,18 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                               _updateSelectedCategory();
                             });
                           },
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(8),
                           child: Text(
                             'Expense',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: _type == TransactionType.expense
                                   ? Colors.white
-                                  : Colors.grey[700],
+                                  : const Color(0xFF6B7280),
                               fontWeight: _type == TransactionType.expense
-                                  ? FontWeight.w700
+                                  ? FontWeight.w600
                                   : FontWeight.w500,
-                              fontSize: 16,
+                              fontSize: 15,
                             ),
                           ),
                         ),
@@ -1028,15 +935,10 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                         duration: const Duration(milliseconds: 200),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         decoration: BoxDecoration(
-                          gradient: _type == TransactionType.income
-                              ? LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [const Color(0xFF10B981), const Color(0xFF059669)],
-                                )
-                              : null,
-                          color: _type == TransactionType.income ? null : Colors.transparent,
-                          borderRadius: BorderRadius.circular(12),
+                          color: _type == TransactionType.income
+                              ? const Color(0xFF1E3A8A)
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(8),
                         ),
                         child: InkWell(
                           onTap: () {
@@ -1045,18 +947,18 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                               _updateSelectedCategory();
                             });
                           },
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(8),
                           child: Text(
                             'Income',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: _type == TransactionType.income
                                   ? Colors.white
-                                  : Colors.grey[700],
+                                  : const Color(0xFF6B7280),
                               fontWeight: _type == TransactionType.income
-                                  ? FontWeight.w700
+                                  ? FontWeight.w600
                                   : FontWeight.w500,
-                              fontSize: 16,
+                              fontSize: 15,
                             ),
                           ),
                         ),
@@ -1161,13 +1063,6 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                   prefixIcon: Icon(Icons.notes),
                 ),
                 maxLines: 3,
-              ),
-              const SizedBox(height: 24),
-
-              // Save Button
-              ElevatedButton(
-                onPressed: _submitForm,
-                child: const Text('Save Transaction'),
               ),
               const SizedBox(height: 16),
             ],

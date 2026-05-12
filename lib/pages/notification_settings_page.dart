@@ -106,8 +106,10 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         title: const Text('Notification Settings'),
+        backgroundColor: const Color(0xFF1E3A8A),
         actions: [
           IconButton(
             icon: const Icon(Icons.bug_report),
@@ -139,7 +141,12 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
   }
 
   Widget _buildPermissionSection() {
-    return Card(
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -149,12 +156,12 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
               children: [
                 Icon(
                   _hasPermission ? Icons.check_circle : Icons.error,
-                  color: _hasPermission ? Colors.green : Colors.orange,
+                  color: _hasPermission ? const Color(0xFF1E3A8A) : const Color(0xFFDC2626),
                 ),
                 const SizedBox(width: 8),
                 const Text(
                   'Notification Permission',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF111827)),
                 ),
               ],
             ),
@@ -163,7 +170,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
               _hasPermission
                   ? 'Permission granted. App can read banking notifications.'
                   : 'Permission required. App needs access to read banking notifications.',
-              style: TextStyle(color: Colors.grey[600]),
+              style: const TextStyle(color: Color(0xFF6B7280)),
             ),
             const SizedBox(height: 16),
             if (!_hasPermission)
@@ -172,7 +179,10 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                 icon: const Icon(Icons.settings),
                 label: const Text('Grant Permission'),
                 style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1E3A8A),
+                  foregroundColor: Colors.white,
                   minimumSize: const Size.fromHeight(44),
+                  elevation: 0,
                 ),
               ),
           ],
@@ -182,7 +192,12 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
   }
 
   Widget _buildTrackingSection() {
-    return Card(
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -190,14 +205,14 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
           children: [
             const Text(
               'Automatic Tracking',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF111827)),
             ),
             const SizedBox(height: 8),
             Text(
               _canManage
                   ? 'Automatically import transactions from banking notifications.'
                   : 'Only parents can change this setting.',
-              style: TextStyle(color: Colors.grey[600]),
+              style: const TextStyle(color: Color(0xFF6B7280)),
             ),
             const SizedBox(height: 16),
             SwitchListTile(
@@ -214,7 +229,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
               const SizedBox(height: 8),
               Text(
                 'Last sync: ${_formatDate(_settings!.lastSync!)}',
-                style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                style: const TextStyle(color: Color(0xFF6B7280), fontSize: 12),
               ),
             ],
           ],
@@ -226,7 +241,12 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
   Widget _buildBanksSection() {
     final supportedBanks = BankNotificationParser.getSupportedBanks();
 
-    return Card(
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -236,7 +256,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
               children: [
                 const Text(
                   'Supported Banks',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF111827)),
                 ),
                 const Spacer(),
                 if (_canManage)
@@ -251,7 +271,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
               _canManage
                   ? 'Select which banks to track notifications from.'
                   : 'Contact a parent to change bank selection.',
-              style: TextStyle(color: Colors.grey[600]),
+              style: const TextStyle(color: Color(0xFF6B7280)),
             ),
             const SizedBox(height: 16),
             Wrap(
@@ -262,7 +282,8 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                 return Chip(
                   label: Text(bank),
                   avatar: isSelected ? const Icon(Icons.check, size: 16) : null,
-                  backgroundColor: isSelected ? Colors.green[100] : Colors.grey[200],
+                  backgroundColor: isSelected ? const Color(0xFF1E3A8A).withOpacity(0.1) : const Color(0xFFE5E7EB),
+                  labelStyle: TextStyle(color: isSelected ? const Color(0xFF1E3A8A) : const Color(0xFF6B7280)),
                 );
               }).toList(),
             ),
@@ -273,7 +294,12 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
   }
 
   Widget _buildInfoSection() {
-    return Card(
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -281,7 +307,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
           children: [
             const Text(
               'How it works',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF111827)),
             ),
             const SizedBox(height: 16),
             _buildInfoStep(
@@ -317,7 +343,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 24, color: Theme.of(context).primaryColor),
+        Icon(icon, size: 24, color: const Color(0xFF1E3A8A)),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -325,11 +351,11 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
             children: [
               Text(
                 title,
-                style: const TextStyle(fontWeight: FontWeight.bold),
+                style: const TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF111827)),
               ),
               Text(
                 description,
-                style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                style: const TextStyle(color: Color(0xFF6B7280), fontSize: 12),
               ),
             ],
           ),
@@ -379,6 +405,11 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                 _updateBanks(tempSelected);
                 Navigator.pop(context);
               },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF1E3A8A),
+                foregroundColor: Colors.white,
+                elevation: 0,
+              ),
               child: const Text('Save'),
             ),
           ],

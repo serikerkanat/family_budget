@@ -67,7 +67,7 @@ class _AuthPageState extends State<AuthPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: const Color(0xFFF5F7FA),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -88,40 +88,41 @@ class _AuthPageState extends State<AuthPage> {
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: [
-                            const Color(0xFF10B981),
-                            const Color(0xFF059669),
+                            const Color(0xFF1E3A8A),
+                            const Color(0xFF1E40AF),
+                            const Color(0xFF2563EB),
                           ],
                         ),
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF10B981).withOpacity(0.3),
+                            color: const Color(0xFF1E3A8A).withOpacity(0.3),
                             blurRadius: 15,
                             offset: const Offset(0, 8),
                           ),
                         ],
                       ),
                       child: const Icon(
-                        Icons.account_balance_wallet,
+                        Icons.account_balance,
                         color: Colors.white,
                         size: 40,
                       ),
                     ),
                     const SizedBox(height: 20),
                     const Text(
-                      'Family Budget',
+                      'FamilyBank',
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF1A1A1A),
+                        color: Color(0xFF111827),
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       _isLogin ? 'Welcome back!' : 'Create your account',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 16,
-                        color: Colors.grey[600],
+                        color: Color(0xFF6B7280),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -136,14 +137,8 @@ class _AuthPageState extends State<AuthPage> {
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFE5E7EB)),
                 ),
                 child: Form(
                   key: _formKey,
@@ -245,10 +240,10 @@ class _AuthPageState extends State<AuthPage> {
                         child: ElevatedButton(
                           onPressed: _isLoading ? null : _submit,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF10B981),
+                            backgroundColor: const Color(0xFF1E3A8A),
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(8),
                             ),
                             elevation: 0,
                           ),
@@ -282,7 +277,7 @@ class _AuthPageState extends State<AuthPage> {
                           child: const Text(
                             'Forgot Password?',
                             style: TextStyle(
-                              color: Color(0xFF10B981),
+                              color: Color(0xFF1E3A8A),
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -301,8 +296,8 @@ class _AuthPageState extends State<AuthPage> {
                 children: [
                   Text(
                     _isLogin ? "Don't have an account? " : "Already have an account? ",
-                    style: TextStyle(
-                      color: Colors.grey[600],
+                    style: const TextStyle(
+                      color: Color(0xFF6B7280),
                       fontSize: 14,
                     ),
                   ),
@@ -313,10 +308,10 @@ class _AuthPageState extends State<AuthPage> {
                         _formKey.currentState?.reset();
                       });
                     },
-                    child: const Text(
-                      'Sign Up',
-                      style: TextStyle(
-                        color: Color(0xFF10B981),
+                    child: Text(
+                      _isLogin ? 'Sign Up' : 'Sign In',
+                      style: const TextStyle(
+                        color: Color(0xFF1E3A8A),
                         fontWeight: FontWeight.w700,
                         fontSize: 14,
                       ),

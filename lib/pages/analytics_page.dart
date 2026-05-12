@@ -134,10 +134,10 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     final monthlyData = _getMonthlyData();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
-        title: const Text('Analytics'),
-        backgroundColor: Colors.transparent,
+        title: const Text('Financial Analytics'),
+        backgroundColor: const Color(0xFF1E3A8A),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -151,7 +151,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                   child: _buildSummaryCard(
                     'Total Income',
                     '+\$${totalIncome.toStringAsFixed(2)}',
-                    const Color(0xFF10B981),
+                    const Color(0xFF1E3A8A),
                     Icons.trending_up,
                   ),
                 ),
@@ -160,7 +160,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                   child: _buildSummaryCard(
                     'Total Expense',
                     '-\$${totalExpense.toStringAsFixed(2)}',
-                    const Color(0xFFEF4444),
+                    const Color(0xFFDC2626),
                     Icons.trending_down,
                   ),
                 ),
@@ -170,7 +170,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
             _buildSummaryCard(
               'Net Balance',
               '\$${balance.toStringAsFixed(2)}',
-              balance >= 0 ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+              balance >= 0 ? const Color(0xFF1E3A8A) : const Color(0xFFDC2626),
               Icons.account_balance_wallet,
               isBalance: true,
             ),
@@ -220,14 +220,8 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -250,13 +244,13 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
               if (isBalance && amount.startsWith('-'))
                 Icon(
                   Icons.arrow_downward,
-                  color: const Color(0xFFEF4444),
+                  color: const Color(0xFFDC2626),
                   size: 16,
                 )
               else if (isBalance)
                 Icon(
                   Icons.arrow_upward,
-                  color: const Color(0xFF10B981),
+                  color: const Color(0xFF1E3A8A),
                   size: 16,
                 ),
             ],
@@ -264,9 +258,9 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
           const SizedBox(height: 12),
           Text(
             title,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 12,
-              color: Colors.grey[600],
+              color: Color(0xFF6B7280),
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -276,7 +270,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w700,
-              color: isBalance ? color : Colors.black87,
+              color: isBalance ? color : const Color(0xFF111827),
             ),
           ),
         ],
@@ -304,16 +298,15 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                   ? [const Color(0xFFD1FAE5), const Color(0xFFA7F3D0)]
                   : [const Color(0xFFDBEAFE), const Color(0xFFBFDBFE)],
         ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: (isWarning ? const Color(0xFFEF4444) : 
-                   isGood ? const Color(0xFF10B981) : 
-                   const Color(0xFF3B82F6)).withOpacity(0.2),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isWarning 
+              ? const Color(0xFFDC2626)
+              : isGood 
+                  ? const Color(0xFF1E3A8A)
+                  : const Color(0xFF3B82F6),
+          width: 1,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -325,20 +318,13 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
                 ),
                 child: Icon(
                   isWarning ? Icons.warning_amber_rounded : 
                   isGood ? Icons.check_circle_rounded : 
                   Icons.info_rounded,
-                  color: isWarning ? const Color(0xFFEF4444) : 
-                         isGood ? const Color(0xFF10B981) : 
+                  color: isWarning ? const Color(0xFFDC2626) : 
+                         isGood ? const Color(0xFF1E3A8A) : 
                          const Color(0xFF3B82F6),
                   size: 28,
                 ),
@@ -350,9 +336,9 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                   children: [
                     Text(
                       'AI Forecast',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 12,
-                        color: Colors.grey[700],
+                        color: Color(0xFF6B7280),
                         fontWeight: FontWeight.w600,
                         letterSpacing: 0.5,
                       ),
@@ -366,7 +352,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                         fontSize: 20,
                         fontWeight: FontWeight.w800,
                         color: isWarning ? const Color(0xFFDC2626) : 
-                               isGood ? const Color(0xFF059669) : 
+                               isGood ? const Color(0xFF1E3A8A) : 
                                const Color(0xFF1D4ED8),
                       ),
                     ),
@@ -385,7 +371,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: isWarning ? const Color(0xFFDC2626) : 
-                           isGood ? const Color(0xFF059669) : 
+                           isGood ? const Color(0xFF1E3A8A) : 
                            const Color(0xFF1D4ED8),
                   ),
                 ),
@@ -397,17 +383,17 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.8),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(12),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   _forecast!.recommendation,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: Colors.grey[800],
+                    color: Color(0xFF374151),
                     height: 1.4,
                   ),
                 ),
@@ -444,7 +430,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
           Icon(
             icon,
             size: 16,
-            color: Colors.grey[600],
+            color: const Color(0xFF6B7280),
           ),
           const SizedBox(width: 8),
           Column(
@@ -452,9 +438,9 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
             children: [
               Text(
                 label,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 11,
-                  color: Colors.grey[600],
+                  color: Color(0xFF6B7280),
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -463,7 +449,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF1A1A1A),
+                  color: Color(0xFF111827),
                 ),
               ),
             ],
@@ -479,7 +465,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
       style: const TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.w600,
-        color: Color(0xFF1A1A1A),
+        color: Color(0xFF111827),
       ),
     );
   }
@@ -493,14 +479,8 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
       ),
       child: Column(
         children: [
@@ -542,8 +522,8 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                       child: Container(
                         decoration: BoxDecoration(
                           color: type == TransactionType.income 
-                              ? const Color(0xFF10B981)
-                              : const Color(0xFFEF4444),
+                              ? const Color(0xFF1E3A8A)
+                              : const Color(0xFFDC2626),
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
@@ -563,14 +543,8 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
       ),
       child: Column(
         children: [
@@ -594,7 +568,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                         child: _buildMonthlyBar(
                           'Income',
                           data['income'],
-                          const Color(0xFF10B981),
+                          const Color(0xFF1E3A8A),
                           monthlyData,
                         ),
                       ),
@@ -603,7 +577,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                         child: _buildMonthlyBar(
                           'Expense',
                           data['expense'],
-                          const Color(0xFFEF4444),
+                          const Color(0xFFDC2626),
                           monthlyData,
                         ),
                       ),
@@ -619,8 +593,8 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                           color: data['balance'] >= 0 
-                              ? const Color(0xFF10B981)
-                              : const Color(0xFFEF4444),
+                              ? const Color(0xFF1E3A8A)
+                              : const Color(0xFFDC2626),
                         ),
                       ),
                     ],
@@ -693,14 +667,8 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
       ),
       child: Column(
         children: recent.map((transaction) {
@@ -715,13 +683,13 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: isIncome 
-                    ? Colors.green.withOpacity(0.1)
-                    : Colors.red.withOpacity(0.1),
+                    ? const Color(0xFF1E3A8A).withOpacity(0.1)
+                    : const Color(0xFFDC2626).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
                 category.icon,
-                color: isIncome ? Colors.green : Colors.red,
+                color: isIncome ? const Color(0xFF1E3A8A) : const Color(0xFFDC2626),
                 size: 20,
               ),
             ),
@@ -734,15 +702,15 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
             ),
             subtitle: Text(
               '${category.name} • ${DateFormat('MMM dd').format(transaction.date)}',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 12,
-                color: Colors.grey[600],
+                color: Color(0xFF6B7280),
               ),
             ),
             trailing: Text(
               '${isIncome ? '+' : '-'}\$${transaction.amount.toStringAsFixed(2)}',
               style: TextStyle(
-                color: isIncome ? Colors.green : Colors.red,
+                color: isIncome ? const Color(0xFF1E3A8A) : const Color(0xFFDC2626),
                 fontWeight: FontWeight.w600,
                 fontSize: 14,
               ),

@@ -23,21 +23,21 @@ class TransactionDetailsPage extends StatelessWidget {
     final formattedTime = DateFormat('hh:mm a').format(transaction.date);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         title: const Text('Transaction Details'),
-        backgroundColor: Colors.transparent,
+        backgroundColor: const Color(0xFF1E3A8A),
         actions: [
           IconButton(
             icon: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.1),
+                color: const Color(0xFFDC2626).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(
                 Icons.delete,
-                color: Colors.red,
+                color: Color(0xFFDC2626),
                 size: 20,
               ),
             ),
@@ -54,7 +54,7 @@ class TransactionDetailsPage extends StatelessWidget {
                     ),
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(true),
-                      style: TextButton.styleFrom(foregroundColor: Colors.red),
+                      style: TextButton.styleFrom(foregroundColor: const Color(0xFFDC2626)),
                       child: const Text('Delete'),
                     ),
                   ],
@@ -83,14 +83,14 @@ class TransactionDetailsPage extends StatelessWidget {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: isIncome
-                      ? [const Color(0xFF10B981), const Color(0xFF059669)]
-                      : [const Color(0xFFEF4444), const Color(0xFFDC2626)],
+                      ? [const Color(0xFF1E3A8A), const Color(0xFF1E40AF), const Color(0xFF2563EB)]
+                      : [const Color(0xFFDC2626), const Color(0xFFB91C1C)],
                 ),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: (isIncome ? const Color(0xFF10B981) : const Color(0xFFEF4444))
-                        .withOpacity(0.3),
+                    color: (isIncome ? const Color(0xFF1E3A8A) : const Color(0xFFDC2626))
+                        .withOpacity(0.25),
                     blurRadius: 20,
                     offset: const Offset(0, 8),
                   ),
@@ -123,11 +123,11 @@ class TransactionDetailsPage extends StatelessWidget {
             const SizedBox(height: 24),
 
             // Details Card
-            Card(
-              elevation: 4,
-              shadowColor: Colors.black.withOpacity(0.08),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFE5E7EB)),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(20),
@@ -144,7 +144,7 @@ class TransactionDetailsPage extends StatelessWidget {
                       'Category',
                       category.name,
                       category.icon,
-                      iconColor: isIncome ? Colors.green : Colors.red,
+                      iconColor: isIncome ? const Color(0xFF1E3A8A) : const Color(0xFFDC2626),
                     ),
                     const Divider(height: 24),
                     _buildDetailRow(
@@ -174,23 +174,23 @@ class TransactionDetailsPage extends StatelessWidget {
 
             // Receipt Image (if available)
             if (transaction.receiptImagePath != null) ...[
-              Text(
+              const Text(
                 'Receipt',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: Colors.grey[800],
+                  color: Color(0xFF111827),
                 ),
               ),
               const SizedBox(height: 12),
-              Card(
-                elevation: 4,
-                shadowColor: Colors.black.withOpacity(0.08),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFE5E7EB)),
                 ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(12),
                   child: Image.file(
                     File(transaction.receiptImagePath!),
                     width: double.infinity,
@@ -200,20 +200,20 @@ class TransactionDetailsPage extends StatelessWidget {
                       return Container(
                         height: 300,
                         width: double.infinity,
-                        color: Colors.grey[100],
+                        color: const Color(0xFFF3F4F6),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
                               Icons.broken_image,
                               size: 64,
-                              color: Colors.grey[400],
+                              color: const Color(0xFF9CA3AF),
                             ),
                             const SizedBox(height: 8),
                             Text(
                               'Unable to load receipt',
-                              style: TextStyle(
-                                color: Colors.grey[600],
+                              style: const TextStyle(
+                                color: Color(0xFF6B7280),
                                 fontSize: 16,
                               ),
                             ),
@@ -258,9 +258,9 @@ class TransactionDetailsPage extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 12,
-                  color: Colors.grey[600],
+                  color: Color(0xFF6B7280),
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -270,7 +270,7 @@ class TransactionDetailsPage extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF1A1A1A),
+                  color: Color(0xFF111827),
                 ),
               ),
             ],

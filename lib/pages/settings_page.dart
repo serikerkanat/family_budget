@@ -6,10 +6,10 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         title: const Text('Settings'),
-        backgroundColor: Colors.transparent,
+        backgroundColor: const Color(0xFF1E3A8A),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -17,11 +17,11 @@ class SettingsPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // App Info Section
-            Card(
-              elevation: 4,
-              shadowColor: Colors.black.withOpacity(0.08),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFE5E7EB)),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(20),
@@ -33,12 +33,12 @@ class SettingsPage extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF10B981).withOpacity(0.1),
+                            color: const Color(0xFF1E3A8A).withOpacity(0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: const Icon(
-                            Icons.account_balance_wallet,
-                            color: Color(0xFF10B981),
+                            Icons.account_balance,
+                            color: Color(0xFF1E3A8A),
                             size: 24,
                           ),
                         ),
@@ -48,11 +48,11 @@ class SettingsPage extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Family Budget',
-                                style: TextStyle(
+                                'FamilyBank',
+                                style: const TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.w700,
-                                  color: Color(0xFF1A1A1A),
+                                  color: Color(0xFF111827),
                                 ),
                               ),
                               SizedBox(height: 4),
@@ -84,23 +84,23 @@ class SettingsPage extends StatelessWidget {
             const SizedBox(height: 24),
 
             // Features Section
-            Card(
-              elevation: 4,
-              shadowColor: Colors.black.withOpacity(0.08),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFE5E7EB)),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'Features',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        color: Colors.grey[800],
+                        color: Color(0xFF111827),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -134,23 +134,23 @@ class SettingsPage extends StatelessWidget {
             const SizedBox(height: 24),
 
             // Tips Section
-            Card(
-              elevation: 4,
-              shadowColor: Colors.black.withOpacity(0.08),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFE5E7EB)),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'Tips',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        color: Colors.grey[800],
+                        color: Color(0xFF111827),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -184,12 +184,12 @@ class SettingsPage extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: const Color(0xFF10B981).withOpacity(0.1),
+            color: const Color(0xFF1E3A8A).withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
             icon,
-            color: const Color(0xFF10B981),
+            color: const Color(0xFF1E3A8A),
             size: 20,
           ),
         ),
@@ -203,7 +203,7 @@ class SettingsPage extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF1A1A1A),
+                  color: Color(0xFF111827),
                 ),
               ),
               const SizedBox(height: 2),
@@ -227,12 +227,12 @@ class SettingsPage extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.blue.withOpacity(0.1),
+            color: const Color(0xFF3B82F6).withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
             icon,
-            color: Colors.blue,
+            color: const Color(0xFF3B82F6),
             size: 20,
           ),
         ),
@@ -242,7 +242,7 @@ class SettingsPage extends StatelessWidget {
             tip,
             style: const TextStyle(
               fontSize: 14,
-              color: Color(0xFF1A1A1A),
+              color: Color(0xFF111827),
               height: 1.3,
             ),
           ),

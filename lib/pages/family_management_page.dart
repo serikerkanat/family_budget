@@ -243,7 +243,7 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.red,
+        backgroundColor: const Color(0xFFDC2626),
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -253,7 +253,7 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.green,
+        backgroundColor: const Color(0xFF1E3A8A),
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -272,7 +272,7 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(foregroundColor: const Color(0xFFDC2626)),
             child: const Text('Leave'),
           ),
         ],
@@ -297,16 +297,22 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
 
   Widget _buildNotInFamilyView() {
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
-        title: const Text('Join Family'),
-        backgroundColor: Colors.transparent,
+        title: const Text('Family Management'),
+        backgroundColor: const Color(0xFF1E3A8A),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             // Create Family Section
-            Card(
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFE5E7EB)),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
@@ -316,7 +322,8 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
                       'Create New Family',
                       style: TextStyle(
                         fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF111827),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -333,6 +340,14 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : _createFamily,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF1E3A8A),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          elevation: 0,
+                        ),
                         child: _isLoading
                             ? const CircularProgressIndicator(color: Colors.white)
                             : const Text('Create Family'),
@@ -345,7 +360,12 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
             const SizedBox(height: 24),
             
             // Join Family Section
-            Card(
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFE5E7EB)),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
@@ -355,7 +375,8 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
                       'Join Existing Family',
                       style: TextStyle(
                         fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF111827),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -374,6 +395,7 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
+                        color: Color(0xFF6B7280),
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -408,6 +430,14 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : _joinFamily,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF1E3A8A),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          elevation: 0,
+                        ),
                         child: _isLoading
                             ? const CircularProgressIndicator(color: Colors.white)
                             : const Text('Join Family'),
@@ -431,9 +461,10 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
     }
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         title: Text(_currentFamily!['name'] ?? 'My Family'),
-        backgroundColor: Colors.transparent,
+        backgroundColor: const Color(0xFF1E3A8A),
         actions: [
           IconButton(
             icon: const Icon(Icons.exit_to_app),
@@ -447,7 +478,12 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
         child: Column(
           children: [
             // Family Info Card
-            Card(
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFE5E7EB)),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
@@ -455,12 +491,12 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
+                        const Text(
                           'Family Code',
                           style: TextStyle(
                             fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey[700],
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF6B7280),
                           ),
                         ),
                         IconButton(
@@ -474,9 +510,9 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.grey[100],
+                        color: const Color(0xFFF3F4F6),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.grey[300]!),
+                        border: Border.all(color: const Color(0xFFE5E7EB)),
                       ),
                       child: Text(
                         _currentFamily!['code'] ?? '',
@@ -490,8 +526,8 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
                     const SizedBox(height: 16),
                     Text(
                       'Share this code with family members to invite them.',
-                      style: TextStyle(
-                        color: Colors.grey[600],
+                      style: const TextStyle(
+                        color: Color(0xFF6B7280),
                         fontSize: 14,
                       ),
                       textAlign: TextAlign.center,
@@ -503,7 +539,12 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
             const SizedBox(height: 24),
             
             // Family Members Card
-            Card(
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFE5E7EB)),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
@@ -513,7 +554,8 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
                       'Family Members',
                       style: TextStyle(
                         fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF111827),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -533,8 +575,8 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
                               
                               return ListTile(
                                 leading: CircleAvatar(
-                                  child: Icon(isParent ? Icons.admin_panel_settings : Icons.person),
-                                  backgroundColor: isParent ? Colors.amber[100] : Colors.grey[200],
+                                  child: Icon(isParent ? Icons.admin_panel_settings : Icons.person, color: isParent ? const Color(0xFF1E3A8A) : const Color(0xFF6B7280)),
+                                  backgroundColor: isParent ? const Color(0xFF1E3A8A).withOpacity(0.1) : const Color(0xFFE5E7EB),
                                 ),
                                 title: Text(member['email'] ?? 'Unknown'),
                                 subtitle: Row(
@@ -543,14 +585,14 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
                                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                       decoration: BoxDecoration(
                                         color: isParent 
-                                            ? Colors.green.withOpacity(0.1)
-                                            : Colors.blue.withOpacity(0.1),
+                                            ? const Color(0xFF1E3A8A).withOpacity(0.1)
+                                            : const Color(0xFF3B82F6).withOpacity(0.1),
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: Text(
                                         isParent ? 'Parent' : 'Child',
                                         style: TextStyle(
-                                          color: isParent ? Colors.green : Colors.blue,
+                                          color: isParent ? const Color(0xFF1E3A8A) : const Color(0xFF3B82F6),
                                           fontSize: 11,
                                           fontWeight: FontWeight.w600,
                                         ),
