@@ -35,32 +35,40 @@ class FamilyService {
   // Create new family
   static Future<String> createFamily(String familyName) async {
     final userId = currentUserId;
-    if (userId == null) throw Exception('User not authenticated');
+    if (userId == null) throw Exception('User not logged in');
 
-    // Ensure user document exists
-    await UserService.createUserDocument();
+    try {
+      print('Creating family for user: $userId');
 
-    final familyCode = _generateFamilyCode();
-    final familyId = 'FAM-$familyCode';
+      // Ensure user document exists and get user data
+      await UserService.createUserDocument();
+      final userData = await UserService.getCurrentUserData();
+      print('User data: $userData');
 
-    // Create family document
-    await _familiesRef.doc(familyId).set({
-      'id': familyId,
-      'code': familyCode,
-      'name': familyName,
-      'members': [userId],
-      'createdBy': userId,
-      'createdAt': FieldValue.serverTimestamp(),
-      'settings': {
-        'currency': 'USD',
-        'timezone': 'UTC',
-      }
-    });
+      final familyDoc = await _db.collection('families').add({
+        'name': familyName,
+        'code': _generateFamilyCode(),
+        'createdAt': FieldValue.serverTimestamp(),
+        'createdBy': userId,
+        'members': [userId],
+      });
 
-    // Update user with familyId using UserService
-    await UserService.updateUserFamily(familyId, UserRole.parent.value);
+      print('Family created with ID: ${familyDoc.id}');
 
-    return familyCode;
+      // Update user to be the family creator (parent role)
+      await _db.collection('users').doc(userId).update({
+        'familyId': familyDoc.id,
+        'role': 'parent', // Creator is always parent
+        'joinedAt': FieldValue.serverTimestamp(),
+      });
+
+      print('User updated with familyId and parent role');
+
+      return familyDoc.id;
+    } catch (e) {
+      print('Error creating family: $e');
+      rethrow;
+    }
   }
 
   // Join existing family by code with role selection
@@ -131,7 +139,14 @@ class FamilyService {
     if (familyId == null) return null;
 
     final familyDoc = await _familiesRef.doc(familyId).get();
-    return familyDoc.data();
+    final familyData = familyDoc.data();
+    
+    // Добавляем ID в данные семьи
+    if (familyData != null) {
+      familyData['id'] = familyId;
+    }
+    
+    return familyData;
   }
 
   // Stream for current family data
@@ -148,29 +163,108 @@ class FamilyService {
 
       // Listen to family document
       await for (final familySnapshot in _familiesRef.doc(familyId).snapshots()) {
-        yield familySnapshot.data();
+        final familyData = familySnapshot.data();
+        // Добавляем ID в данные семьи
+        if (familyData != null) {
+          familyData['id'] = familyId;
+        }
+        yield familyData;
       }
     }
   }
 
   // Get family members
   static Future<List<Map<String, dynamic>>> getFamilyMembers(String familyId) async {
-    final familyDoc = await _familiesRef.doc(familyId).get();
-    final familyData = familyDoc.data();
-    final memberIds = List<String>.from(familyData?['members'] ?? []);
+    try {
+      print('=== Getting family members for familyId: $familyId ===');
+      
+      // Get current user ID first
+      final FirebaseAuth auth = FirebaseAuth.instance;
+      final currentUserId = auth.currentUser?.uid;
+      if (currentUserId == null) {
+        print('No current user found');
+        return [];
+      }
+      
+      print('Current user ID: $currentUserId');
+      
+      // First verify user exists and has familyId
+      final currentUserDoc = await _db.collection('users').doc(currentUserId).get();
+      if (!currentUserDoc.exists) {
+        print('Current user document does not exist');
+        return [];
+      }
+      
+      final currentUserData = currentUserDoc.data();
+      final userFamilyId = currentUserData?['familyId'] as String?;
+      print('User familyId from user doc: $userFamilyId');
+      print('Requested familyId: $familyId');
+      
+      if (userFamilyId != familyId) {
+        print('User does not belong to this family!');
+        print('User belongs to family: $userFamilyId');
+        return [];
+      }
+      
+      final familyDoc = await _familiesRef.doc(familyId).get();
+      if (!familyDoc.exists) {
+        print('Family document does not exist');
+        return [];
+      }
+      
+      final familyData = familyDoc.data();
+      final memberIds = List<String>.from(familyData?['members'] ?? []);
+      print('Member IDs from family doc: $memberIds');
+      print('Current user in family members: ${memberIds.contains(currentUserId)}');
 
-    if (memberIds.isEmpty) return [];
+      if (memberIds.isEmpty) {
+        print('No member IDs found');
+        return [];
+      }
 
-    // Get user details for all members
-    final usersSnapshot = await _db
-        .collection('users')
-        .where(FieldPath.documentId, whereIn: memberIds)
-        .get();
+      print('Starting to fetch individual user documents...');
+      List<Map<String, dynamic>> members = [];
+      
+      // Get each user individually to avoid whereIn issues
+      for (final memberId in memberIds) {
+        try {
+          print('Fetching user: $memberId');
+          final userDoc = await _db.collection('users').doc(memberId).get();
+          
+          if (userDoc.exists) {
+            final data = userDoc.data() ?? {};
+            print('Raw user data for $memberId: $data');
+            
+            final member = {
+              'id': userDoc.id,
+              'email': data['email'] ?? 'No Email',
+              'displayName': data['displayName'] ?? data['name'] ?? 'Unknown User',
+              'role': data['role'] ?? 'child',
+              'joinedAt': data['joinedAt'],
+              ...data,
+            };
+            members.add(member);
+            print('Successfully added member: ${member['id']} - ${member['email']} - Role: ${member['role']}');
+          } else {
+            print('User document does not exist for ID: $memberId');
+          }
+        } catch (e) {
+          print('Error getting user $memberId: $e');
+        }
+      }
 
-    return usersSnapshot.docs.map((doc) => {
-      'id': doc.id,
-      ...doc.data(),
-    }).toList();
+      print('Final members list: $members');
+      print('Total members count: ${members.length}');
+      
+      // Debug: check if current user is in the list
+      final currentUserInList = members.any((member) => member['id'] == currentUserId);
+      print('Current user found in members list: $currentUserInList');
+      
+      return members;
+    } catch (e) {
+      print('Error getting family members: $e');
+      return [];
+    }
   }
 
   // Update family settings
