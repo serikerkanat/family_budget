@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../services/auth_service.dart';
+import '../l10n/app_localizations.dart';
 
 class AuthPage extends StatefulWidget {
   const AuthPage({super.key});
@@ -41,7 +42,7 @@ class _AuthPageState extends State<AuthPage> {
         );
       } else {
         if (_passwordController.text != _confirmPasswordController.text) {
-          throw 'Passwords do not match';
+          throw context.t('passwordsMismatch');
         }
         
         await AuthService.registerWithEmailAndPassword(
@@ -108,9 +109,9 @@ class _AuthPageState extends State<AuthPage> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    const Text(
-                      'Family Budget',
-                      style: TextStyle(
+                    Text(
+                      context.t('appName'),
+                      style: const TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.w800,
                         color: Color(0xFF1A1A1A),
@@ -118,7 +119,7 @@ class _AuthPageState extends State<AuthPage> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      _isLogin ? 'Welcome back!' : 'Create your account',
+                      _isLogin ? context.t('welcomeBack') : context.t('createAccount'),
                       style: TextStyle(
                         fontSize: 16,
                         color: Colors.grey[600],
@@ -154,7 +155,7 @@ class _AuthPageState extends State<AuthPage> {
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
                         decoration: InputDecoration(
-                          labelText: 'Email',
+                          labelText: context.t('email'),
                           prefixIcon: const Icon(Icons.email),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -162,10 +163,10 @@ class _AuthPageState extends State<AuthPage> {
                         ),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return 'Please enter your email';
+                            return context.t('enterEmail');
                           }
                           if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                            return 'Please enter a valid email';
+                            return context.t('validEmail');
                           }
                           return null;
                         },
@@ -177,7 +178,7 @@ class _AuthPageState extends State<AuthPage> {
                         controller: _passwordController,
                         obscureText: _obscurePassword,
                         decoration: InputDecoration(
-                          labelText: 'Password',
+                          labelText: context.t('password'),
                           prefixIcon: const Icon(Icons.lock),
                           suffixIcon: IconButton(
                             icon: Icon(
@@ -193,10 +194,10 @@ class _AuthPageState extends State<AuthPage> {
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter your password';
+                            return context.t('enterPassword');
                           }
                           if (value.length < 6) {
-                            return 'Password must be at least 6 characters';
+                            return context.t('passwordLength');
                           }
                           return null;
                         },
@@ -210,7 +211,7 @@ class _AuthPageState extends State<AuthPage> {
                           controller: _confirmPasswordController,
                           obscureText: _obscureConfirmPassword,
                           decoration: InputDecoration(
-                            labelText: 'Confirm Password',
+                            labelText: context.t('confirmPassword'),
                             prefixIcon: const Icon(Icons.lock),
                             suffixIcon: IconButton(
                               icon: Icon(
@@ -226,10 +227,10 @@ class _AuthPageState extends State<AuthPage> {
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Please confirm your password';
+                              return context.t('confirmPasswordPrompt');
                             }
                             if (value != _passwordController.text) {
-                              return 'Passwords do not match';
+                              return context.t('passwordsMismatch');
                             }
                             return null;
                           },
@@ -262,7 +263,7 @@ class _AuthPageState extends State<AuthPage> {
                                   ),
                                 )
                               : Text(
-                                  _isLogin ? 'Sign In' : 'Sign Up',
+                                  _isLogin ? context.t('signIn') : context.t('signUp'),
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
@@ -279,9 +280,9 @@ class _AuthPageState extends State<AuthPage> {
                           onPressed: () {
                             // TODO: Implement forgot password
                           },
-                          child: const Text(
-                            'Forgot Password?',
-                            style: TextStyle(
+                          child: Text(
+                            context.t('forgotPassword'),
+                            style: const TextStyle(
                               color: Color(0xFF10B981),
                               fontWeight: FontWeight.w600,
                             ),
@@ -300,7 +301,7 @@ class _AuthPageState extends State<AuthPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    _isLogin ? "Don't have an account? " : "Already have an account? ",
+                    _isLogin ? context.t('dontHaveAccount') : context.t('alreadyHaveAccount'),
                     style: TextStyle(
                       color: Colors.grey[600],
                       fontSize: 14,
@@ -313,9 +314,9 @@ class _AuthPageState extends State<AuthPage> {
                         _formKey.currentState?.reset();
                       });
                     },
-                    child: const Text(
-                      'Sign Up',
-                      style: TextStyle(
+                    child: Text(
+                      _isLogin ? context.t('signUp') : context.t('signIn'),
+                      style: const TextStyle(
                         color: Color(0xFF10B981),
                         fontWeight: FontWeight.w700,
                         fontSize: 14,

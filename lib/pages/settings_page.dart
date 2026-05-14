@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -8,7 +9,7 @@ class SettingsPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: Text(context.t('settings')),
         backgroundColor: Colors.transparent,
       ),
       body: SingleChildScrollView(
@@ -43,22 +44,22 @@ class SettingsPage extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 16),
-                        const Expanded(
+                        Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Family Budget',
-                                style: TextStyle(
+                                context.t('appName'),
+                                style: const TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.w700,
                                   color: Color(0xFF1A1A1A),
                                 ),
                               ),
-                              SizedBox(height: 4),
+                              const SizedBox(height: 4),
                               Text(
-                                'Version 1.0.0',
-                                style: TextStyle(
+                                context.t('version'),
+                                style: const TextStyle(
                                   fontSize: 14,
                                   color: Color(0xFF6B7280),
                                 ),
@@ -69,13 +70,67 @@ class SettingsPage extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    const Text(
-                      'A simple and elegant budget tracking app to help you manage your family finances efficiently.',
-                      style: TextStyle(
+                    Text(
+                      context.t('appDescription'),
+                      style: const TextStyle(
                         fontSize: 14,
                         color: Color(0xFF6B7280),
                         height: 1.4,
                       ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            Card(
+              elevation: 4,
+              shadowColor: Colors.black.withOpacity(0.08),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(Icons.language, color: Colors.blue, size: 24),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Text(
+                        context.t('language'),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF1A1A1A),
+                        ),
+                      ),
+                    ),
+                    DropdownButton<AppLanguage>(
+                      value: context.appLanguage,
+                      underline: const SizedBox.shrink(),
+                      items: AppLanguage.values.map((language) {
+                        return DropdownMenuItem(
+                          value: language,
+                          child: Text(
+                            language == AppLanguage.english
+                                ? context.t('english')
+                                : context.t('russian'),
+                          ),
+                        );
+                      }).toList(),
+                      onChanged: (language) {
+                        if (language != null) {
+                          context.languageController.setLanguage(language);
+                        }
+                      },
                     ),
                   ],
                 ),
@@ -96,7 +151,7 @@ class SettingsPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Features',
+                      context.t('features'),
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
@@ -105,26 +160,26 @@ class SettingsPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     _buildFeatureItem(
-                      'Track Income & Expenses',
-                      'Monitor all your financial transactions',
+                      context.t('trackIncomeExpenses'),
+                      context.t('trackIncomeExpensesDesc'),
                       Icons.trending_up,
                     ),
                     const SizedBox(height: 12),
                     _buildFeatureItem(
-                      'Categorize Transactions',
-                      'Organize expenses by categories',
+                      context.t('categorizeTransactions'),
+                      context.t('categorizeTransactionsDesc'),
                       Icons.category,
                     ),
                     const SizedBox(height: 12),
                     _buildFeatureItem(
-                      'Receipt Images',
-                      'Attach receipt photos to transactions',
+                      context.t('receiptImages'),
+                      context.t('receiptImagesDesc'),
                       Icons.receipt,
                     ),
                     const SizedBox(height: 12),
                     _buildFeatureItem(
-                      'Detailed Views',
-                      'View complete transaction details',
+                      context.t('detailedViews'),
+                      context.t('detailedViewsDesc'),
                       Icons.visibility,
                     ),
                   ],
@@ -146,7 +201,7 @@ class SettingsPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Tips',
+                      context.t('tips'),
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
@@ -155,17 +210,17 @@ class SettingsPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     _buildTipItem(
-                      'Tap on any transaction to view full details',
+                      context.t('tipDetails'),
                       Icons.touch_app,
                     ),
                     const SizedBox(height: 12),
                     _buildTipItem(
-                      'Swipe left on transactions to delete them',
+                      context.t('tipDelete'),
                       Icons.swipe_left,
                     ),
                     const SizedBox(height: 12),
                     _buildTipItem(
-                      'Use the tabs to filter by transaction type',
+                      context.t('tipTabs'),
                       Icons.tab,
                     ),
                   ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/bank_notification_parser.dart';
 import '../services/notification_listener_service.dart';
+import '../l10n/app_localizations.dart';
 
 class NotificationDebugPage extends StatefulWidget {
   const NotificationDebugPage({Key? key}) : super(key: key);
@@ -69,14 +70,14 @@ class _NotificationDebugPageState extends State<NotificationDebugPage> {
   void _testCustomNotification() {
     if (_titleController.text.isEmpty || _textController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter title and text')),
+        SnackBar(content: Text(context.t('enterTitleAndText'))),
       );
       return;
     }
 
-    final bankName = _bankController.text.isNotEmpty 
-        ? _bankController.text 
-        : 'Unknown';
+    final bankName = _bankController.text.isNotEmpty
+        ? _bankController.text
+        : context.t('unknown');
 
     final notification = BankingNotificationData(
       packageName: 'com.test.bank',
@@ -95,14 +96,14 @@ class _NotificationDebugPageState extends State<NotificationDebugPage> {
     if (parsed != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Parsed: ${parsed.amount} ${parsed.currency}'),
+          content: Text(context.tx('parsedNotification', {'amount': parsed.amount, 'currency': parsed.currency})),
           backgroundColor: Colors.green,
         ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Failed to parse notification'),
+        SnackBar(
+          content: Text(context.t('failedParseNotification')),
           backgroundColor: Colors.red,
         ),
       );
@@ -130,7 +131,7 @@ class _NotificationDebugPageState extends State<NotificationDebugPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Notification Parser Debug'),
+        title: Text(context.t('notificationParserDebug')),
         backgroundColor: Colors.transparent,
         actions: [
           IconButton(
@@ -140,12 +141,12 @@ class _NotificationDebugPageState extends State<NotificationDebugPage> {
                 _parsedResults.clear();
               });
             },
-            tooltip: 'Clear Results',
+            tooltip: context.t('clearResults'),
           ),
           IconButton(
             icon: const Icon(Icons.play_arrow),
             onPressed: _testParser,
-            tooltip: 'Run Tests',
+            tooltip: context.t('runTests'),
           ),
         ],
       ),
@@ -163,9 +164,9 @@ class _NotificationDebugPageState extends State<NotificationDebugPage> {
                     children: [
                       Icon(Icons.info, color: Colors.blue[700]),
                       const SizedBox(width: 8),
-                      const Text(
-                        'Debug Page',
-                        style: TextStyle(
+                      Text(
+                        context.t('debugPage'),
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -174,7 +175,7 @@ class _NotificationDebugPageState extends State<NotificationDebugPage> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'This page is for testing the notification parser without actual bank notifications. Click the play button to run tests.',
+                    context.t('debugPageDesc'),
                     style: TextStyle(color: Colors.grey[700]),
                   ),
                 ],
@@ -188,9 +189,9 @@ class _NotificationDebugPageState extends State<NotificationDebugPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Custom Test',
-                    style: TextStyle(
+                  Text(
+                    context.t('customTest'),
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -198,28 +199,28 @@ class _NotificationDebugPageState extends State<NotificationDebugPage> {
                   const SizedBox(height: 12),
                   TextField(
                     controller: _bankController,
-                    decoration: const InputDecoration(
-                      labelText: 'Bank Name (optional)',
+                    decoration: InputDecoration(
+                      labelText: context.t('bankNameOptional'),
                       hintText: 'e.g., Sberbank',
-                      border: OutlineInputBorder(),
+                      border: const OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 8),
                   TextField(
                     controller: _titleController,
-                    decoration: const InputDecoration(
-                      labelText: 'Notification Title',
+                    decoration: InputDecoration(
+                      labelText: context.t('notificationTitle'),
                       hintText: 'e.g., Покупка',
-                      border: OutlineInputBorder(),
+                      border: const OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 8),
                   TextField(
                     controller: _textController,
-                    decoration: const InputDecoration(
-                      labelText: 'Notification Text',
+                    decoration: InputDecoration(
+                      labelText: context.t('notificationText'),
                       hintText: 'e.g., Покупка 1500.00 руб. Магазин',
-                      border: OutlineInputBorder(),
+                      border: const OutlineInputBorder(),
                     ),
                     maxLines: 2,
                   ),
@@ -227,7 +228,7 @@ class _NotificationDebugPageState extends State<NotificationDebugPage> {
                   ElevatedButton.icon(
                     onPressed: _testCustomNotification,
                     icon: const Icon(Icons.science),
-                    label: const Text('Test Custom Notification'),
+                    label: Text(context.t('testCustomNotification')),
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size.fromHeight(44),
                     ),
@@ -238,13 +239,13 @@ class _NotificationDebugPageState extends State<NotificationDebugPage> {
           ),
           const SizedBox(height: 16),
           if (_parsedResults.isEmpty)
-            const Center(
+            Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.touch_app, size: 64, color: Colors.grey),
-                  SizedBox(height: 16),
-                  Text('Click play to run parser tests'),
+                  const Icon(Icons.touch_app, size: 64, color: Colors.grey),
+                  const SizedBox(height: 16),
+                  Text(context.t('clickPlayTests')),
                 ],
               ),
             )
@@ -253,7 +254,7 @@ class _NotificationDebugPageState extends State<NotificationDebugPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Test Results (${_parsedResults.length})',
+                  context.tx('testResults', {'count': _parsedResults.length}),
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -324,11 +325,11 @@ class _NotificationDebugPageState extends State<NotificationDebugPage> {
               const SizedBox(height: 12),
               const Divider(),
               const SizedBox(height: 12),
-              _buildResultRow('Amount', '${parsed.amount} ${parsed.currency}'),
-              _buildResultRow('Type', parsed.type.toString()),
-              _buildResultRow('Merchant', parsed.merchant ?? 'N/A'),
-              _buildResultRow('Card', parsed.cardLastDigits ?? 'N/A'),
-              _buildResultRow('Suggested Category', category),
+              _buildResultRow(context.t('amount'), '${parsed.amount} ${parsed.currency}'),
+              _buildResultRow(context.t('paymentType'), parsed.type.toString()),
+              _buildResultRow(context.t('merchant'), parsed.merchant ?? 'N/A'),
+              _buildResultRow(context.t('card'), parsed.cardLastDigits ?? 'N/A'),
+              _buildResultRow(context.t('suggestedCategory'), context.categoryName(category)),
             ],
           ],
         ),

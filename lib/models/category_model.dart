@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'transaction_model.dart';
 
 class Category {
@@ -81,85 +81,84 @@ class Category {
 const List<Category> defaultCategories = [
   Category(
     id: 'groceries',
-    name: 'Продукты',
+    name: 'Groceries',
     icon: Icons.shopping_cart,
     type: TransactionType.expense,
     color: Color(0xFFE53935),
   ),
   Category(
     id: 'transport',
-    name: 'Транспорт',
+    name: 'Transport',
     icon: Icons.directions_car,
     type: TransactionType.expense,
     color: Color(0xFF3B82F6),
   ),
   Category(
     id: 'utilities',
-    name: 'Коммунальные услуги',
+    name: 'Utilities',
     icon: Icons.lightbulb,
     type: TransactionType.expense,
     color: Color(0xFFF59E0B),
   ),
   Category(
     id: 'entertainment',
-    name: 'Развлечения',
+    name: 'Entertainment',
     icon: Icons.movie,
     type: TransactionType.expense,
     color: Color(0xFF9C27B0),
   ),
   Category(
     id: 'healthcare',
-    name: 'Здоровье',
+    name: 'Healthcare',
     icon: Icons.local_hospital,
     type: TransactionType.expense,
     color: Color(0xFFE91E63),
   ),
   Category(
     id: 'education',
-    name: 'Образование',
+    name: 'Education',
     icon: Icons.school,
     type: TransactionType.expense,
     color: Color(0xFF2196F3),
   ),
   Category(
     id: 'other',
-    name: 'Другое',
+    name: 'Other',
     icon: Icons.more_horiz,
     type: TransactionType.expense,
     color: Color(0xFF607D8B),
   ),
-  // Income categories
   Category(
     id: 'salary',
-    name: 'Зарплата',
+    name: 'Salary',
     icon: Icons.attach_money,
     type: TransactionType.income,
     color: Color(0xFF4CAF50),
   ),
   Category(
     id: 'freelance',
-    name: 'Фриланс',
+    name: 'Freelance',
     icon: Icons.work,
     type: TransactionType.income,
     color: Color(0xFF2196F3),
   ),
   Category(
     id: 'investment',
-    name: 'Инвестиции',
+    name: 'Investments',
     icon: Icons.trending_up,
     type: TransactionType.income,
     color: Color(0xFF9C27B0),
   ),
   Category(
     id: 'gift',
-    name: 'Подарки',
+    name: 'Gifts',
     icon: Icons.card_giftcard,
     type: TransactionType.income,
     color: Color(0xFFFF9800),
   ),
   Category(
     id: 'other_income',
-    name: 'Другой доход',
+    name: 'Other income',
     icon: Icons.add_circle,
     type: TransactionType.income,
     color: Color(0xFF795548),
