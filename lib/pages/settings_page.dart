@@ -1,8 +1,38 @@
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
+import '../services/gemini_config_service.dart';
+import '../services/gemini_notification_parser.dart';
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
+
+  @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  @override
+  void initState() {
+    super.initState();
+    _loadSettings();
+  }
+
+  bool _aiEnabled = false;
+  String _apiKey = '';
+  bool _isLoading = false;
+
+  Future<void> _loadSettings() async {
+    setState(() {
+      _isLoading = true;
+    });
+    final enabled = await GeminiConfigService.isAIEnabled();
+    final key = await GeminiConfigService.getApiKey();
+    setState(() {
+      _aiEnabled = enabled;
+      _apiKey = key ?? '';
+      _isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -134,6 +164,105 @@ class SettingsPage extends StatelessWidget {
                         }
                       },
                     ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // AI Settings Section
+            Card(
+              elevation: 4,
+              shadowColor: Colors.black.withOpacity(0.08),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.purple.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(Icons.psychology, color: Colors.purple, size: 24),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'AI Transaction Parsing',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF1A1A1A),
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Use Gemini AI to parse bank notifications',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Color(0xFF6B7280),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Switch(
+                          value: _aiEnabled,
+                          onChanged: (value) async {
+                            if (value && _apiKey.isEmpty) {
+                              _showApiKeyDialog();
+                            } else {
+                              await GeminiConfigService.setAIEnabled(value);
+                              setState(() {
+                                _aiEnabled = value;
+                              });
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    if (_aiEnabled) ...[
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.check_circle, color: Colors.green, size: 20),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                GeminiNotificationParser.isAvailable
+                                    ? 'Gemini AI is active and ready'
+                                    : 'Gemini AI is not initialized',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Color(0xFF1A1A1A),
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.edit, size: 18),
+                              onPressed: _showApiKeyDialog,
+                              tooltip: 'Edit API Key',
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -305,6 +434,65 @@ class SettingsPage extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  void _showApiKeyDialog() {
+    final controller = TextEditingController(text: _apiKey);
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Gemini API Key'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Enter your Google Gemini API key to enable AI-powered transaction parsing.',
+              style: TextStyle(fontSize: 14),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: controller,
+              decoration: const InputDecoration(
+                hintText: 'AIza...',
+                border: OutlineInputBorder(),
+                labelText: 'API Key',
+              ),
+              obscureText: true,
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Get your API key from: https://makersuite.google.com/app/apikey',
+              style: TextStyle(fontSize: 11, color: Colors.grey),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              final newKey = controller.text.trim();
+              if (newKey.isNotEmpty) {
+                await GeminiConfigService.saveApiKey(newKey);
+                await GeminiConfigService.setAIEnabled(true);
+                setState(() {
+                  _apiKey = newKey;
+                  _aiEnabled = true;
+                });
+              }
+              if (context.mounted) {
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
     );
   }
 }
