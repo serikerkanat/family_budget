@@ -122,7 +122,9 @@ class SettingsPage extends StatelessWidget {
                           child: Text(
                             language == AppLanguage.english
                                 ? context.t('english')
-                                : context.t('russian'),
+                                : language == AppLanguage.russian
+                                    ? context.t('russian')
+                                    : context.t('kazakh'),
                           ),
                         );
                       }).toList(),
