@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/transaction_model.dart';
 import '../models/category_model.dart';
+import '../l10n/app_localizations.dart';
 
 class TransactionDetailsPage extends StatelessWidget {
   final TransactionModel transaction;
@@ -25,7 +26,7 @@ class TransactionDetailsPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
-        title: const Text('Transaction Details'),
+        title: Text(context.t('transactionDetails')),
         backgroundColor: Colors.transparent,
         actions: [
           IconButton(
@@ -45,17 +46,17 @@ class TransactionDetailsPage extends StatelessWidget {
               final confirm = await showDialog<bool>(
                 context: context,
                 builder: (context) => AlertDialog(
-                  title: const Text('Delete Transaction'),
-                  content: const Text('Are you sure you want to delete this transaction?'),
+                  title: Text(context.t('deleteTransaction')),
+                  content: Text(context.t('deleteTransactionConfirm')),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(false),
-                      child: const Text('Cancel'),
+                      child: Text(context.t('cancel')),
                     ),
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(true),
                       style: TextButton.styleFrom(foregroundColor: Colors.red),
-                      child: const Text('Delete'),
+                      child: Text(context.t('delete')),
                     ),
                   ],
                 ),
@@ -100,7 +101,7 @@ class TransactionDetailsPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${isIncome ? 'Income' : 'Expense'}',
+                    isIncome ? context.t('income') : context.t('expense'),
                     style: const TextStyle(
                       color: Colors.white70,
                       fontSize: 14,
@@ -135,33 +136,33 @@ class TransactionDetailsPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildDetailRow(
-                      'Title',
+                      context.t('title'),
                       transaction.title,
                       Icons.title,
                     ),
                     const Divider(height: 24),
                     _buildDetailRow(
-                      'Category',
-                      category.name,
+                      context.t('category'),
+                      context.categoryName(category.id),
                       category.icon,
                       iconColor: isIncome ? Colors.green : Colors.red,
                     ),
                     const Divider(height: 24),
                     _buildDetailRow(
-                      'Date',
+                      context.t('date'),
                       formattedDate,
                       Icons.calendar_today,
                     ),
                     const Divider(height: 24),
                     _buildDetailRow(
-                      'Time',
+                      context.t('time'),
                       formattedTime,
                       Icons.access_time,
                     ),
                     if (transaction.notes?.isNotEmpty ?? false) ...[
                       const Divider(height: 24),
                       _buildDetailRow(
-                        'Notes',
+                        context.t('notes'),
                         transaction.notes!,
                         Icons.note,
                       ),
@@ -175,7 +176,7 @@ class TransactionDetailsPage extends StatelessWidget {
             // Receipt Image (if available)
             if (transaction.receiptImagePath != null) ...[
               Text(
-                'Receipt',
+                context.t('receipt'),
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -211,7 +212,7 @@ class TransactionDetailsPage extends StatelessWidget {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Unable to load receipt',
+                              context.t('unableLoadReceipt'),
                               style: TextStyle(
                                 color: Colors.grey[600],
                                 fontSize: 16,

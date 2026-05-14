@@ -1,4 +1,4 @@
-// main.dart - Firebase версия
+﻿// main.dart - Firebase РІРµСЂСЃРёСЏ
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -23,6 +23,7 @@ import 'pages/family_management_page.dart';
 import 'pages/budget_management_page.dart';
 import 'pages/notification_settings_page.dart';
 import 'pages/recurring_payments_page.dart';
+import 'l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,94 +31,121 @@ void main() async {
   runApp(const BudgetApp());
 }
 
-class BudgetApp extends StatelessWidget {
+class BudgetApp extends StatefulWidget {
   const BudgetApp({super.key});
 
   @override
+  State<BudgetApp> createState() => _BudgetAppState();
+}
+
+class _BudgetAppState extends State<BudgetApp> {
+  final AppLanguageController _languageController = AppLanguageController();
+
+  @override
+  void initState() {
+    super.initState();
+    _languageController.load();
+  }
+
+  @override
+  void dispose() {
+    _languageController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Family Budget',
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.green,
-          brightness: Brightness.light,
-        ),
-        scaffoldBackgroundColor: const Color(0xFFF8F9FA),
-        appBarTheme: const AppBarTheme(
-          elevation: 0,
-          centerTitle: true,
-          backgroundColor: Colors.transparent,
-          surfaceTintColor: Colors.transparent,
-          titleTextStyle: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF1A1A1A),
-          ),
-        ),
-        inputDecorationTheme: InputDecorationTheme(
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide(color: Colors.grey[300]!),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide(color: Colors.grey[300]!),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: Colors.green, width: 2),
-          ),
-          filled: true,
-          fillColor: Colors.white,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          labelStyle: const TextStyle(
-            color: Color(0xFF6B7280),
-            fontWeight: FontWeight.w500,
-          ),
-          hintStyle: TextStyle(
-            color: Colors.grey[400],
-          ),
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 24),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            elevation: 2,
-            shadowColor: Colors.black.withOpacity(0.1),
-            textStyle: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-        cardTheme: CardThemeData(
-          elevation: 4,
-          shadowColor: Colors.black.withOpacity(0.08),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-        ),
-      ),
-      home: StreamBuilder<User?>(
-        stream: AuthService.authStateChanges,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(),
+    return AppLanguageScope(
+      controller: _languageController,
+      child: AnimatedBuilder(
+        animation: _languageController,
+        builder: (context, _) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: context.t('appName'),
+            theme: ThemeData(
+              useMaterial3: true,
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: Colors.green,
+                brightness: Brightness.light,
               ),
-            );
-          }
-          
-          if (snapshot.hasData) {
-            return const HomePage();
-          } else {
-            return const AuthPage();
-          }
+              scaffoldBackgroundColor: const Color(0xFFF8F9FA),
+              appBarTheme: const AppBarTheme(
+                elevation: 0,
+                centerTitle: true,
+                backgroundColor: Colors.transparent,
+                surfaceTintColor: Colors.transparent,
+                titleTextStyle: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF1A1A1A),
+                ),
+              ),
+              inputDecorationTheme: InputDecorationTheme(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide(color: Colors.grey[300]!),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide(color: Colors.grey[300]!),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: const BorderSide(color: Colors.green, width: 2),
+                ),
+                filled: true,
+                fillColor: Colors.white,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                labelStyle: const TextStyle(
+                  color: Color(0xFF6B7280),
+                  fontWeight: FontWeight.w500,
+                ),
+                hintStyle: TextStyle(
+                  color: Colors.grey[400],
+                ),
+              ),
+              elevatedButtonTheme: ElevatedButtonThemeData(
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 24),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  elevation: 2,
+                  shadowColor: Colors.black.withOpacity(0.1),
+                  textStyle: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              cardTheme: CardThemeData(
+                elevation: 4,
+                shadowColor: Colors.black.withOpacity(0.08),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+            ),
+            home: StreamBuilder<User?>(
+              stream: AuthService.authStateChanges,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Scaffold(
+                    body: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                }
+
+                if (snapshot.hasData) {
+                  return const HomePage();
+                } else {
+                  return const AuthPage();
+                }
+              },
+            ),
+          );
         },
       ),
     );
@@ -136,13 +164,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   double _totalIncome = 0;
   double _totalExpense = 0;
   late TabController _tabController;
-  final List<String> _tabs = ['All', 'Income', 'Expense'];
   int _currentTabIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: _tabs.length, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     // Start auto transaction service
     AutoTransactionService.start();
   }
@@ -187,7 +214,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Family Budget'),
+        title: Text(context.t('appName')),
         backgroundColor: Colors.transparent,
         actions: [
           IconButton(
@@ -216,7 +243,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 MaterialPageRoute(builder: (_) => const FamilyManagementPage()),
               );
             },
-            tooltip: 'Family Management',
+            tooltip: context.t('familyManagement'),
           ),
           IconButton(
             icon: Container(
@@ -244,7 +271,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 MaterialPageRoute(builder: (_) => const BudgetManagementPage()),
               );
             },
-            tooltip: 'Budget Management',
+            tooltip: context.t('budgetManagement'),
           ),
           IconButton(
             icon: Container(
@@ -272,7 +299,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 MaterialPageRoute(builder: (_) => const NotificationSettingsPage()),
               );
             },
-            tooltip: 'Notifications',
+            tooltip: context.t('notifications'),
           ),
           IconButton(
             icon: Container(
@@ -300,7 +327,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 MaterialPageRoute(builder: (_) => const RecurringPaymentsPage()),
               );
             },
-            tooltip: 'Recurring Payments',
+            tooltip: context.t('recurringPayments'),
           ),
           IconButton(
             icon: Container(
@@ -328,7 +355,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 MaterialPageRoute(builder: (_) => const AnalyticsPage()),
               );
             },
-            tooltip: 'Analytics',
+            tooltip: context.t('analytics'),
           ),
           IconButton(
             icon: Container(
@@ -399,7 +426,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             ),
             child: TabBar(
               controller: _tabController,
-              tabs: _tabs.map((tab) => Tab(text: tab)).toList(),
+              tabs: [
+                Tab(text: context.t('all')),
+                Tab(text: context.t('income')),
+                Tab(text: context.t('expense')),
+              ],
               onTap: (index) {
                 setState(() {
                   _currentTabIndex = index;
@@ -433,7 +464,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           }
         },
         icon: const Icon(Icons.add),
-        label: const Text('Add'),
+        label: Text(context.t('add')),
         backgroundColor: const Color(0xFF10B981),
         foregroundColor: Colors.white,
         elevation: 6,
@@ -448,7 +479,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-          
+
           if (snapshot.hasError) {
             return Center(
               child: Column(
@@ -457,18 +488,18 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   Icon(Icons.error, size: 64, color: Colors.grey[400]),
                   const SizedBox(height: 16),
                   Text(
-                    'Error loading transactions',
+                    context.t('errorLoadingTransactions'),
                     style: TextStyle(color: Colors.grey[600]),
                   ),
                 ],
               ),
             );
           }
-          
+
           _transactions = snapshot.data ?? [];
           _calculateTotals();
           final balance = _totalIncome - _totalExpense;
-          
+
           return Column(
             children: [
               _buildSummary(balance),
@@ -510,7 +541,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       child: Column(
         children: [
           Text(
-            'Total Balance',
+            context.t('totalBalance'),
             style: const TextStyle(
               color: Colors.white70,
               fontSize: 16,
@@ -531,8 +562,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildSummaryItem('Income', _totalIncome, true),
-              _buildSummaryItem('Expense', _totalExpense, false),
+              _buildSummaryItem(context.t('income'), _totalIncome, true),
+              _buildSummaryItem(context.t('expense'), _totalExpense, false),
             ],
           ),
         ],
@@ -576,7 +607,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           ),
           const SizedBox(height: 16),
           Text(
-            'No transactions yet',
+            context.t('noTransactionsYet'),
             style: TextStyle(
               fontSize: 18,
               color: Colors.grey[600],
@@ -585,7 +616,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           ),
           const SizedBox(height: 8),
           Text(
-            'Tap + to add your first transaction',
+            context.t('tapToAddFirstTransaction'),
             style: TextStyle(
               color: Colors.grey[500],
             ),
@@ -600,7 +631,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       future: PermissionService.canDeleteTransactions(),
       builder: (context, snapshot) {
         final canDelete = snapshot.data ?? false;
-        
+
         return ListView.builder(
           padding: const EdgeInsets.only(top: 8, bottom: 100),
           itemCount: _filteredTransactions.length,
@@ -649,19 +680,19 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 return await showDialog(
                   context: context,
                   builder: (context) => AlertDialog(
-                    title: const Text('Delete Transaction'),
-                    content: const Text('Are you sure you want to delete this transaction?'),
+                    title: Text(context.t('deleteTransaction')),
+                    content: Text(context.t('deleteTransactionConfirm')),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.of(context).pop(false),
-                        child: const Text('Cancel'),
+                        child: Text(context.t('cancel')),
                       ),
                       TextButton(
                         onPressed: () => Navigator.of(context).pop(true),
                         style: TextButton.styleFrom(
                           foregroundColor: Colors.red,
                         ),
-                        child: const Text('Delete'),
+                        child: Text(context.t('delete')),
                       ),
                     ],
                   ),
@@ -769,7 +800,7 @@ class _TransactionCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            category.name,
+                            context.categoryName(category.id),
                             style: TextStyle(
                               color: Colors.grey[700],
                               fontSize: 11,
@@ -810,7 +841,7 @@ class _TransactionCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: isIncome 
+                      color: isIncome
                           ? const Color(0xFF10B981).withOpacity(0.1)
                           : const Color(0xFFEF4444).withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
@@ -842,7 +873,7 @@ class _TransactionCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 3),
                           Text(
-                            'Receipt',
+                            context.t('receipt'),
                             style: TextStyle(
                               color: Colors.blue[700],
                               fontSize: 10,
@@ -922,8 +953,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Failed to pick image. Please try again.'),
+        SnackBar(
+          content: Text(context.t('pickImageFailed')),
           backgroundColor: Colors.red,
         ),
       );
@@ -954,7 +985,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
-        title: const Text('Add Transaction'),
+        title: Text(context.t('addTransaction')),
         backgroundColor: Colors.transparent,
         actions: [
           Container(
@@ -969,8 +1000,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text(
-                'Save',
+              child: Text(
+                context.t('save'),
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                 ),
@@ -1007,12 +1038,12 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
                   ],
-                  decoration: const InputDecoration(
-                    labelText: 'Amount',
+                  decoration: InputDecoration(
+                    labelText: context.t('amount'),
                     prefixText: '\$ ',
                     hintText: '0.00',
                     border: InputBorder.none,
-                    contentPadding: EdgeInsets.all(20),
+                    contentPadding: const EdgeInsets.all(20),
                   ),
                   style: const TextStyle(
                     fontSize: 28,
@@ -1022,11 +1053,11 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                   textAlign: TextAlign.center,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter an amount';
+                      return context.t('enterAmount');
                     }
                     final amount = double.tryParse(value);
                     if (amount == null || amount <= 0) {
-                      return 'Please enter a valid amount';
+                      return context.t('validAmount');
                     }
                     return null;
                   },
@@ -1067,7 +1098,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                           },
                           borderRadius: BorderRadius.circular(12),
                           child: Text(
-                            'Expense',
+                            context.t('expense'),
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: _type == TransactionType.expense
@@ -1106,7 +1137,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                           },
                           borderRadius: BorderRadius.circular(12),
                           child: Text(
-                            'Income',
+                            context.t('income'),
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: _type == TransactionType.income
@@ -1129,14 +1160,14 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
               // Title Input
               TextFormField(
                 controller: _titleController,
-                decoration: const InputDecoration(
-                  labelText: 'Title',
-                  hintText: 'e.g. Groceries, Salary, etc.',
-                  prefixIcon: Icon(Icons.title),
+                decoration: InputDecoration(
+                  labelText: context.t('title'),
+                  hintText: context.t('titleHint'),
+                  prefixIcon: const Icon(Icons.title),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Please enter a title';
+                    return context.t('enterTitle');
                   }
                   return null;
                 },
@@ -1159,9 +1190,9 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Receipt (Optional)',
-                    style: TextStyle(
+                  Text(
+                    context.t('receiptOptional'),
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       color: Colors.grey,
@@ -1191,7 +1222,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Tap to add receipt',
+                            context.t('tapToAddReceipt'),
                             style: TextStyle(
                               color: Colors.grey[500],
                             ),
@@ -1214,10 +1245,10 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
               // Notes
               TextFormField(
                 controller: _notesController,
-                decoration: const InputDecoration(
-                  labelText: 'Notes (Optional)',
-                  hintText: 'Add any additional notes...',
-                  prefixIcon: Icon(Icons.notes),
+                decoration: InputDecoration(
+                  labelText: context.t('notesOptional'),
+                  hintText: context.t('notesHint'),
+                  prefixIcon: const Icon(Icons.notes),
                 ),
                 maxLines: 3,
               ),
@@ -1226,7 +1257,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
               // Save Button
               ElevatedButton(
                 onPressed: _submitForm,
-                child: const Text('Save Transaction'),
+                child: Text(context.t('saveTransaction')),
               ),
               const SizedBox(height: 16),
             ],

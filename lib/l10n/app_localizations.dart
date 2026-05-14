@@ -1,0 +1,568 @@
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+enum AppLanguage {
+  english('en', 'English'),
+  russian('ru', 'Русский');
+
+  const AppLanguage(this.code, this.label);
+
+  final String code;
+  final String label;
+
+  static AppLanguage fromCode(String? code) {
+    return AppLanguage.values.firstWhere(
+      (language) => language.code == code,
+      orElse: () => AppLanguage.english,
+    );
+  }
+}
+
+class AppLanguageController extends ChangeNotifier {
+  static const _preferenceKey = 'app_language';
+
+  AppLanguage _language = AppLanguage.english;
+  bool _isLoaded = false;
+
+  AppLanguage get language => _language;
+  bool get isLoaded => _isLoaded;
+
+  Locale get locale => Locale(_language.code);
+
+  Future<void> load() async {
+    final preferences = await SharedPreferences.getInstance();
+    _language = AppLanguage.fromCode(preferences.getString(_preferenceKey));
+    _isLoaded = true;
+    notifyListeners();
+  }
+
+  Future<void> setLanguage(AppLanguage language) async {
+    if (_language == language && _isLoaded) return;
+    _language = language;
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.setString(_preferenceKey, language.code);
+    notifyListeners();
+  }
+}
+
+class AppLanguageScope extends InheritedNotifier<AppLanguageController> {
+  const AppLanguageScope({
+    super.key,
+    required AppLanguageController controller,
+    required super.child,
+  }) : super(notifier: controller);
+
+  static AppLanguageController of(BuildContext context) {
+    final scope = context.dependOnInheritedWidgetOfExactType<AppLanguageScope>();
+    assert(scope != null, 'No AppLanguageScope found in context');
+    return scope!.notifier!;
+  }
+}
+
+extension AppLocalizationsExtension on BuildContext {
+  AppLanguageController get languageController => AppLanguageScope.of(this);
+  AppLanguage get appLanguage => AppLanguageScope.of(this).language;
+
+  String t(String key) => AppLocalizations.translate(appLanguage, key);
+
+  String tx(String key, Map<String, Object?> values) {
+    var text = t(key);
+    values.forEach((name, value) {
+      text = text.replaceAll('{$name}', value.toString());
+    });
+    return text;
+  }
+
+  String categoryName(String categoryId) {
+    return AppLocalizations.categoryName(appLanguage, categoryId);
+  }
+
+  String transactionTypeName(dynamic type) {
+    final value = type.toString().split('.').last;
+    return AppLocalizations.translate(appLanguage, 'transactionType.$value');
+  }
+
+  String recurringPaymentTypeName(dynamic type) {
+    final value = type.toString().split('.').last;
+    return AppLocalizations.translate(appLanguage, 'recurringType.$value');
+  }
+
+  String userRoleName(dynamic role) {
+    final value = role.toString().split('.').last;
+    return AppLocalizations.translate(appLanguage, 'role.$value');
+  }
+}
+
+class AppLocalizations {
+  static String translate(AppLanguage language, String key) {
+    return _localizedValues[language]?[key] ??
+        _localizedValues[AppLanguage.english]?[key] ??
+        key;
+  }
+
+  static String categoryName(AppLanguage language, String id) {
+    return _categoryValues[language]?[id] ??
+        _categoryValues[AppLanguage.english]?[id] ??
+        id;
+  }
+
+  static const Map<AppLanguage, Map<String, String>> _categoryValues = {
+    AppLanguage.english: {
+      'groceries': 'Groceries',
+      'transport': 'Transport',
+      'utilities': 'Utilities',
+      'entertainment': 'Entertainment',
+      'healthcare': 'Healthcare',
+      'education': 'Education',
+      'other': 'Other',
+      'salary': 'Salary',
+      'freelance': 'Freelance',
+      'investment': 'Investments',
+      'gift': 'Gifts',
+      'other_income': 'Other income',
+    },
+    AppLanguage.russian: {
+      'groceries': 'Продукты',
+      'transport': 'Транспорт',
+      'utilities': 'Коммунальные услуги',
+      'entertainment': 'Развлечения',
+      'healthcare': 'Здоровье',
+      'education': 'Образование',
+      'other': 'Другое',
+      'salary': 'Зарплата',
+      'freelance': 'Фриланс',
+      'investment': 'Инвестиции',
+      'gift': 'Подарки',
+      'other_income': 'Другой доход',
+    },
+  };
+
+  static const Map<AppLanguage, Map<String, String>> _localizedValues = {
+    AppLanguage.english: {
+      'appName': 'Family Budget',
+      'settings': 'Settings',
+      'language': 'Language',
+      'english': 'English',
+      'russian': 'Russian',
+      'version': 'Version 1.0.0',
+      'appDescription': 'A simple and elegant budget tracking app to help you manage your family finances efficiently.',
+      'features': 'Features',
+      'tips': 'Tips',
+      'trackIncomeExpenses': 'Track Income & Expenses',
+      'trackIncomeExpensesDesc': 'Monitor all your financial transactions',
+      'categorizeTransactions': 'Categorize Transactions',
+      'categorizeTransactionsDesc': 'Organize expenses by categories',
+      'receiptImages': 'Receipt Images',
+      'receiptImagesDesc': 'Attach receipt photos to transactions',
+      'detailedViews': 'Detailed Views',
+      'detailedViewsDesc': 'View complete transaction details',
+      'tipDetails': 'Tap on any transaction to view full details',
+      'tipDelete': 'Swipe left on transactions to delete them',
+      'tipTabs': 'Use the tabs to filter by transaction type',
+      'all': 'All',
+      'income': 'Income',
+      'expense': 'Expense',
+      'add': 'Add',
+      'save': 'Save',
+      'cancel': 'Cancel',
+      'delete': 'Delete',
+      'remove': 'Remove',
+      'edit': 'Edit',
+      'create': 'Create',
+      'join': 'Join',
+      'set': 'Set',
+      'refresh': 'Refresh',
+      'totalBalance': 'Total Balance',
+      'totalIncome': 'Total Income',
+      'totalExpense': 'Total Expense',
+      'netBalance': 'Net Balance',
+      'noTransactionsYet': 'No transactions yet',
+      'tapToAddFirstTransaction': 'Tap + to add your first transaction',
+      'deleteTransaction': 'Delete Transaction',
+      'deleteTransactionConfirm': 'Are you sure you want to delete this transaction?',
+      'errorLoadingTransactions': 'Error loading transactions',
+      'familyManagement': 'Family Management',
+      'budgetManagement': 'Budget Management',
+      'notifications': 'Notifications',
+      'recurringPayments': 'Recurring Payments',
+      'analytics': 'Analytics',
+      'addTransaction': 'Add Transaction',
+      'amount': 'Amount',
+      'title': 'Title',
+      'titleHint': 'e.g. Groceries, Salary, etc.',
+      'category': 'Category',
+      'receiptOptional': 'Receipt (Optional)',
+      'tapToAddReceipt': 'Tap to add receipt',
+      'notesOptional': 'Notes (Optional)',
+      'notesHint': 'Add any additional notes...',
+      'saveTransaction': 'Save Transaction',
+      'enterAmount': 'Please enter an amount',
+      'validAmount': 'Please enter a valid amount',
+      'enterTitle': 'Please enter a title',
+      'pickImageFailed': 'Failed to pick image. Please try again.',
+      'receipt': 'Receipt',
+      'transactionDetails': 'Transaction Details',
+      'date': 'Date',
+      'time': 'Time',
+      'notes': 'Notes',
+      'unableLoadReceipt': 'Unable to load receipt',
+      'email': 'Email',
+      'password': 'Password',
+      'confirmPassword': 'Confirm Password',
+      'welcomeBack': 'Welcome back!',
+      'createAccount': 'Create your account',
+      'signIn': 'Sign In',
+      'signUp': 'Sign Up',
+      'forgotPassword': 'Forgot Password?',
+      'dontHaveAccount': "Don't have an account? ",
+      'alreadyHaveAccount': 'Already have an account? ',
+      'enterEmail': 'Please enter your email',
+      'validEmail': 'Please enter a valid email',
+      'enterPassword': 'Please enter your password',
+      'passwordLength': 'Password must be at least 6 characters',
+      'confirmPasswordPrompt': 'Please confirm your password',
+      'passwordsMismatch': 'Passwords do not match',
+      'monthlyBudgets': 'Monthly Budgets',
+      'active': 'Active',
+      'errorLoadingBudgets': 'Error loading budgets',
+      'budgetSet': 'Budget set successfully for {category}',
+      'budgetDeleted': 'Budget deleted successfully',
+      'errorSettingBudget': 'Error setting budget: {error}',
+      'errorDeletingBudget': 'Error deleting budget: {error}',
+      'deleteBudget': 'Delete Budget',
+      'deleteBudgetConfirm': 'Are you sure you want to delete the budget for {category}?',
+      'ofAmount': 'of {amount}',
+      'percentUsed': '{percent}% used',
+      'amountRemaining': '{amount} remaining',
+      'monthlyLimit': 'Monthly Limit (\$)',
+      'activePayments': 'Active Payments',
+      'errorLoadingPayments': 'Error loading payments',
+      'addNewPayment': 'Add New Payment',
+      'paymentTitle': 'Payment Title',
+      'paymentType': 'Payment Type',
+      'addPayment': 'Add Payment',
+      'noRecurringPayments': 'No recurring payments yet',
+      'deletePayment': 'Delete Payment',
+      'deletePaymentConfirm': 'Are you sure you want to delete "{title}"?',
+      'paymentCreated': 'Recurring payment created successfully',
+      'paymentDeleted': 'Payment deleted successfully',
+      'errorCreatingPayment': 'Error creating payment: {error}',
+      'nextDate': 'Next: {date}',
+      'overdue': 'OVERDUE',
+      'recurringType.monthly': 'Monthly',
+      'recurringType.weekly': 'Weekly',
+      'recurringType.yearly': 'Yearly',
+      'recurringType.oneTime': 'One time',
+      'transactionType.income': 'Income',
+      'transactionType.expense': 'Expense',
+      'expenseCategories': 'Expense Categories',
+      'incomeSources': 'Income Sources',
+      'monthlyTrends': 'Monthly Trends',
+      'recentTransactions': 'Recent Transactions',
+      'aiForecast': 'AI Forecast',
+      'budgetAlert': 'Budget Alert!',
+      'lookingGood': 'Looking Good!',
+      'onTrack': 'On Track',
+      'dailySpend': 'Daily Spend',
+      'daysLeft': 'Days Left',
+      'balanceLabel': 'Balance: {amount}',
+      'familyCode': 'Family Code',
+      'copyFamilyCode': 'Copy Family Code',
+      'leaveFamily': 'Leave Family',
+      'leaveFamilyConfirm': 'Are you sure you want to leave this family?',
+      'youLeftFamily': 'You have left the family',
+      'notInFamily': 'You are not in a family',
+      'createOrJoinFamily': 'Create a new family or join an existing one',
+      'createFamily': 'Create Family',
+      'joinFamily': 'Join Family',
+      'familyName': 'Family Name',
+      'yourRole': 'Your Role',
+      'shareFamilyCode': 'Share this code with family members to invite them.',
+      'familyMembers': 'Family Members',
+      'noMembersFound': 'No members found',
+      'unknown': 'Unknown',
+      'parent': 'Parent',
+      'child': 'Child',
+      'changeRole': 'Change Role',
+      'role.parent': 'Parent',
+      'role.child': 'Child',
+      'role.owner': 'Owner',
+      'enterFamilyName': 'Please enter a family name',
+      'enterFamilyCode': 'Please enter a family code',
+      'familyCreated': 'Family created successfully!\nYour family code: {code}\nShare this code with family members.',
+      'joinedFamily': 'Joined family successfully!',
+      'invalidFamilyCode': 'Invalid family code or family not found',
+      'familyCodeCopied': 'Family code copied to clipboard!',
+      'roleUpdated': 'Role updated successfully',
+      'parentsChangeRoles': 'Only parents can change member roles',
+      'memberRemoved': 'Member removed successfully',
+      'parentsRemoveMembers': 'Only parents can remove members',
+      'errorLoadingFamily': 'Error loading family data',
+      'removeMember': 'Remove Member',
+      'removeMemberConfirm': 'Are you sure you want to remove {email} from the family?',
+      'notificationSettings': 'Notification Settings',
+      'errorLoadingSettings': 'Error loading settings: {error}',
+      'debugParser': 'Debug Parser',
+      'notificationParserDebug': 'Notification Parser Debug',
+      'clearResults': 'Clear Results',
+      'runTests': 'Run Tests',
+      'debugPage': 'Debug Page',
+      'debugPageDesc': 'This page is for testing the notification parser without actual bank notifications. Click the play button to run tests.',
+      'customTest': 'Custom Test',
+      'bankNameOptional': 'Bank Name (optional)',
+      'notificationTitle': 'Notification Title',
+      'notificationText': 'Notification Text',
+      'testCustomNotification': 'Test Custom Notification',
+      'clickPlayTests': 'Click play to run parser tests',
+      'testResults': 'Test Results ({count})',
+      'enterTitleAndText': 'Please enter title and text',
+      'failedParseNotification': 'Failed to parse notification',
+      'parsedNotification': 'Parsed: {amount} {currency}',
+      'merchant': 'Merchant',
+      'card': 'Card',
+      'suggestedCategory': 'Suggested Category',
+      'notificationPermission': 'Notification Permission',
+      'permissionGranted': 'Permission granted. App can read banking notifications.',
+      'permissionRequired': 'Permission required. App needs access to read banking notifications.',
+      'grantPermission': 'Grant Permission',
+      'automaticTracking': 'Automatic Tracking',
+      'autoImportNotifications': 'Automatically import transactions from banking notifications.',
+      'parentsOnlySetting': 'Only parents can change this setting.',
+      'enableAutomaticTracking': 'Enable automatic tracking',
+      'trackingEnabled': 'Transactions will be imported automatically',
+      'trackingDisabled': 'Manual transaction entry only',
+      'lastSync': 'Last sync: {date}',
+      'supportedBanks': 'Supported Banks',
+      'selectBanksDesc': 'Select which banks to track notifications from.',
+      'contactParentBanks': 'Contact a parent to change bank selection.',
+      'howItWorks': 'How it works',
+      'grantPermissionStep': 'Grant permission',
+      'grantPermissionStepDesc': 'Allow the app to read your notifications in system settings.',
+      'bankNotifications': 'Bank notifications',
+      'bankNotificationsDesc': 'When you receive a banking app notification, the app reads it.',
+      'autoImport': 'Auto-import',
+      'autoImportDesc': 'Transaction details are extracted and added to your budget.',
+      'smartCategorization': 'Smart categorization',
+      'smartCategorizationDesc': 'Transactions are automatically categorized based on merchant.',
+      'selectBanks': 'Select Banks',
+      'onlyParentsNotifications': 'Only parents can change notification settings',
+      'justNow': 'Just now',
+      'minutesAgo': '{count} minutes ago',
+      'hoursAgo': '{count} hours ago',
+      'daysAgo': '{count} days ago',
+    },
+    AppLanguage.russian: {
+      'appName': 'Семейный бюджет',
+      'settings': 'Настройки',
+      'language': 'Язык',
+      'english': 'Английский',
+      'russian': 'Русский',
+      'version': 'Версия 1.0.0',
+      'appDescription': 'Простое и удобное приложение для учета бюджета, которое помогает эффективно управлять семейными финансами.',
+      'features': 'Возможности',
+      'tips': 'Советы',
+      'trackIncomeExpenses': 'Учет доходов и расходов',
+      'trackIncomeExpensesDesc': 'Отслеживайте все финансовые операции',
+      'categorizeTransactions': 'Категории операций',
+      'categorizeTransactionsDesc': 'Организуйте расходы по категориям',
+      'receiptImages': 'Фото чеков',
+      'receiptImagesDesc': 'Прикрепляйте фотографии чеков к операциям',
+      'detailedViews': 'Подробный просмотр',
+      'detailedViewsDesc': 'Просматривайте полную информацию об операции',
+      'tipDetails': 'Нажмите на операцию, чтобы увидеть подробности',
+      'tipDelete': 'Проведите по операции влево, чтобы удалить ее',
+      'tipTabs': 'Используйте вкладки для фильтрации по типу операции',
+      'all': 'Все',
+      'income': 'Доход',
+      'expense': 'Расход',
+      'add': 'Добавить',
+      'save': 'Сохранить',
+      'cancel': 'Отмена',
+      'delete': 'Удалить',
+      'remove': 'Удалить',
+      'edit': 'Изменить',
+      'create': 'Создать',
+      'join': 'Войти',
+      'set': 'Задать',
+      'refresh': 'Обновить',
+      'totalBalance': 'Общий баланс',
+      'totalIncome': 'Всего доходов',
+      'totalExpense': 'Всего расходов',
+      'netBalance': 'Чистый баланс',
+      'noTransactionsYet': 'Операций пока нет',
+      'tapToAddFirstTransaction': 'Нажмите +, чтобы добавить первую операцию',
+      'deleteTransaction': 'Удалить операцию',
+      'deleteTransactionConfirm': 'Вы уверены, что хотите удалить эту операцию?',
+      'errorLoadingTransactions': 'Ошибка загрузки операций',
+      'familyManagement': 'Управление семьей',
+      'budgetManagement': 'Управление бюджетом',
+      'notifications': 'Уведомления',
+      'recurringPayments': 'Повторяющиеся платежи',
+      'analytics': 'Аналитика',
+      'addTransaction': 'Добавить операцию',
+      'amount': 'Сумма',
+      'title': 'Название',
+      'titleHint': 'Например: продукты, зарплата и т.д.',
+      'category': 'Категория',
+      'receiptOptional': 'Чек (необязательно)',
+      'tapToAddReceipt': 'Нажмите, чтобы добавить чек',
+      'notesOptional': 'Заметки (необязательно)',
+      'notesHint': 'Добавьте дополнительные заметки...',
+      'saveTransaction': 'Сохранить операцию',
+      'enterAmount': 'Введите сумму',
+      'validAmount': 'Введите корректную сумму',
+      'enterTitle': 'Введите название',
+      'pickImageFailed': 'Не удалось выбрать изображение. Попробуйте еще раз.',
+      'receipt': 'Чек',
+      'transactionDetails': 'Детали операции',
+      'date': 'Дата',
+      'time': 'Время',
+      'notes': 'Заметки',
+      'unableLoadReceipt': 'Не удалось загрузить чек',
+      'email': 'Email',
+      'password': 'Пароль',
+      'confirmPassword': 'Подтвердите пароль',
+      'welcomeBack': 'С возвращением!',
+      'createAccount': 'Создайте аккаунт',
+      'signIn': 'Войти',
+      'signUp': 'Зарегистрироваться',
+      'forgotPassword': 'Забыли пароль?',
+      'dontHaveAccount': 'Нет аккаунта? ',
+      'alreadyHaveAccount': 'Уже есть аккаунт? ',
+      'enterEmail': 'Введите email',
+      'validEmail': 'Введите корректный email',
+      'enterPassword': 'Введите пароль',
+      'passwordLength': 'Пароль должен быть не короче 6 символов',
+      'confirmPasswordPrompt': 'Подтвердите пароль',
+      'passwordsMismatch': 'Пароли не совпадают',
+      'monthlyBudgets': 'Месячные бюджеты',
+      'active': 'Активно',
+      'errorLoadingBudgets': 'Ошибка загрузки бюджетов',
+      'budgetSet': 'Бюджет для категории {category} задан',
+      'budgetDeleted': 'Бюджет удален',
+      'errorSettingBudget': 'Ошибка задания бюджета: {error}',
+      'errorDeletingBudget': 'Ошибка удаления бюджета: {error}',
+      'deleteBudget': 'Удалить бюджет',
+      'deleteBudgetConfirm': 'Вы уверены, что хотите удалить бюджет для категории {category}?',
+      'ofAmount': 'из {amount}',
+      'percentUsed': 'использовано {percent}%',
+      'amountRemaining': 'осталось {amount}',
+      'monthlyLimit': 'Месячный лимит (\$)',
+      'activePayments': 'Активные платежи',
+      'errorLoadingPayments': 'Ошибка загрузки платежей',
+      'addNewPayment': 'Добавить новый платеж',
+      'paymentTitle': 'Название платежа',
+      'paymentType': 'Тип платежа',
+      'addPayment': 'Добавить платеж',
+      'noRecurringPayments': 'Повторяющихся платежей пока нет',
+      'deletePayment': 'Удалить платеж',
+      'deletePaymentConfirm': 'Вы уверены, что хотите удалить "{title}"?',
+      'paymentCreated': 'Повторяющийся платеж создан',
+      'paymentDeleted': 'Платеж удален',
+      'errorCreatingPayment': 'Ошибка создания платежа: {error}',
+      'nextDate': 'Следующий: {date}',
+      'overdue': 'ПРОСРОЧЕНО',
+      'recurringType.monthly': 'Ежемесячно',
+      'recurringType.weekly': 'Еженедельно',
+      'recurringType.yearly': 'Ежегодно',
+      'recurringType.oneTime': 'Один раз',
+      'transactionType.income': 'Доход',
+      'transactionType.expense': 'Расход',
+      'expenseCategories': 'Категории расходов',
+      'incomeSources': 'Источники доходов',
+      'monthlyTrends': 'Тренды по месяцам',
+      'recentTransactions': 'Недавние операции',
+      'aiForecast': 'AI-прогноз',
+      'budgetAlert': 'Внимание к бюджету!',
+      'lookingGood': 'Все хорошо!',
+      'onTrack': 'По плану',
+      'dailySpend': 'Расход в день',
+      'daysLeft': 'Дней осталось',
+      'balanceLabel': 'Баланс: {amount}',
+      'familyCode': 'Код семьи',
+      'copyFamilyCode': 'Скопировать код семьи',
+      'leaveFamily': 'Покинуть семью',
+      'leaveFamilyConfirm': 'Вы уверены, что хотите покинуть эту семью?',
+      'youLeftFamily': 'Вы покинули семью',
+      'notInFamily': 'Вы не состоите в семье',
+      'createOrJoinFamily': 'Создайте новую семью или присоединитесь к существующей',
+      'createFamily': 'Создать семью',
+      'joinFamily': 'Присоединиться',
+      'familyName': 'Название семьи',
+      'yourRole': 'Ваша роль',
+      'shareFamilyCode': 'Поделитесь этим кодом с членами семьи, чтобы пригласить их.',
+      'familyMembers': 'Члены семьи',
+      'noMembersFound': 'Члены семьи не найдены',
+      'unknown': 'Неизвестно',
+      'parent': 'Родитель',
+      'child': 'Ребенок',
+      'changeRole': 'Изменить роль',
+      'role.parent': 'Родитель',
+      'role.child': 'Ребенок',
+      'role.owner': 'Владелец',
+      'enterFamilyName': 'Введите название семьи',
+      'enterFamilyCode': 'Введите код семьи',
+      'familyCreated': 'Семья создана!\nВаш код семьи: {code}\nПоделитесь им с членами семьи.',
+      'joinedFamily': 'Вы присоединились к семье!',
+      'invalidFamilyCode': 'Неверный код семьи или семья не найдена',
+      'familyCodeCopied': 'Код семьи скопирован!',
+      'roleUpdated': 'Роль обновлена',
+      'parentsChangeRoles': 'Только родители могут менять роли',
+      'memberRemoved': 'Участник удален',
+      'parentsRemoveMembers': 'Только родители могут удалять участников',
+      'errorLoadingFamily': 'Ошибка загрузки данных семьи',
+      'removeMember': 'Удалить участника',
+      'removeMemberConfirm': 'Вы уверены, что хотите удалить {email} из семьи?',
+      'notificationSettings': 'Настройки уведомлений',
+      'errorLoadingSettings': 'Ошибка загрузки настроек: {error}',
+      'debugParser': 'Отладка парсера',
+      'notificationParserDebug': 'Отладка парсера уведомлений',
+      'clearResults': 'Очистить результаты',
+      'runTests': 'Запустить тесты',
+      'debugPage': 'Страница отладки',
+      'debugPageDesc': 'Эта страница нужна для тестирования парсера уведомлений без реальных банковских уведомлений. Нажмите кнопку запуска, чтобы выполнить тесты.',
+      'customTest': 'Пользовательский тест',
+      'bankNameOptional': 'Название банка (необязательно)',
+      'notificationTitle': 'Заголовок уведомления',
+      'notificationText': 'Текст уведомления',
+      'testCustomNotification': 'Проверить уведомление',
+      'clickPlayTests': 'Нажмите запуск, чтобы выполнить тесты',
+      'testResults': 'Результаты тестов ({count})',
+      'enterTitleAndText': 'Введите заголовок и текст',
+      'failedParseNotification': 'Не удалось распознать уведомление',
+      'parsedNotification': 'Распознано: {amount} {currency}',
+      'merchant': 'Продавец',
+      'card': 'Карта',
+      'suggestedCategory': 'Предложенная категория',
+      'notificationPermission': 'Доступ к уведомлениям',
+      'permissionGranted': 'Разрешение выдано. Приложение может читать банковские уведомления.',
+      'permissionRequired': 'Требуется разрешение. Приложению нужен доступ к банковским уведомлениям.',
+      'grantPermission': 'Выдать разрешение',
+      'automaticTracking': 'Автоматический учет',
+      'autoImportNotifications': 'Автоматически импортировать операции из банковских уведомлений.',
+      'parentsOnlySetting': 'Только родители могут менять эту настройку.',
+      'enableAutomaticTracking': 'Включить автоматический учет',
+      'trackingEnabled': 'Операции будут импортироваться автоматически',
+      'trackingDisabled': 'Только ручной ввод операций',
+      'lastSync': 'Последняя синхронизация: {date}',
+      'supportedBanks': 'Поддерживаемые банки',
+      'selectBanksDesc': 'Выберите банки, уведомления которых нужно отслеживать.',
+      'contactParentBanks': 'Обратитесь к родителю, чтобы изменить выбор банков.',
+      'howItWorks': 'Как это работает',
+      'grantPermissionStep': 'Выдать разрешение',
+      'grantPermissionStepDesc': 'Разрешите приложению читать уведомления в системных настройках.',
+      'bankNotifications': 'Банковские уведомления',
+      'bankNotificationsDesc': 'Когда приходит уведомление банка, приложение считывает его.',
+      'autoImport': 'Автоимпорт',
+      'autoImportDesc': 'Детали операции извлекаются и добавляются в бюджет.',
+      'smartCategorization': 'Умная категоризация',
+      'smartCategorizationDesc': 'Операции автоматически распределяются по продавцу.',
+      'selectBanks': 'Выбрать банки',
+      'onlyParentsNotifications': 'Только родители могут менять настройки уведомлений',
+      'justNow': 'Только что',
+      'minutesAgo': '{count} мин. назад',
+      'hoursAgo': '{count} ч. назад',
+      'daysAgo': '{count} дн. назад',
+    },
+  };
+}

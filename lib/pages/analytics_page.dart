@@ -4,6 +4,7 @@ import '../models/transaction_model.dart';
 import '../models/category_model.dart';
 import '../services/firestore_service.dart';
 import '../services/prediction_service.dart';
+import '../l10n/app_localizations.dart';
 
 class AnalyticsPage extends StatefulWidget {
   const AnalyticsPage({super.key});
@@ -41,23 +42,23 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     final totalIncome = _transactions
         .where((t) => t.type == TransactionType.income)
         .fold(0.0, (sum, t) => sum + t.amount);
-    
+
     final totalExpense = _transactions
         .where((t) => t.type == TransactionType.expense)
         .fold(0.0, (sum, t) => sum + t.amount);
-    
+
     final balance = totalIncome - totalExpense;
-    
+
     // Set next payday to 30 days from now (this could be user-configurable)
     _nextPayday = DateTime.now().add(const Duration(days: 30));
-    
+
     final forecast = await PredictionService.generateForecast(
       transactions: _transactions,
       currentBalance: balance,
       nextPayday: _nextPayday!,
       analysisMonths: 6,
     );
-    
+
     if (mounted) {
       setState(() {
         _forecast = forecast;
@@ -67,39 +68,39 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
 
   Map<String, double> _getCategoryData(TransactionType type) {
     final categoryTotals = <String, double>{};
-    
+
     for (final transaction in _transactions) {
       if (transaction.type == type) {
         final category = defaultCategories.firstWhere(
           (cat) => cat.id == transaction.categoryId,
           orElse: () => defaultCategories.last,
         );
-        final categoryName = category.name;
+        final categoryName = context.categoryName(category.id);
         categoryTotals[categoryName] = (categoryTotals[categoryName] ?? 0) + transaction.amount;
       }
     }
-    
+
     return categoryTotals;
   }
 
   List<Map<String, dynamic>> _getMonthlyData() {
     final monthlyData = <String, Map<String, double>>{};
-    
+
     for (final transaction in _transactions) {
       final monthKey = DateFormat('MMM yyyy').format(transaction.date);
       if (!monthlyData.containsKey(monthKey)) {
         monthlyData[monthKey] = {'income': 0.0, 'expense': 0.0};
       }
-      
+
       if (transaction.type == TransactionType.income) {
-        monthlyData[monthKey]!['income'] = 
+        monthlyData[monthKey]!['income'] =
             (monthlyData[monthKey]!['income'] ?? 0) + transaction.amount;
       } else {
-        monthlyData[monthKey]!['expense'] = 
+        monthlyData[monthKey]!['expense'] =
             (monthlyData[monthKey]!['expense'] ?? 0) + transaction.amount;
       }
     }
-    
+
     return monthlyData.entries
         .map((entry) => {
               'month': entry.key,
@@ -123,11 +124,11 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     final totalIncome = _transactions
         .where((t) => t.type == TransactionType.income)
         .fold(0.0, (sum, t) => sum + t.amount);
-    
+
     final totalExpense = _transactions
         .where((t) => t.type == TransactionType.expense)
         .fold(0.0, (sum, t) => sum + t.amount);
-    
+
     final balance = totalIncome - totalExpense;
     final expenseCategories = _getCategoryData(TransactionType.expense);
     final incomeCategories = _getCategoryData(TransactionType.income);
@@ -136,7 +137,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
-        title: const Text('Analytics'),
+        title: Text(context.t('analytics')),
         backgroundColor: Colors.transparent,
       ),
       body: SingleChildScrollView(
@@ -149,7 +150,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
               children: [
                 Expanded(
                   child: _buildSummaryCard(
-                    'Total Income',
+                    context.t('totalIncome'),
                     '+\$${totalIncome.toStringAsFixed(2)}',
                     const Color(0xFF10B981),
                     Icons.trending_up,
@@ -158,7 +159,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: _buildSummaryCard(
-                    'Total Expense',
+                    context.t('totalExpense'),
                     '-\$${totalExpense.toStringAsFixed(2)}',
                     const Color(0xFFEF4444),
                     Icons.trending_down,
@@ -168,7 +169,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
             ),
             const SizedBox(height: 12),
             _buildSummaryCard(
-              'Net Balance',
+              context.t('netBalance'),
               '\$${balance.toStringAsFixed(2)}',
               balance >= 0 ? const Color(0xFF10B981) : const Color(0xFFEF4444),
               Icons.account_balance_wallet,
@@ -184,14 +185,14 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
 
             // Category Breakdown
             if (expenseCategories.isNotEmpty) ...[
-              _buildSectionTitle('Expense Categories'),
+              _buildSectionTitle(context.t('expenseCategories')),
               const SizedBox(height: 12),
               _buildCategoryChart(expenseCategories, TransactionType.expense),
               const SizedBox(height: 24),
             ],
 
             if (incomeCategories.isNotEmpty) ...[
-              _buildSectionTitle('Income Sources'),
+              _buildSectionTitle(context.t('incomeSources')),
               const SizedBox(height: 12),
               _buildCategoryChart(incomeCategories, TransactionType.income),
               const SizedBox(height: 24),
@@ -199,14 +200,14 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
 
             // Monthly Trends
             if (monthlyData.isNotEmpty) ...[
-              _buildSectionTitle('Monthly Trends'),
+              _buildSectionTitle(context.t('monthlyTrends')),
               const SizedBox(height: 12),
               _buildMonthlyChart(monthlyData),
               const SizedBox(height: 24),
             ],
 
             // Recent Transactions
-            _buildSectionTitle('Recent Transactions'),
+            _buildSectionTitle(context.t('recentTransactions')),
             const SizedBox(height: 12),
             _buildRecentTransactions(),
           ],
@@ -286,12 +287,12 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
 
   Widget _buildForecastCard() {
     if (_forecast == null) return const SizedBox.shrink();
-    
-    final isWarning = _forecast!.daysUntilBudgetDepleted >= 0 && 
+
+    final isWarning = _forecast!.daysUntilBudgetDepleted >= 0 &&
                       _forecast!.daysUntilBudgetDepleted < 7;
-    final isGood = _forecast!.daysUntilBudgetDepleted > 
+    final isGood = _forecast!.daysUntilBudgetDepleted >
                    (_nextPayday?.difference(DateTime.now()).inDays ?? 30);
-    
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -307,8 +308,8 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: (isWarning ? const Color(0xFFEF4444) : 
-                   isGood ? const Color(0xFF10B981) : 
+            color: (isWarning ? const Color(0xFFEF4444) :
+                   isGood ? const Color(0xFF10B981) :
                    const Color(0xFF3B82F6)).withOpacity(0.2),
             blurRadius: 20,
             offset: const Offset(0, 8),
@@ -334,11 +335,11 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                   ],
                 ),
                 child: Icon(
-                  isWarning ? Icons.warning_amber_rounded : 
-                  isGood ? Icons.check_circle_rounded : 
+                  isWarning ? Icons.warning_amber_rounded :
+                  isGood ? Icons.check_circle_rounded :
                   Icons.info_rounded,
-                  color: isWarning ? const Color(0xFFEF4444) : 
-                         isGood ? const Color(0xFF10B981) : 
+                  color: isWarning ? const Color(0xFFEF4444) :
+                         isGood ? const Color(0xFF10B981) :
                          const Color(0xFF3B82F6),
                   size: 28,
                 ),
@@ -349,7 +350,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'AI Forecast',
+                      context.t('aiForecast'),
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.grey[700],
@@ -359,14 +360,14 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      isWarning ? 'Budget Alert!' : 
-                      isGood ? 'Looking Good!' : 
-                      'On Track',
+                      isWarning ? context.t('budgetAlert') :
+                      isGood ? context.t('lookingGood') :
+                      context.t('onTrack'),
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w800,
-                        color: isWarning ? const Color(0xFFDC2626) : 
-                               isGood ? const Color(0xFF059669) : 
+                        color: isWarning ? const Color(0xFFDC2626) :
+                               isGood ? const Color(0xFF059669) :
                                const Color(0xFF1D4ED8),
                       ),
                     ),
@@ -384,8 +385,8 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: isWarning ? const Color(0xFFDC2626) : 
-                           isGood ? const Color(0xFF059669) : 
+                    color: isWarning ? const Color(0xFFDC2626) :
+                           isGood ? const Color(0xFF059669) :
                            const Color(0xFF1D4ED8),
                   ),
                 ),
@@ -415,16 +416,16 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                 Row(
                   children: [
                     _buildForecastStat(
-                      'Daily Spend',
+                      context.t('dailySpend'),
                       '\$${_forecast!.predictedDailySpend.toStringAsFixed(2)}',
                       Icons.attach_money,
                     ),
                     const SizedBox(width: 16),
                     _buildForecastStat(
-                      'Days Left',
-                      _forecast!.daysUntilBudgetDepleted >= 0 
+                      context.t('daysLeft'),
+                      _forecast!.daysUntilBudgetDepleted >= 0
                           ? '${_forecast!.daysUntilBudgetDepleted}'
-                          : '∞',
+                          : 'в€ћ',
                       Icons.calendar_today,
                     ),
                   ],
@@ -541,7 +542,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                       widthFactor: percentage / 100,
                       child: Container(
                         decoration: BoxDecoration(
-                          color: type == TransactionType.income 
+                          color: type == TransactionType.income
                               ? const Color(0xFF10B981)
                               : const Color(0xFFEF4444),
                           borderRadius: BorderRadius.circular(4),
@@ -592,7 +593,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                     children: [
                       Expanded(
                         child: _buildMonthlyBar(
-                          'Income',
+                          context.t('income'),
                           data['income'],
                           const Color(0xFF10B981),
                           monthlyData,
@@ -601,7 +602,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: _buildMonthlyBar(
-                          'Expense',
+                          context.t('expense'),
                           data['expense'],
                           const Color(0xFFEF4444),
                           monthlyData,
@@ -614,11 +615,13 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Balance: \$${data['balance'].toStringAsFixed(2)}',
+                        context.tx('balanceLabel', {
+                          'amount': "\$${data['balance'].toStringAsFixed(2)}",
+                        }),
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: data['balance'] >= 0 
+                          color: data['balance'] >= 0
                               ? const Color(0xFF10B981)
                               : const Color(0xFFEF4444),
                         ),
@@ -635,10 +638,10 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
   }
 
   Widget _buildMonthlyBar(String label, double amount, Color color, List<Map<String, dynamic>> monthlyData) {
-    final maxValue = monthlyData.isNotEmpty 
+    final maxValue = monthlyData.isNotEmpty
         ? monthlyData.map((d) => d[label.toLowerCase()]).reduce((a, b) => (a as double) > (b as double) ? a : b)
         : amount;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -687,7 +690,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
   Widget _buildRecentTransactions() {
     final recentTransactions = _transactions
       ..sort((a, b) => b.date.compareTo(a.date));
-    
+
     final recent = recentTransactions.take(5).toList();
 
     return Container(
@@ -709,12 +712,12 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
             orElse: () => defaultCategories.last,
           );
           final isIncome = transaction.type == TransactionType.income;
-          
+
           return ListTile(
             leading: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: isIncome 
+                color: isIncome
                     ? Colors.green.withOpacity(0.1)
                     : Colors.red.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
@@ -733,7 +736,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
               ),
             ),
             subtitle: Text(
-              '${category.name} • ${DateFormat('MMM dd').format(transaction.date)}',
+              '${context.categoryName(category.id)} • ${DateFormat('MMM dd').format(transaction.date)}',
               style: TextStyle(
                 fontSize: 12,
                 color: Colors.grey[600],

@@ -6,6 +6,7 @@ import '../services/auth_service.dart';
 import '../services/user_service.dart';
 import '../services/permission_service.dart';
 import '../models/role_model.dart';
+import '../l10n/app_localizations.dart';
 
 class FamilyManagementPage extends StatefulWidget {
   const FamilyManagementPage({super.key});
@@ -101,7 +102,7 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
 
   Future<void> _createFamily() async {
     if (_familyNameController.text.trim().isEmpty) {
-      _showErrorSnackBar('Please enter a family name');
+      _showErrorSnackBar(context.t('enterFamilyName'));
       return;
     }
 
@@ -113,7 +114,7 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
       print('Family created with code: $familyCode');
       
       _showSuccessSnackBar(
-        'Family created successfully!\nYour family code: $familyCode\nShare this code with family members.'
+        context.tx('familyCreated', {'code': familyCode})
       );
       
       _familyNameController.clear();
@@ -131,7 +132,7 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
 
   Future<void> _joinFamily() async {
     if (_joinCodeController.text.trim().isEmpty) {
-      _showErrorSnackBar('Please enter a family code');
+      _showErrorSnackBar(context.t('enterFamilyCode'));
       return;
     }
 
@@ -144,14 +145,14 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
       );
       
       if (success) {
-        _showSuccessSnackBar('Joined family successfully!');
+        _showSuccessSnackBar(context.t('joinedFamily'));
         _joinCodeController.clear();
         
         // Даем время на обновление данных в Firebase
         await Future.delayed(const Duration(milliseconds: 500));
         await _checkFamilyStatus();
       } else {
-        _showErrorSnackBar('Invalid family code or family not found');
+        _showErrorSnackBar(context.t('invalidFamilyCode'));
       }
     } catch (e) {
       print('Error joining family: $e');
@@ -166,7 +167,7 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
     final code = _currentFamily?['code'] ?? '';
     if (code.isNotEmpty) {
       await Clipboard.setData(ClipboardData(text: code));
-      _showSuccessSnackBar('Family code copied to clipboard!');
+      _showSuccessSnackBar(context.t('familyCodeCopied'));
     }
   }
 
@@ -175,11 +176,11 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
     
     try {
       await FamilyService.updateMemberRole(userId, newRole);
-      _showSuccessSnackBar('Role updated successfully');
+      _showSuccessSnackBar(context.t('roleUpdated'));
       await _checkFamilyStatus();
     } catch (e) {
       print('Error updating role: $e');
-      _showErrorSnackBar('Only parents can change member roles');
+      _showErrorSnackBar(context.t('parentsChangeRoles'));
     }
   }
 
@@ -187,17 +188,17 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Remove Member'),
-        content: Text('Are you sure you want to remove $memberEmail from the family?'),
+        title: Text(context.t('removeMember')),
+        content: Text(context.tx('removeMemberConfirm', {'email': memberEmail})),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(context.t('cancel')),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Remove'),
+            child: Text(context.t('remove')),
           ),
         ],
       ),
@@ -206,11 +207,11 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
     if (confirmed == true) {
       try {
         await FamilyService.removeMember(userId);
-        _showSuccessSnackBar('Member removed successfully');
+        _showSuccessSnackBar(context.t('memberRemoved'));
         await _checkFamilyStatus();
       } catch (e) {
         print('Error removing member: $e');
-        _showErrorSnackBar('Only parents can remove members');
+        _showErrorSnackBar(context.t('parentsRemoveMembers'));
       }
     }
   }
@@ -219,26 +220,26 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Create Family'),
+        title: Text(context.t('createFamily')),
         content: TextField(
           controller: _familyNameController,
-          decoration: const InputDecoration(
-            labelText: 'Family Name',
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            labelText: context.t('familyName'),
+            border: const OutlineInputBorder(),
           ),
           autofocus: true,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(context.t('cancel')),
           ),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
               _createFamily();
             },
-            child: const Text('Create'),
+            child: Text(context.t('create')),
           ),
         ],
       ),
@@ -249,29 +250,29 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Join Family'),
+        title: Text(context.t('joinFamily')),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: _joinCodeController,
-              decoration: const InputDecoration(
-                labelText: 'Family Code',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: context.t('familyCode'),
+                border: const OutlineInputBorder(),
               ),
               autofocus: true,
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<UserRole>(
               value: _selectedRole,
-              decoration: const InputDecoration(
-                labelText: 'Your Role',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: context.t('yourRole'),
+                border: const OutlineInputBorder(),
               ),
               items: UserRole.values.map((role) {
                 return DropdownMenuItem(
                   value: role,
-                  child: Text(role.toString().split('.').last),
+                  child: Text(context.userRoleName(role)),
                 );
               }).toList(),
               onChanged: (value) {
@@ -285,14 +286,14 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(context.t('cancel')),
           ),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
               _joinFamily();
             },
-            child: const Text('Join'),
+            child: Text(context.t('join')),
           ),
         ],
       ),
@@ -323,13 +324,13 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Family Management'),
+        title: Text(context.t('familyManagement')),
         backgroundColor: Colors.transparent,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _isLoading ? null : _checkFamilyStatus,
-            tooltip: 'Refresh',
+            tooltip: context.t('refresh'),
           ),
           IconButton(
             icon: const Icon(Icons.exit_to_app),
@@ -337,17 +338,17 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
               final confirmed = await showDialog<bool>(
                 context: context,
                 builder: (context) => AlertDialog(
-                  title: const Text('Leave Family'),
-                  content: const Text('Are you sure you want to leave this family?'),
+                  title: Text(context.t('leaveFamily')),
+                  content: Text(context.t('leaveFamilyConfirm')),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context, false),
-                      child: const Text('Cancel'),
+                      child: Text(context.t('cancel')),
                     ),
                     TextButton(
                       onPressed: () => Navigator.pop(context, true),
                       style: TextButton.styleFrom(foregroundColor: Colors.red),
-                      child: const Text('Leave'),
+                      child: Text(context.t('leaveFamily')),
                     ),
                   ],
                 ),
@@ -358,7 +359,7 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
                 
                 try {
                   await FamilyService.leaveFamily();
-                  _showSuccessSnackBar('You have left the family');
+                  _showSuccessSnackBar(context.t('youLeftFamily'));
                   await _checkFamilyStatus();
                 } catch (e) {
                   print('Error leaving family: $e');
@@ -368,7 +369,7 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
                 }
               }
             },
-            tooltip: 'Leave Family',
+            tooltip: context.t('leaveFamily'),
           ),
         ],
       ),
@@ -394,7 +395,7 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
                   Icon(Icons.family_restroom, size: 64, color: Colors.grey[400]),
                   const SizedBox(height: 16),
                   Text(
-                    'You are not in a family',
+                    context.t('notInFamily'),
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -403,7 +404,7 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Create a new family or join an existing one',
+                    context.t('createOrJoinFamily'),
                     style: TextStyle(color: Colors.grey[600]),
                     textAlign: TextAlign.center,
                   ),
@@ -419,7 +420,7 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
                   onPressed: _isLoading ? null : () => _showCreateFamilyDialog(),
                   child: _isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text('Create Family'),
+                      : Text(context.t('createFamily')),
                 ),
               ),
               const SizedBox(width: 16),
@@ -428,7 +429,7 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
                   onPressed: _isLoading ? null : () => _showJoinFamilyDialog(),
                   child: _isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text('Join Family'),
+                      : Text(context.t('joinFamily')),
                 ),
               ),
             ],
@@ -440,7 +441,7 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
 
   Widget _buildInFamilyView() {
     if (_currentFamily == null) {
-      return const Center(child: Text('Error loading family data'));
+      return Center(child: Text(context.t('errorLoadingFamily')));
     }
 
     return Padding(
@@ -457,7 +458,7 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Family Code',
+                        context.t('familyCode'),
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -467,7 +468,7 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
                       IconButton(
                         onPressed: _copyFamilyCode,
                         icon: const Icon(Icons.copy),
-                        tooltip: 'Copy Family Code',
+                        tooltip: context.t('copyFamilyCode'),
                       ),
                     ],
                   ),
@@ -490,7 +491,7 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Share this code with family members to invite them.',
+                    context.t('shareFamilyCode'),
                     style: TextStyle(
                       color: Colors.grey[600],
                       fontSize: 14,
@@ -536,16 +537,16 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Family Members',
-                    style: TextStyle(
+                  Text(
+                    context.t('familyMembers'),
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 16),
                   if (_familyMembers.isEmpty)
-                    const Text('No members found')
+                    Text(context.t('noMembersFound'))
                   else
                     FutureBuilder<bool>(
                       future: PermissionService.canManageFamily(),
@@ -563,7 +564,7 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
                                 child: Icon(isParent ? Icons.admin_panel_settings : Icons.person),
                                 backgroundColor: isParent ? Colors.amber[100] : Colors.grey[200],
                               ),
-                              title: Text(member['email'] ?? member['displayName'] ?? 'Unknown'),
+                              title: Text(member['email'] ?? member['displayName'] ?? context.t('unknown')),
                               subtitle: Row(
                                 children: [
                                   Container(
@@ -575,7 +576,7 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: Text(
-                                      isParent ? 'Parent' : 'Child',
+                                      isParent ? context.t('parent') : context.t('child'),
                                       style: TextStyle(
                                         color: isParent ? Colors.green : Colors.blue,
                                         fontSize: 11,
@@ -596,27 +597,27 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
                                         if (value == 'change_role') {
                                           await _changeMemberRole(member['id'], role ?? '');
                                         } else if (value == 'remove') {
-                                          await _removeMember(member['id'], member['email'] ?? 'Unknown');
+                                          await _removeMember(member['id'], member['email'] ?? context.t('unknown'));
                                         }
                                       },
                                       itemBuilder: (context) => [
-                                        const PopupMenuItem(
+                                        PopupMenuItem(
                                           value: 'change_role',
                                           child: Row(
                                             children: [
-                                              Icon(Icons.swap_horiz),
-                                              SizedBox(width: 8),
-                                              Text('Change Role'),
+                                              const Icon(Icons.swap_horiz),
+                                              const SizedBox(width: 8),
+                                              Text(context.t('changeRole')),
                                             ],
                                           ),
                                         ),
-                                        const PopupMenuItem(
+                                        PopupMenuItem(
                                           value: 'remove',
                                           child: Row(
                                             children: [
-                                              Icon(Icons.person_remove, color: Colors.red),
-                                              SizedBox(width: 8),
-                                              Text('Remove', style: TextStyle(color: Colors.red)),
+                                              const Icon(Icons.person_remove, color: Colors.red),
+                                              const SizedBox(width: 8),
+                                              Text(context.t('remove'), style: const TextStyle(color: Colors.red)),
                                             ],
                                           ),
                                         ),

@@ -4,6 +4,7 @@ import '../services/notification_listener_service.dart';
 import '../services/bank_notification_parser.dart';
 import '../services/user_service.dart';
 import 'notification_debug_page.dart';
+import '../l10n/app_localizations.dart';
 
 class NotificationSettingsPage extends StatefulWidget {
   const NotificationSettingsPage({Key? key}) : super(key: key);
@@ -51,7 +52,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading settings: $e')),
+          SnackBar(content: Text(context.tx('errorLoadingSettings', {'error': e}))),
         );
       }
     }
@@ -67,7 +68,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
   Future<void> _toggleTracking(bool value) async {
     if (!_canManage) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Only parents can change notification settings')),
+        SnackBar(content: Text(context.t('onlyParentsNotifications'))),
       );
       return;
     }
@@ -107,7 +108,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Notification Settings'),
+        title: Text(context.t('notificationSettings')),
         actions: [
           IconButton(
             icon: const Icon(Icons.bug_report),
@@ -117,7 +118,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                 MaterialPageRoute(builder: (_) => const NotificationDebugPage()),
               );
             },
-            tooltip: 'Debug Parser',
+            tooltip: context.t('debugParser'),
           ),
         ],
       ),
@@ -152,17 +153,17 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                   color: _hasPermission ? Colors.green : Colors.orange,
                 ),
                 const SizedBox(width: 8),
-                const Text(
-                  'Notification Permission',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                Text(
+                  context.t('notificationPermission'),
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
             const SizedBox(height: 8),
             Text(
               _hasPermission
-                  ? 'Permission granted. App can read banking notifications.'
-                  : 'Permission required. App needs access to read banking notifications.',
+                  ? context.t('permissionGranted')
+                  : context.t('permissionRequired'),
               style: TextStyle(color: Colors.grey[600]),
             ),
             const SizedBox(height: 16),
@@ -170,7 +171,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
               ElevatedButton.icon(
                 onPressed: _requestPermission,
                 icon: const Icon(Icons.settings),
-                label: const Text('Grant Permission'),
+                label: Text(context.t('grantPermission')),
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size.fromHeight(44),
                 ),
@@ -188,24 +189,24 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Automatic Tracking',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Text(
+              context.t('automaticTracking'),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
               _canManage
-                  ? 'Automatically import transactions from banking notifications.'
-                  : 'Only parents can change this setting.',
+                  ? context.t('autoImportNotifications')
+                  : context.t('parentsOnlySetting'),
               style: TextStyle(color: Colors.grey[600]),
             ),
             const SizedBox(height: 16),
             SwitchListTile(
-              title: const Text('Enable automatic tracking'),
+              title: Text(context.t('enableAutomaticTracking')),
               subtitle: Text(
                 _isTrackingEnabled
-                    ? 'Transactions will be imported automatically'
-                    : 'Manual transaction entry only',
+                    ? context.t('trackingEnabled')
+                    : context.t('trackingDisabled'),
               ),
               value: _isTrackingEnabled,
               onChanged: _hasPermission && _canManage ? _toggleTracking : null,
@@ -213,7 +214,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
             if (_settings?.lastSync != null) ...[
               const SizedBox(height: 8),
               Text(
-                'Last sync: ${_formatDate(_settings!.lastSync!)}',
+                context.tx('lastSync', {'date': _formatDate(_settings!.lastSync!)}),
                 style: TextStyle(color: Colors.grey[600], fontSize: 12),
               ),
             ],
@@ -234,23 +235,23 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
           children: [
             Row(
               children: [
-                const Text(
-                  'Supported Banks',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                Text(
+                  context.t('supportedBanks'),
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const Spacer(),
                 if (_canManage)
                   TextButton(
                     onPressed: () => _showBankSelectionDialog(supportedBanks),
-                    child: const Text('Edit'),
+                    child: Text(context.t('edit')),
                   ),
               ],
             ),
             const SizedBox(height: 8),
             Text(
               _canManage
-                  ? 'Select which banks to track notifications from.'
-                  : 'Contact a parent to change bank selection.',
+                  ? context.t('selectBanksDesc')
+                  : context.t('contactParentBanks'),
               style: TextStyle(color: Colors.grey[600]),
             ),
             const SizedBox(height: 16),
@@ -279,33 +280,33 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'How it works',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Text(
+              context.t('howItWorks'),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             _buildInfoStep(
               Icons.notifications_active,
-              'Grant permission',
-              'Allow the app to read your notifications in system settings.',
+              context.t('grantPermissionStep'),
+              context.t('grantPermissionStepDesc'),
             ),
             const SizedBox(height: 12),
             _buildInfoStep(
               Icons.credit_card,
-              'Bank notifications',
-              'When you receive a banking app notification, the app reads it.',
+              context.t('bankNotifications'),
+              context.t('bankNotificationsDesc'),
             ),
             const SizedBox(height: 12),
             _buildInfoStep(
               Icons.auto_awesome,
-              'Auto-import',
-              'Transaction details are extracted and added to your budget.',
+              context.t('autoImport'),
+              context.t('autoImportDesc'),
             ),
             const SizedBox(height: 12),
             _buildInfoStep(
               Icons.category,
-              'Smart categorization',
-              'Transactions are automatically categorized based on merchant.',
+              context.t('smartCategorization'),
+              context.t('smartCategorizationDesc'),
             ),
           ],
         ),
@@ -345,7 +346,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Select Banks'),
+          title: Text(context.t('selectBanks')),
           content: SizedBox(
             width: double.maxFinite,
             child: ListView.builder(
@@ -372,14 +373,14 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: Text(context.t('cancel')),
             ),
             ElevatedButton(
               onPressed: () {
                 _updateBanks(tempSelected);
                 Navigator.pop(context);
               },
-              child: const Text('Save'),
+              child: Text(context.t('save')),
             ),
           ],
         ),
@@ -392,13 +393,13 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
     final difference = now.difference(date);
 
     if (difference.inMinutes < 1) {
-      return 'Just now';
+      return context.t('justNow');
     } else if (difference.inHours < 1) {
-      return '${difference.inMinutes} minutes ago';
+      return context.tx('minutesAgo', {'count': difference.inMinutes});
     } else if (difference.inDays < 1) {
-      return '${difference.inHours} hours ago';
+      return context.tx('hoursAgo', {'count': difference.inHours});
     } else if (difference.inDays < 7) {
-      return '${difference.inDays} days ago';
+      return context.tx('daysAgo', {'count': difference.inDays});
     } else {
       return '${date.day}/${date.month}/${date.year}';
     }

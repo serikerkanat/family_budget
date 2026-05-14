@@ -254,7 +254,7 @@ class ExportService {
         TextCellValue(transaction.title),
         TextCellValue(transaction.categoryId),
         TextCellValue(transaction.type.toString()),
-        TextCellValue(transaction.amount),
+        TextCellValue(transaction.amount.toString()),
       ]);
     }
 

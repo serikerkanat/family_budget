@@ -4,6 +4,7 @@ import '../models/budget_model.dart';
 import '../models/category_model.dart';
 import '../services/budget_service.dart';
 import '../services/user_service.dart';
+import '../l10n/app_localizations.dart';
 
 class BudgetManagementPage extends StatefulWidget {
   const BudgetManagementPage({super.key});
@@ -71,9 +72,9 @@ class _BudgetManagementPageState extends State<BudgetManagementPage> {
       );
 
       await BudgetService.setBudget(budget);
-      _showSuccessSnackBar('Budget set successfully for $categoryName');
+      _showSuccessSnackBar(context.tx('budgetSet', {'category': categoryName}));
     } catch (e) {
-      _showErrorSnackBar('Error setting budget: $e');
+      _showErrorSnackBar(context.tx('errorSettingBudget', {'error': e}));
     } finally {
       setState(() => _isLoading = false);
     }
@@ -81,8 +82,8 @@ class _BudgetManagementPageState extends State<BudgetManagementPage> {
 
   Future<void> _deleteBudget(String budgetId, String categoryName) async {
     final confirmed = await _showConfirmDialog(
-      'Delete Budget',
-      'Are you sure you want to delete the budget for $categoryName?',
+      context.t('deleteBudget'),
+      context.tx('deleteBudgetConfirm', {'category': categoryName}),
     );
     
     if (!confirmed) return;
@@ -91,9 +92,9 @@ class _BudgetManagementPageState extends State<BudgetManagementPage> {
     
     try {
       await BudgetService.deleteBudget(budgetId);
-      _showSuccessSnackBar('Budget deleted successfully');
+      _showSuccessSnackBar(context.t('budgetDeleted'));
     } catch (e) {
-      _showErrorSnackBar('Error deleting budget: $e');
+      _showErrorSnackBar(context.tx('errorDeletingBudget', {'error': e}));
     } finally {
       setState(() => _isLoading = false);
     }
@@ -128,12 +129,12 @@ class _BudgetManagementPageState extends State<BudgetManagementPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(context.t('cancel')),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
+            child: Text(context.t('delete')),
           ),
         ],
       ),
@@ -144,7 +145,7 @@ class _BudgetManagementPageState extends State<BudgetManagementPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Budget Management'),
+        title: Text(context.t('budgetManagement')),
         backgroundColor: Colors.transparent,
       ),
       body: StreamBuilder<List<BudgetModel>>(
@@ -162,7 +163,7 @@ class _BudgetManagementPageState extends State<BudgetManagementPage> {
                   Icon(Icons.error, size: 64, color: Colors.grey[400]),
                   const SizedBox(height: 16),
                   Text(
-                    'Error loading budgets',
+                    context.t('errorLoadingBudgets'),
                     style: TextStyle(color: Colors.grey[600]),
                   ),
                 ],
@@ -205,7 +206,7 @@ class _BudgetManagementPageState extends State<BudgetManagementPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Monthly Budgets',
+                            context.t('monthlyBudgets'),
                             style: const TextStyle(
                               color: Colors.white70,
                               fontSize: 16,
@@ -213,7 +214,7 @@ class _BudgetManagementPageState extends State<BudgetManagementPage> {
                             ),
                           ),
                           Text(
-                            '${_budgets.length} Active',
+                            '${_budgets.length} ${context.t('active')}',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 24,
@@ -239,7 +240,7 @@ class _BudgetManagementPageState extends State<BudgetManagementPage> {
                       orElse: () => BudgetModel(
                         id: '',
                         categoryId: category.id,
-                        categoryName: category.name,
+                        categoryName: context.categoryName(category.id),
                         monthlyLimit: 0,
                         currentSpent: 0,
                         currency: 'USD',
@@ -278,7 +279,7 @@ class _BudgetManagementPageState extends State<BudgetManagementPage> {
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Text(
-                                    category.name,
+                                    context.categoryName(category.id),
                                     style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
@@ -290,7 +291,7 @@ class _BudgetManagementPageState extends State<BudgetManagementPage> {
                                     icon: const Icon(Icons.delete, color: Colors.red),
                                     onPressed: () => _deleteBudget(
                                       existingBudget.id,
-                                      existingBudget.categoryName,
+                                      context.categoryName(existingBudget.categoryId),
                                     ),
                                   ),
                               ],
@@ -315,7 +316,7 @@ class _BudgetManagementPageState extends State<BudgetManagementPage> {
                                         ),
                                       ),
                                       Text(
-                                        'of \$${existingBudget.monthlyLimit.toStringAsFixed(2)}',
+                                        context.tx('ofAmount', {'amount': '\$${existingBudget.monthlyLimit.toStringAsFixed(2)}'}),
                                         style: TextStyle(
                                           fontSize: 16,
                                           color: Colors.grey[600],
@@ -336,7 +337,7 @@ class _BudgetManagementPageState extends State<BudgetManagementPage> {
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        '${existingBudget.percentageUsed.toStringAsFixed(1)}% used',
+                                        context.tx('percentUsed', {'percent': existingBudget.percentageUsed.toStringAsFixed(1)}),
                                         style: TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w600,
@@ -344,7 +345,7 @@ class _BudgetManagementPageState extends State<BudgetManagementPage> {
                                         ),
                                       ),
                                       Text(
-                                        '\$${existingBudget.remaining.toStringAsFixed(2)} remaining',
+                                        context.tx('amountRemaining', {'amount': '\$${existingBudget.remaining.toStringAsFixed(2)}'}),
                                         style: TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w600,
@@ -367,7 +368,7 @@ class _BudgetManagementPageState extends State<BudgetManagementPage> {
                                       controller: _limitControllers[category.id],
                                       keyboardType: TextInputType.number,
                                       decoration: InputDecoration(
-                                        labelText: 'Monthly Limit (\$)',
+                                        labelText: context.t('monthlyLimit'),
                                         prefixIcon: const Icon(Icons.attach_money),
                                         border: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(12),
@@ -386,7 +387,7 @@ class _BudgetManagementPageState extends State<BudgetManagementPage> {
                                       if (limit != null && limit! > 0) {
                                         _setBudget(
                                           category.id,
-                                          category.name,
+                                          context.categoryName(category.id),
                                           limit!,
                                         );
                                         _limitControllers[category.id]!.clear();
@@ -394,7 +395,7 @@ class _BudgetManagementPageState extends State<BudgetManagementPage> {
                                     },
                                     child: _isLoading
                                         ? const CircularProgressIndicator(color: Colors.white)
-                                        : const Text('Set'),
+                                        : Text(context.t('set')),
                                   ),
                                 ],
                               ),

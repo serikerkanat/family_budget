@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/category_model.dart';
 import '../models/transaction_model.dart';
+import '../l10n/app_localizations.dart';
 
 class CategorySelector extends StatelessWidget {
   final String selectedCategoryId;
@@ -25,7 +26,7 @@ class CategorySelector extends StatelessWidget {
       children: [
         if (showLabel) ...[
           Text(
-            'Category',
+            context.t('category'),
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 8),
@@ -66,7 +67,7 @@ class CategorySelector extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        category.name,
+                        context.categoryName(category.id),
                         style: TextStyle(
                           color: isSelected 
                               ? Theme.of(context).primaryColor 

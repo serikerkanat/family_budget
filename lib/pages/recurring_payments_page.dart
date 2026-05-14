@@ -6,6 +6,7 @@ import '../models/category_model.dart';
 import '../models/transaction_model.dart';
 import '../services/recurring_payment_service.dart';
 import '../services/user_service.dart';
+import '../l10n/app_localizations.dart';
 
 class RecurringPaymentsPage extends StatefulWidget {
   const RecurringPaymentsPage({super.key});
@@ -53,16 +54,15 @@ class _RecurringPaymentsPageState extends State<RecurringPaymentsPage> {
   String _getPaymentTypeIcon(RecurringPaymentType type) {
     switch (type) {
       case RecurringPaymentType.monthly:
-        return '📅';
+        return 'M';
       case RecurringPaymentType.weekly:
-        return '📆';
+        return 'W';
       case RecurringPaymentType.yearly:
-        return '🗓️';
+        return 'Y';
       case RecurringPaymentType.oneTime:
-        return '⏰';
+        return '1';
     }
   }
-
   Future<void> _addRecurringPayment() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -86,7 +86,7 @@ class _RecurringPaymentsPageState extends State<RecurringPaymentsPage> {
         amount: double.parse(_amountController.text.trim()),
         type: _selectedType,
         categoryId: _selectedCategoryId,
-        categoryName: category.name,
+        categoryName: context.categoryName(category.id),
         startDate: _startDate,
         endDate: _endDate,
         nextPaymentDate: _calculateNextPaymentDate(_startDate),
@@ -98,9 +98,9 @@ class _RecurringPaymentsPageState extends State<RecurringPaymentsPage> {
 
       await RecurringPaymentService.createRecurringPayment(payment);
       _clearForm();
-      _showSuccessSnackBar('Recurring payment created successfully');
+      _showSuccessSnackBar(context.t('paymentCreated'));
     } catch (e) {
-      _showErrorSnackBar('Error creating payment: $e');
+      _showErrorSnackBar(context.tx('errorCreatingPayment', {'error': e}));
     } finally {
       setState(() => _isLoading = false);
     }
@@ -157,7 +157,7 @@ class _RecurringPaymentsPageState extends State<RecurringPaymentsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Recurring Payments'),
+        title: Text(context.t('recurringPayments')),
         backgroundColor: Colors.transparent,
       ),
       body: StreamBuilder<List<RecurringPaymentModel>>(
@@ -166,7 +166,7 @@ class _RecurringPaymentsPageState extends State<RecurringPaymentsPage> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-          
+
           if (snapshot.hasError) {
             return Center(
               child: Column(
@@ -175,16 +175,16 @@ class _RecurringPaymentsPageState extends State<RecurringPaymentsPage> {
                   Icon(Icons.error, size: 64, color: Colors.grey[400]),
                   const SizedBox(height: 16),
                   Text(
-                    'Error loading payments',
+                    context.t('errorLoadingPayments'),
                     style: TextStyle(color: Colors.grey[600]),
                   ),
                 ],
               ),
             );
           }
-          
+
           final payments = snapshot.data ?? [];
-          
+
           return Column(
             children: [
               // Summary Card
@@ -218,7 +218,7 @@ class _RecurringPaymentsPageState extends State<RecurringPaymentsPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Active Payments',
+                            context.t('activePayments'),
                             style: const TextStyle(
                               color: Colors.white70,
                               fontSize: 16,
@@ -226,7 +226,7 @@ class _RecurringPaymentsPageState extends State<RecurringPaymentsPage> {
                             ),
                           ),
                           Text(
-                            '${payments.length} Active',
+                            '${payments.length} ${context.t('active')}',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 24,
@@ -239,7 +239,7 @@ class _RecurringPaymentsPageState extends State<RecurringPaymentsPage> {
                   ],
                 ),
               ),
-              
+
               // Add Payment Form
               Container(
                 margin: const EdgeInsets.all(16),
@@ -261,7 +261,7 @@ class _RecurringPaymentsPageState extends State<RecurringPaymentsPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Add New Payment',
+                        context.t('addNewPayment'),
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -269,12 +269,12 @@ class _RecurringPaymentsPageState extends State<RecurringPaymentsPage> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      
+
                       // Title
                       TextFormField(
                         controller: _titleController,
                         decoration: InputDecoration(
-                          labelText: 'Payment Title',
+                          labelText: context.t('paymentTitle'),
                           prefixIcon: const Icon(Icons.title),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -282,19 +282,19 @@ class _RecurringPaymentsPageState extends State<RecurringPaymentsPage> {
                         ),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return 'Please enter a title';
+                            return context.t('enterTitle');
                           }
                           return null;
                         },
                       ),
                       const SizedBox(height: 12),
-                      
+
                       // Amount
                       TextFormField(
                         controller: _amountController,
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
-                          labelText: 'Amount',
+                          labelText: context.t('amount'),
                           prefixIcon: const Icon(Icons.attach_money),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -302,22 +302,22 @@ class _RecurringPaymentsPageState extends State<RecurringPaymentsPage> {
                         ),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return 'Please enter an amount';
+                            return context.t('enterAmount');
                           }
                           final amount = double.tryParse(value.trim());
                           if (amount == null || amount <= 0) {
-                            return 'Please enter a valid amount';
+                            return context.t('validAmount');
                           }
                           return null;
                         },
                       ),
                       const SizedBox(height: 12),
-                      
+
                       // Payment Type
                       DropdownButtonFormField<RecurringPaymentType>(
                         value: _selectedType,
                         decoration: InputDecoration(
-                          labelText: 'Payment Type',
+                          labelText: context.t('paymentType'),
                           prefixIcon: const Icon(Icons.schedule),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -330,7 +330,7 @@ class _RecurringPaymentsPageState extends State<RecurringPaymentsPage> {
                               children: [
                                 Text(_getPaymentTypeIcon(type)),
                                 const SizedBox(width: 8),
-                                Text(type.toString().split('.').last),
+                                Text(context.recurringPaymentTypeName(type)),
                               ],
                             ),
                           );
@@ -342,12 +342,12 @@ class _RecurringPaymentsPageState extends State<RecurringPaymentsPage> {
                         },
                       ),
                       const SizedBox(height: 12),
-                      
+
                       // Category
                       DropdownButtonFormField<String>(
                         value: _selectedCategoryId,
                         decoration: InputDecoration(
-                          labelText: 'Category',
+                          labelText: context.t('category'),
                           prefixIcon: const Icon(Icons.category),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -360,7 +360,7 @@ class _RecurringPaymentsPageState extends State<RecurringPaymentsPage> {
                               children: [
                                 Icon(category.icon, color: category.color, size: 20),
                                 const SizedBox(width: 8),
-                                Text(category.name),
+                                Text(context.categoryName(category.id)),
                               ],
                             ),
                           );
@@ -372,7 +372,7 @@ class _RecurringPaymentsPageState extends State<RecurringPaymentsPage> {
                         },
                       ),
                       const SizedBox(height: 16),
-                      
+
                       // Submit Button
                       SizedBox(
                         width: double.infinity,
@@ -380,14 +380,14 @@ class _RecurringPaymentsPageState extends State<RecurringPaymentsPage> {
                           onPressed: _isLoading ? null : _addRecurringPayment,
                           child: _isLoading
                               ? const CircularProgressIndicator(color: Colors.white)
-                              : const Text('Add Payment'),
+                              : Text(context.t('addPayment')),
                         ),
                       ),
                     ],
                   ),
                 ),
               ),
-              
+
               // Payments List
               Expanded(
                 child: payments.isEmpty
@@ -398,7 +398,7 @@ class _RecurringPaymentsPageState extends State<RecurringPaymentsPage> {
                             Icon(Icons.repeat, size: 64, color: Colors.grey[400]),
                             const SizedBox(height: 16),
                             Text(
-                              'No recurring payments yet',
+                              context.t('noRecurringPayments'),
                               style: TextStyle(color: Colors.grey[600]),
                             ),
                           ],
@@ -446,7 +446,7 @@ class _RecurringPaymentsPageState extends State<RecurringPaymentsPage> {
                                               ),
                                             ),
                                             Text(
-                                              payment.categoryName,
+                                              context.categoryName(payment.categoryId),
                                               style: TextStyle(
                                                 color: Colors.grey[600],
                                                 fontSize: 14,
@@ -467,7 +467,7 @@ class _RecurringPaymentsPageState extends State<RecurringPaymentsPage> {
                                             ),
                                           ),
                                           Text(
-                                            payment.type.toString().split('.').last,
+                                            context.recurringPaymentTypeName(payment.type),
                                             style: TextStyle(
                                               color: _getPaymentTypeColor(payment.type),
                                               fontSize: 12,
@@ -481,11 +481,11 @@ class _RecurringPaymentsPageState extends State<RecurringPaymentsPage> {
                                   const SizedBox(height: 12),
                                   Row(
                                     children: [
-                                      Icon(Icons.calendar_today, 
+                                      Icon(Icons.calendar_today,
                                            color: Colors.grey[600], size: 16),
                                       const SizedBox(width: 4),
                                       Text(
-                                        'Next: ${DateFormat('MMM dd, yyyy').format(payment.nextPaymentDate)}',
+                                        context.tx('nextDate', {'date': DateFormat('MMM dd, yyyy').format(payment.nextPaymentDate)}),
                                         style: TextStyle(
                                           color: Colors.grey[600],
                                           fontSize: 14,
@@ -503,7 +503,7 @@ class _RecurringPaymentsPageState extends State<RecurringPaymentsPage> {
                                             borderRadius: BorderRadius.circular(12),
                                           ),
                                           child: Text(
-                                            'OVERDUE',
+                                            context.t('overdue'),
                                             style: TextStyle(
                                               color: Colors.red,
                                               fontSize: 12,
@@ -517,25 +517,25 @@ class _RecurringPaymentsPageState extends State<RecurringPaymentsPage> {
                                           final confirmed = await showDialog<bool>(
                                             context: context,
                                             builder: (context) => AlertDialog(
-                                              title: const Text('Delete Payment'),
-                                              content: Text('Are you sure you want to delete "${payment.title}"?'),
+                                              title: Text(context.t('deletePayment')),
+                                              content: Text(context.tx('deletePaymentConfirm', {'title': payment.title})),
                                               actions: [
                                                 TextButton(
                                                   onPressed: () => Navigator.pop(context, false),
-                                                  child: const Text('Cancel'),
+                                                  child: Text(context.t('cancel')),
                                                 ),
                                                 TextButton(
                                                   onPressed: () => Navigator.pop(context, true),
                                                   style: TextButton.styleFrom(foregroundColor: Colors.red),
-                                                  child: const Text('Delete'),
+                                                  child: Text(context.t('delete')),
                                                 ),
                                               ],
                                             ),
                                           );
-                                          
+
                                           if (confirmed == true) {
                                             await RecurringPaymentService.deactivateRecurringPayment(payment.id);
-                                            _showSuccessSnackBar('Payment deleted successfully');
+                                            _showSuccessSnackBar(context.t('paymentDeleted'));
                                           }
                                         },
                                       ),
