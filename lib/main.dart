@@ -14,6 +14,7 @@ import 'services/auth_service.dart';
 import 'services/firestore_service.dart';
 import 'services/permission_service.dart';
 import 'services/auto_transaction_service.dart';
+import 'services/recurring_payment_service.dart';
 import 'widgets/category_selector.dart';
 import 'pages/transaction_details_page.dart';
 import 'pages/settings_page.dart';
@@ -45,6 +46,16 @@ class _BudgetAppState extends State<BudgetApp> {
   void initState() {
     super.initState();
     _languageController.load();
+    // Process due payments on app start
+    _processDuePayments();
+  }
+
+  Future<void> _processDuePayments() async {
+    try {
+      await RecurringPaymentService.triggerPaymentProcessing();
+    } catch (e) {
+      print('Error processing due payments on app start: $e');
+    }
   }
 
   @override

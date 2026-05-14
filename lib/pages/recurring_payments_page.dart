@@ -24,6 +24,7 @@ class _RecurringPaymentsPageState extends State<RecurringPaymentsPage> {
   String _selectedCategoryId = 'other';
   DateTime _startDate = DateTime.now();
   DateTime? _endDate;
+  DateTime? _firstPaymentDate;
 
   @override
   void dispose() {
@@ -89,7 +90,7 @@ class _RecurringPaymentsPageState extends State<RecurringPaymentsPage> {
         categoryName: context.categoryName(category.id),
         startDate: _startDate,
         endDate: _endDate,
-        nextPaymentDate: _calculateNextPaymentDate(_startDate),
+        nextPaymentDate: _firstPaymentDate ?? _calculateNextPaymentDate(_startDate),
         isActive: true,
         createdAt: DateTime.now(),
         createdBy: UserService.currentUserId ?? '',
@@ -101,6 +102,18 @@ class _RecurringPaymentsPageState extends State<RecurringPaymentsPage> {
       _showSuccessSnackBar(context.t('paymentCreated'));
     } catch (e) {
       _showErrorSnackBar(context.tx('errorCreatingPayment', {'error': e}));
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _processDuePayments() async {
+    setState(() => _isLoading = true);
+    try {
+      await RecurringPaymentService.triggerPaymentProcessing();
+      _showSuccessSnackBar('Payments processed successfully');
+    } catch (e) {
+      _showErrorSnackBar('Error processing payments: $e');
     } finally {
       setState(() => _isLoading = false);
     }
@@ -129,6 +142,7 @@ class _RecurringPaymentsPageState extends State<RecurringPaymentsPage> {
     _selectedCategoryId = 'other';
     _startDate = DateTime.now();
     _endDate = null;
+    _firstPaymentDate = null;
   }
 
   void _showErrorSnackBar(String message) {
@@ -159,6 +173,13 @@ class _RecurringPaymentsPageState extends State<RecurringPaymentsPage> {
       appBar: AppBar(
         title: Text(context.t('recurringPayments')),
         backgroundColor: Colors.transparent,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.play_circle_outline),
+            tooltip: 'Process Due Payments',
+            onPressed: _isLoading ? null : _processDuePayments,
+          ),
+        ],
       ),
       body: StreamBuilder<List<RecurringPaymentModel>>(
         stream: RecurringPaymentService.getRecurringPayments(),
@@ -371,6 +392,38 @@ class _RecurringPaymentsPageState extends State<RecurringPaymentsPage> {
                           });
                         },
                       ),
+                      const SizedBox(height: 12),
+
+                      // First Payment Date
+                      InkWell(
+                        onTap: () async {
+                          final picked = await showDatePicker(
+                            context: context,
+                            initialDate: _firstPaymentDate ?? DateTime.now(),
+                            firstDate: DateTime.now(),
+                            lastDate: DateTime.now().add(const Duration(days: 365)),
+                          );
+                          if (picked != null) {
+                            setState(() {
+                              _firstPaymentDate = picked;
+                            });
+                          }
+                        },
+                        child: InputDecorator(
+                          decoration: InputDecoration(
+                            labelText: context.t('firstPaymentDate'),
+                            prefixIcon: const Icon(Icons.calendar_today),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            _firstPaymentDate != null
+                                ? DateFormat('dd.MM.yyyy').format(_firstPaymentDate!)
+                                : context.t('tapToSelectDate'),
+                          ),
+                        ),
+                      ),
                       const SizedBox(height: 16),
 
                       // Submit Button
@@ -511,6 +564,21 @@ class _RecurringPaymentsPageState extends State<RecurringPaymentsPage> {
                                             ),
                                           ),
                                         ),
+                                      IconButton(
+                                        icon: const Icon(Icons.edit, color: Colors.blue),
+                                        onPressed: () async {
+                                          final picked = await showDatePicker(
+                                            context: context,
+                                            initialDate: payment.nextPaymentDate,
+                                            firstDate: DateTime.now(),
+                                            lastDate: DateTime.now().add(const Duration(days: 365)),
+                                          );
+                                          if (picked != null) {
+                                            await RecurringPaymentService.updateNextPaymentDate(payment.id, picked);
+                                            _showSuccessSnackBar('Payment date updated');
+                                          }
+                                        },
+                                      ),
                                       IconButton(
                                         icon: const Icon(Icons.delete, color: Colors.red),
                                         onPressed: () async {
