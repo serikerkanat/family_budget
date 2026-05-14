@@ -639,7 +639,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
 
   Widget _buildMonthlyBar(String label, double amount, Color color, List<Map<String, dynamic>> monthlyData) {
     final maxValue = monthlyData.isNotEmpty
-        ? monthlyData.map((d) => d[label.toLowerCase()]).reduce((a, b) => (a as double) > (b as double) ? a : b)
+        ? monthlyData.map((d) => d[label.toLowerCase()] ?? 0.0).reduce((a, b) => (a as double) > (b as double) ? a : b)
         : amount;
 
     return Column(
