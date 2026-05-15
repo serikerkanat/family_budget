@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'notification_listener_service.dart';
-import 'bank_notification_parser.dart';
 import 'firestore_service.dart';
 import 'notification_permission_service.dart';
 
@@ -68,18 +67,9 @@ class AutoTransactionService {
   static Future<void> _handleNotification(BankingNotificationData notification) async {
     debugPrint('Received notification: ${notification.bankName} - ${notification.amount} ${notification.currency}');
 
-    // Parse the notification
-    final parsed = BankNotificationParser.parse(notification);
-    if (parsed == null) {
-      debugPrint('Failed to parse notification');
-      return;
-    }
-
-    debugPrint('Parsed transaction: ${parsed.amount} ${parsed.currency} - ${parsed.merchant}');
-
     try {
-      // Add to Firestore
-      await FirestoreService.addTransactionFromNotification(parsed);
+      // Add to Firestore (FirestoreService will handle both AI and rule-based parsing)
+      await FirestoreService.addTransactionFromNotification(notification);
       debugPrint('Transaction added successfully');
     } catch (e) {
       debugPrint('Error adding transaction: $e');

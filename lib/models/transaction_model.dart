@@ -16,6 +16,7 @@ class TransactionModel {
   final TransactionSource source;
   final String? bankName;
   final String? rawNotificationText;
+  final String currency; // Added currency field
 
   TransactionModel({
     required this.id,
@@ -29,6 +30,7 @@ class TransactionModel {
     this.source = TransactionSource.manual,
     this.bankName,
     this.rawNotificationText,
+    this.currency = 'USD', // Default to USD
   });
 
   TransactionModel copyWith({
@@ -43,6 +45,7 @@ class TransactionModel {
     TransactionSource? source,
     String? bankName,
     String? rawNotificationText,
+    String? currency,
   }) {
     return TransactionModel(
       id: id ?? this.id,
@@ -56,6 +59,7 @@ class TransactionModel {
       source: source ?? this.source,
       bankName: bankName ?? this.bankName,
       rawNotificationText: rawNotificationText ?? this.rawNotificationText,
+      currency: currency ?? this.currency,
     );
   }
 
@@ -72,6 +76,7 @@ class TransactionModel {
       'source': source.toString(),
       'bankName': bankName,
       'rawNotificationText': rawNotificationText,
+      'currency': currency,
     };
   }
 
@@ -94,6 +99,7 @@ class TransactionModel {
               : TransactionSource.manual,
       bankName: json['bankName'],
       rawNotificationText: json['rawNotificationText'],
+      currency: json['currency'] ?? 'USD',
     );
   }
 }

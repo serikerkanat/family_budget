@@ -119,6 +119,7 @@ class RecurringPaymentService {
         categoryId: payment.categoryId,
         receiptImagePath: null,
         notes: 'Recurring payment: ${payment.description}',
+        currency: 'USD',
       );
       
       await FirestoreService.addTransaction(transaction);
