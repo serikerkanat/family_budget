@@ -298,7 +298,7 @@ class FirestoreService {
   static TransactionModel _transactionFromDocument(DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data()!;
     return TransactionModel(
-      id: data['id'] ?? doc.id,
+      id: doc.id, // Always use Firestore document ID for updates/deletes
       title: data['title'] ?? '',
       amount: (data['amount'] as num?)?.toDouble() ?? 0.0,
       date: DateTime.parse(data['date'] ?? DateTime.now().toIso8601String()),

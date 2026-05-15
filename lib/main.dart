@@ -297,23 +297,30 @@ class _HomePageState extends State<HomePage> {
           _transactions = snapshot.data ?? [];
           _calculateTotals();
 
-          return CustomScrollView(
-            physics: const BouncingScrollPhysics(),
-            slivers: [
-              SliverToBoxAdapter(child: _buildHeader()),
-              SliverToBoxAdapter(child: _buildAccountCard()),
-              SliverToBoxAdapter(child: _buildQuickActions()),
-              SliverToBoxAdapter(child: _buildInsights()),
-              SliverToBoxAdapter(child: _buildTransactionHeader()),
-              if (_transactions.isEmpty)
-                SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: _buildEmptyState(),
-                )
-              else
-                _buildTransactionSliver(),
-              const SliverToBoxAdapter(child: SizedBox(height: 110)),
-            ],
+          return RefreshIndicator(
+            onRefresh: () async {
+              // Force a refresh by waiting for the stream to update
+              await Future.delayed(const Duration(seconds: 1));
+              setState(() {});
+            },
+            child: CustomScrollView(
+              physics: const BouncingScrollPhysics(),
+              slivers: [
+                SliverToBoxAdapter(child: _buildHeader()),
+                SliverToBoxAdapter(child: _buildAccountCard()),
+                SliverToBoxAdapter(child: _buildQuickActions()),
+                SliverToBoxAdapter(child: _buildInsights()),
+                SliverToBoxAdapter(child: _buildTransactionHeader()),
+                if (_transactions.isEmpty)
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: _buildEmptyState(),
+                  )
+                else
+                  _buildTransactionSliver(),
+                const SliverToBoxAdapter(child: SizedBox(height: 110)),
+              ],
+            ),
           );
         },
       ),
