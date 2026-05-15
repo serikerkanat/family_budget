@@ -149,12 +149,15 @@ class _SettingsPageState extends State<SettingsPage> {
                       items: AppLanguage.values.map((language) {
                         return DropdownMenuItem(
                           value: language,
-                          child: Text(
-                            language == AppLanguage.english
-                                ? context.t('english')
-                                : language == AppLanguage.russian
-                                    ? context.t('russian')
-                                    : context.t('kazakh'),
+                          child: Flexible(
+                            child: Text(
+                              language == AppLanguage.english
+                                  ? context.t('english')
+                                  : language == AppLanguage.russian
+                                      ? context.t('russian')
+                                      : context.t('kazakh'),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         );
                       }).toList(),

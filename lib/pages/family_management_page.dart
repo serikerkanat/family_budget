@@ -272,7 +272,12 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
               items: UserRole.values.map((role) {
                 return DropdownMenuItem(
                   value: role,
-                  child: Text(context.userRoleName(role)),
+                  child: Flexible(
+                    child: Text(
+                      context.userRoleName(role),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                 );
               }).toList(),
               onChanged: (value) {

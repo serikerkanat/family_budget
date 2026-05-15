@@ -181,7 +181,8 @@ class _RecurringPaymentsPageState extends State<RecurringPaymentsPage> {
           ),
         ],
       ),
-      body: StreamBuilder<List<RecurringPaymentModel>>(
+      body: SingleChildScrollView(
+        child: StreamBuilder<List<RecurringPaymentModel>>(
         stream: RecurringPaymentService.getRecurringPayments(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -442,9 +443,10 @@ class _RecurringPaymentsPageState extends State<RecurringPaymentsPage> {
               ),
 
               // Payments List
-              Expanded(
-                child: payments.isEmpty
-                    ? Center(
+              payments.isEmpty
+                  ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(32),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -456,11 +458,14 @@ class _RecurringPaymentsPageState extends State<RecurringPaymentsPage> {
                             ),
                           ],
                         ),
-                      )
-                    : ListView.builder(
-                        padding: const EdgeInsets.all(16),
-                        itemCount: payments.length,
-                        itemBuilder: (context, index) {
+                      ),
+                    )
+                  : ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      padding: const EdgeInsets.all(16),
+                      itemCount: payments.length,
+                      itemBuilder: (context, index) {
                           final payment = payments[index];
                           return Card(
                             margin: const EdgeInsets.only(bottom: 12),
@@ -615,10 +620,10 @@ class _RecurringPaymentsPageState extends State<RecurringPaymentsPage> {
                           );
                         },
                       ),
-              ),
             ],
           );
         },
+      ),
       ),
     );
   }
