@@ -14,6 +14,8 @@ import 'services/auth_service.dart';
 import 'services/firestore_service.dart';
 import 'services/permission_service.dart';
 import 'services/auto_transaction_service.dart';
+import 'services/recurring_payment_service.dart';
+import 'services/gemini_config_service.dart';
 import 'widgets/category_selector.dart';
 import 'pages/transaction_details_page.dart';
 import 'pages/settings_page.dart';
@@ -45,6 +47,45 @@ class _BudgetAppState extends State<BudgetApp> {
   void initState() {
     super.initState();
     _languageController.load();
+    // Initialize Gemini AI in background (non-blocking)
+    _initializeGemini();
+    // Process due payments on app start
+    _processDuePayments();
+  }
+
+  Future<void> _initializeGemini() async {
+    // Don't block UI - run in background
+    // TEMPORARILY DISABLED to prevent crashes
+    // TODO: Re-enable after testing stability
+    /*
+    Future.microtask(() async {
+      try {
+        // TODO: Remove this hardcoded key in production
+        // Users should enter their API key through Settings
+        await GeminiConfigService.saveApiKey('AIzaSyCQ1Tc5J7HdUqFCPFReI4BvDVJ6nJop6vc');
+        await GeminiConfigService.setAIEnabled(true);
+        await GeminiConfigService.initializeIfNeeded();
+        print('Gemini initialized successfully');
+      } catch (e) {
+        print('Error initializing Gemini: $e');
+        // Don't block app if Gemini fails
+      }
+    });
+    */
+    print('Gemini AI temporarily disabled for stability testing');
+  }
+
+  Future<void> _processDuePayments() async {
+    // Don't block UI - run in background
+    Future.microtask(() async {
+      try {
+        await RecurringPaymentService.triggerPaymentProcessing();
+        print('Due payments processed successfully');
+      } catch (e) {
+        print('Error processing due payments on app start: $e');
+        // Don't block app if this fails
+      }
+    });
   }
 
   @override
@@ -256,23 +297,30 @@ class _HomePageState extends State<HomePage> {
           _transactions = snapshot.data ?? [];
           _calculateTotals();
 
-          return CustomScrollView(
-            physics: const BouncingScrollPhysics(),
-            slivers: [
-              SliverToBoxAdapter(child: _buildHeader()),
-              SliverToBoxAdapter(child: _buildAccountCard()),
-              SliverToBoxAdapter(child: _buildQuickActions()),
-              SliverToBoxAdapter(child: _buildInsights()),
-              SliverToBoxAdapter(child: _buildTransactionHeader()),
-              if (_transactions.isEmpty)
-                SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: _buildEmptyState(),
-                )
-              else
-                _buildTransactionSliver(),
-              const SliverToBoxAdapter(child: SizedBox(height: 110)),
-            ],
+          return RefreshIndicator(
+            onRefresh: () async {
+              // Force a refresh by waiting for the stream to update
+              await Future.delayed(const Duration(seconds: 1));
+              setState(() {});
+            },
+            child: CustomScrollView(
+              physics: const BouncingScrollPhysics(),
+              slivers: [
+                SliverToBoxAdapter(child: _buildHeader()),
+                SliverToBoxAdapter(child: _buildAccountCard()),
+                SliverToBoxAdapter(child: _buildQuickActions()),
+                SliverToBoxAdapter(child: _buildInsights()),
+                SliverToBoxAdapter(child: _buildTransactionHeader()),
+                if (_transactions.isEmpty)
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: _buildEmptyState(),
+                  )
+                else
+                  _buildTransactionSliver(),
+                const SliverToBoxAdapter(child: SizedBox(height: 110)),
+              ],
+            ),
           );
         },
       ),
@@ -1281,6 +1329,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
       notes: _notesController.text.trim().isNotEmpty
           ? _notesController.text.trim()
           : null,
+      currency: 'USD',
     );
 
     Navigator.pop(context, transaction);

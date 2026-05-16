@@ -157,6 +157,7 @@ class TransactionDeduplicationService {
               : TransactionSource.manual,
       bankName: data['bankName'],
       rawNotificationText: data['rawNotificationText'],
+      currency: data['currency'] ?? 'USD',
     );
   }
 }

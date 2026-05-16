@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../models/transaction_model.dart';
 import '../models/category_model.dart';
 import '../l10n/app_localizations.dart';
+import 'edit_transaction_page.dart';
 
 class TransactionDetailsPage extends StatelessWidget {
   final TransactionModel transaction;
@@ -29,6 +30,32 @@ class TransactionDetailsPage extends StatelessWidget {
         title: Text(context.t('transactionDetails')),
         backgroundColor: Colors.transparent,
         actions: [
+          IconButton(
+            icon: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.blue.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.edit,
+                color: Colors.blue,
+                size: 20,
+              ),
+            ),
+            onPressed: () async {
+              final updatedTransaction = await Navigator.push<TransactionModel>(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => EditTransactionPage(transaction: transaction),
+                ),
+              );
+              if (updatedTransaction != null) {
+                // The parent will handle the update via stream
+                Navigator.of(context).pop();
+              }
+            },
+          ),
           IconButton(
             icon: Container(
               padding: const EdgeInsets.all(8),

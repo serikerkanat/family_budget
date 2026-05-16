@@ -75,6 +75,14 @@ class RecurringPaymentService {
     });
   }
 
+  // Update next payment date only
+  static Future<void> updateNextPaymentDate(String paymentId, DateTime newDate) async {
+    await _db.collection('recurring_payments').doc(paymentId).update({
+      'nextPaymentDate': Timestamp.fromDate(newDate),
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
   // Deactivate recurring payment
   static Future<void> deactivateRecurringPayment(String paymentId) async {
     await _db.collection('recurring_payments').doc(paymentId).update({
@@ -111,6 +119,7 @@ class RecurringPaymentService {
         categoryId: payment.categoryId,
         receiptImagePath: null,
         notes: 'Recurring payment: ${payment.description}',
+        currency: 'USD',
       );
       
       await FirestoreService.addTransaction(transaction);
