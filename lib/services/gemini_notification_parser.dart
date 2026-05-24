@@ -50,11 +50,11 @@ class GeminiNotificationParser {
   // Initialize Gemini with API key
   // User needs to set their API key in Firebase Remote Config or environment
   static Future<void> initialize(String apiKey) async {
-    if (_isInitialized) return;
+    _isInitialized = false;
     
     try {
       _model = GenerativeModel(
-        model: 'gemini-pro',
+        model: 'gemini-1.5-flash',
         apiKey: apiKey,
       );
       _isInitialized = true;
@@ -177,7 +177,7 @@ Rules:
 
   // Helper to extract string value from JSON
   static String? _extractString(String json, String key) {
-    final pattern = '$key:"([^"]*)"';
+    final pattern = '$key\\s*:\\s*"([^"]*)"';
     final regex = RegExp(pattern);
     final match = regex.firstMatch(json);
     return match?.group(1);
@@ -185,7 +185,7 @@ Rules:
 
   // Helper to extract double value from JSON
   static double _extractDouble(String json, String key) {
-    final pattern = '$key:([0-9.]+)';
+    final pattern = '$key\\s*:\\s*([0-9.]+)';
     final regex = RegExp(pattern);
     final match = regex.firstMatch(json);
     return match != null ? double.tryParse(match.group(1)!) ?? 0.0 : 0.0;

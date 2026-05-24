@@ -267,6 +267,28 @@ class FamilyService {
     }
   }
 
+  // Get family currency (returns null if not set or not in family)
+  static Future<String?> getFamilyCurrency() async {
+    final familyId = await UserService.getUserFamilyId();
+    if (familyId == null) return null;
+    try {
+      final doc = await _familiesRef.doc(familyId).get();
+      return doc.data()?['currency'] as String?;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Update family currency (parent only)
+  static Future<void> updateFamilyCurrency(String currencyCode) async {
+    final familyId = await UserService.getUserFamilyId();
+    if (familyId == null) throw Exception('User not in family');
+    await _familiesRef.doc(familyId).update({
+      'currency': currencyCode,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
   // Update family settings
   static Future<void> updateFamilySettings(Map<String, dynamic> settings) async {
     final familyId = await UserService.getUserFamilyId();

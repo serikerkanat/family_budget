@@ -517,7 +517,7 @@ class _RecurringPaymentsPageState extends State<RecurringPaymentsPage> {
                                         crossAxisAlignment: CrossAxisAlignment.end,
                                         children: [
                                           Text(
-                                            '\$${payment.amount.toStringAsFixed(2)}',
+                                            context.formatAmount(payment.amount),
                                             style: const TextStyle(
                                               fontSize: 16,
                                               fontWeight: FontWeight.bold,

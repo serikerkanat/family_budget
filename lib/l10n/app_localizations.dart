@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../services/family_service.dart';
+
 
 
 enum AppLanguage {
@@ -122,11 +124,167 @@ class AppLanguageScope extends InheritedNotifier<AppLanguageController> {
 
 
 
+// ─── Currency system ──────────────────────────────────────────────────────────
+
+enum AppCurrency {
+
+  kzt('KZT', '₸'),
+
+  usd('USD', '\$'),
+
+  rub('RUB', '₽'),
+
+  eur('EUR', '€');
+
+
+
+  const AppCurrency(this.code, this.symbol);
+
+
+
+  final String code;
+
+  final String symbol;
+
+
+
+  static AppCurrency fromCode(String? code) {
+
+    return AppCurrency.values.firstWhere(
+
+      (c) => c.code == code,
+
+      orElse: () => AppCurrency.kzt,
+
+    );
+
+  }
+
+}
+
+
+
+class AppCurrencyController extends ChangeNotifier {
+
+  static const _preferenceKey = 'app_currency';
+
+
+
+  AppCurrency _currency = AppCurrency.kzt;
+
+  bool _isLoaded = false;
+
+
+
+  AppCurrency get currency => _currency;
+
+  bool get isLoaded => _isLoaded;
+
+
+
+  Future<void> load() async {
+
+    // 1. Try family-wide currency from Firestore
+    final familyCurrency = await FamilyService.getFamilyCurrency();
+
+    if (familyCurrency != null) {
+
+      _currency = AppCurrency.fromCode(familyCurrency);
+
+      _isLoaded = true;
+
+      notifyListeners();
+
+      return;
+
+    }
+
+    // 2. Fall back to local preference
+    final preferences = await SharedPreferences.getInstance();
+
+    _currency = AppCurrency.fromCode(preferences.getString(_preferenceKey));
+
+    _isLoaded = true;
+
+    notifyListeners();
+
+  }
+
+
+
+  Future<void> setCurrency(AppCurrency currency) async {
+
+    if (_currency == currency && _isLoaded) return;
+
+    _currency = currency;
+
+    final preferences = await SharedPreferences.getInstance();
+
+    await preferences.setString(_preferenceKey, currency.code);
+
+    notifyListeners();
+
+  }
+
+}
+
+
+
+class AppCurrencyScope extends InheritedNotifier<AppCurrencyController> {
+
+  const AppCurrencyScope({
+
+    super.key,
+
+    required AppCurrencyController controller,
+
+    required super.child,
+
+  }) : super(notifier: controller);
+
+
+
+  static AppCurrencyController of(BuildContext context) {
+
+    final scope = context.dependOnInheritedWidgetOfExactType<AppCurrencyScope>();
+
+    assert(scope != null, 'No AppCurrencyScope found in context');
+
+    return scope!.notifier!;
+
+  }
+
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+
+
 extension AppLocalizationsExtension on BuildContext {
 
   AppLanguageController get languageController => AppLanguageScope.of(this);
 
   AppLanguage get appLanguage => AppLanguageScope.of(this).language;
+
+  AppCurrencyController get currencyController => AppCurrencyScope.of(this);
+
+  AppCurrency get appCurrency => AppCurrencyScope.of(this).currency;
+
+  String formatAmount(double amount) {
+
+    final cur = appCurrency;
+
+    final formatted = amount.toStringAsFixed(2);
+
+    if (cur == AppCurrency.kzt || cur == AppCurrency.rub) {
+
+      return '$formatted ${cur.symbol}';
+
+    }
+
+    return '${cur.symbol}$formatted';
+
+  }
 
 
 
@@ -316,6 +474,12 @@ class AppLocalizations {
 
       'language': 'Language',
 
+      'currency': 'Currency',
+
+      'familyCurrency': 'Family Currency',
+
+      'currencyUpdated': 'Currency updated to {currency}',
+
       'english': 'English',
 
       'russian': 'Русский',
@@ -502,7 +666,7 @@ class AppLocalizations {
 
       'amountRemaining': '{amount} remaining',
 
-      'monthlyLimit': 'Monthly Limit (\$)',
+      'monthlyLimit': 'Monthly Limit',
 
       'activePayments': 'Active Payments',
 
@@ -744,6 +908,12 @@ class AppLocalizations {
 
       'language': 'Язык',
 
+      'currency': 'Валюта',
+
+      'familyCurrency': 'Валюта семьи',
+
+      'currencyUpdated': 'Валюта изменена на {currency}',
+
       'english': 'Английский',
 
       'russian': 'Русский',
@@ -928,7 +1098,7 @@ class AppLocalizations {
 
       'amountRemaining': 'осталось {amount}',
 
-      'monthlyLimit': 'Месячный лимит (\$)',
+      'monthlyLimit': 'Месячный лимит',
 
       'activePayments': 'Активные платежи',
 
@@ -1170,6 +1340,12 @@ class AppLocalizations {
 
       'language': 'Тіл',
 
+      'currency': 'Валюта',
+
+      'familyCurrency': 'Отбасы валютасы',
+
+      'currencyUpdated': 'Валюта {currency} болып өзгертілді',
+
       'english': 'Ағылшын',
 
       'russian': 'Орыс',
@@ -1356,7 +1532,7 @@ class AppLocalizations {
 
       'amountRemaining': '{amount} қалды',
 
-      'monthlyLimit': 'Айлық шектеу (\$)',
+      'monthlyLimit': 'Айлық шектеу',
 
       'activePayments': 'Белсенді төлемдер',
 

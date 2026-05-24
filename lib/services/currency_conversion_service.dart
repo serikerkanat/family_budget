@@ -5,7 +5,7 @@ class CurrencyConversionService {
   // TODO: In production, fetch from an API
   static const Map<String, double> _exchangeRates = {
     'USD': 1.0,
-    'KZT': 450.0,  // Kazakhstani Tenge
+    'KZT': 500.0,  // Kazakhstani Tenge
     'RUB': 92.0,   // Russian Ruble
     'EUR': 0.92,   // Euro
     'GBP': 0.79,   // British Pound

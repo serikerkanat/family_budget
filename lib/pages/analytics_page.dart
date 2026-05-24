@@ -151,7 +151,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                 Expanded(
                   child: _buildSummaryCard(
                     context.t('totalIncome'),
-                    '+\$${totalIncome.toStringAsFixed(2)}',
+                    '+${context.formatAmount(totalIncome)}',
                     const Color(0xFF10B981),
                     Icons.trending_up,
                   ),
@@ -160,7 +160,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                 Expanded(
                   child: _buildSummaryCard(
                     context.t('totalExpense'),
-                    '-\$${totalExpense.toStringAsFixed(2)}',
+                    '-${context.formatAmount(totalExpense)}',
                     const Color(0xFFEF4444),
                     Icons.trending_down,
                   ),
@@ -170,7 +170,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
             const SizedBox(height: 12),
             _buildSummaryCard(
               context.t('netBalance'),
-              '\$${balance.toStringAsFixed(2)}',
+              context.formatAmount(balance),
               balance >= 0 ? const Color(0xFF10B981) : const Color(0xFFEF4444),
               Icons.account_balance_wallet,
               isBalance: true,
@@ -417,7 +417,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                   children: [
                     _buildForecastStat(
                       context.t('dailySpend'),
-                      '\$${_forecast!.predictedDailySpend.toStringAsFixed(2)}',
+                      context.formatAmount(_forecast!.predictedDailySpend),
                       Icons.attach_money,
                     ),
                     const SizedBox(width: 16),
@@ -523,7 +523,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                         ),
                       ),
                       Text(
-                        '\$${entry.value.toStringAsFixed(2)}',
+                        context.formatAmount(entry.value),
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -616,7 +616,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                     children: [
                       Text(
                         context.tx('balanceLabel', {
-                          'amount': "\$${data['balance'].toStringAsFixed(2)}",
+                          'amount': context.formatAmount(data['balance'] as double),
                         }),
                         style: TextStyle(
                           fontSize: 12,
@@ -657,7 +657,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
               ),
             ),
             Text(
-              '\$${amount.toStringAsFixed(0)}',
+              context.formatAmount(amount),
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -743,7 +743,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
               ),
             ),
             trailing: Text(
-              '${isIncome ? '+' : '-'}\$${transaction.amount.toStringAsFixed(2)}',
+              '${isIncome ? '+' : '-'}${context.formatAmount(transaction.amount)}',
               style: TextStyle(
                 color: isIncome ? Colors.green : Colors.red,
                 fontWeight: FontWeight.w600,

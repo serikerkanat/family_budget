@@ -216,6 +216,21 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
     }
   }
 
+  Future<void> _setCurrencyForFamily(AppCurrency currency) async {
+    try {
+      await FamilyService.updateFamilyCurrency(currency.code);
+      if (mounted) {
+        context.currencyController.setCurrency(currency);
+        _showSuccessSnackBar(context.tx('currencyUpdated', {'currency': '${currency.symbol} ${currency.code}'}));
+        setState(() {
+          _currentFamily = {...?_currentFamily, 'currency': currency.code};
+        });
+      }
+    } catch (e) {
+      if (mounted) _showErrorSnackBar('Error updating currency: $e');
+    }
+  }
+
   void _showCreateFamilyDialog() {
     showDialog(
       context: context,
@@ -507,8 +522,59 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
               ),
             ),
           ),
-          const SizedBox(height: 24),
-          
+          const SizedBox(height: 16),
+
+          // Family Currency Card (parent only)
+          FutureBuilder<bool>(
+            future: PermissionService.canManageFamily(),
+            builder: (context, snapshot) {
+              if (snapshot.data != true) return const SizedBox.shrink();
+              final currentCode = _currentFamily?['currency'] as String?;
+              final currentCurrency = AppCurrency.fromCode(currentCode);
+              return Card(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(Icons.currency_exchange, color: Colors.orange, size: 22),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Text(
+                          context.t('familyCurrency'),
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      DropdownButton<AppCurrency>(
+                        value: currentCurrency,
+                        underline: const SizedBox.shrink(),
+                        items: AppCurrency.values.map((c) {
+                          return DropdownMenuItem(
+                            value: c,
+                            child: Text('${c.symbol}  ${c.code}'),
+                          );
+                        }).toList(),
+                        onChanged: (c) {
+                          if (c != null) _setCurrencyForFamily(c);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 16),
+
           // Debug info
           Container(
             padding: const EdgeInsets.all(12),
