@@ -42,11 +42,13 @@ class BudgetApp extends StatefulWidget {
 
 class _BudgetAppState extends State<BudgetApp> {
   final AppLanguageController _languageController = AppLanguageController();
+  final AppCurrencyController _currencyController = AppCurrencyController();
 
   @override
   void initState() {
     super.initState();
     _languageController.load();
+    _currencyController.load();
     // Initialize Gemini AI in background (non-blocking)
     _initializeGemini();
     // Process due payments on app start
@@ -54,25 +56,14 @@ class _BudgetAppState extends State<BudgetApp> {
   }
 
   Future<void> _initializeGemini() async {
-    // Don't block UI - run in background
-    // TEMPORARILY DISABLED to prevent crashes
-    // TODO: Re-enable after testing stability
-    /*
     Future.microtask(() async {
       try {
-        // TODO: Remove this hardcoded key in production
-        // Users should enter their API key through Settings
-        await GeminiConfigService.saveApiKey('AIzaSyCQ1Tc5J7HdUqFCPFReI4BvDVJ6nJop6vc');
-        await GeminiConfigService.setAIEnabled(true);
         await GeminiConfigService.initializeIfNeeded();
         print('Gemini initialized successfully');
       } catch (e) {
         print('Error initializing Gemini: $e');
-        // Don't block app if Gemini fails
       }
     });
-    */
-    print('Gemini AI temporarily disabled for stability testing');
   }
 
   Future<void> _processDuePayments() async {
@@ -91,6 +82,7 @@ class _BudgetAppState extends State<BudgetApp> {
   @override
   void dispose() {
     _languageController.dispose();
+    _currencyController.dispose();
     super.dispose();
   }
 
@@ -98,10 +90,12 @@ class _BudgetAppState extends State<BudgetApp> {
   Widget build(BuildContext context) {
     return AppLanguageScope(
       controller: _languageController,
-      child: AnimatedBuilder(
-        animation: _languageController,
-        builder: (context, _) {
-          return MaterialApp(
+      child: AppCurrencyScope(
+        controller: _currencyController,
+        child: AnimatedBuilder(
+          animation: Listenable.merge([_languageController, _currencyController]),
+          builder: (context, _) {
+            return MaterialApp(
             debugShowCheckedModeBanner: false,
             title: context.t('appName'),
             theme: ThemeData(
@@ -188,7 +182,8 @@ class _BudgetAppState extends State<BudgetApp> {
               },
             ),
           );
-        },
+          },
+        ),
       ),
     );
   }
@@ -457,7 +452,7 @@ class _HomePageState extends State<HomePage> {
             fit: BoxFit.scaleDown,
             alignment: Alignment.centerLeft,
             child: Text(
-              '\$${_balance.toStringAsFixed(2)}',
+              context.formatAmount(_balance),
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 44,
@@ -480,7 +475,7 @@ class _HomePageState extends State<HomePage> {
               Expanded(
                 child: _AccountMetric(
                   label: context.t('income'),
-                  value: '+\$${_totalIncome.toStringAsFixed(2)}',
+                  value: '+${context.formatAmount(_totalIncome)}',
                   icon: Icons.south_west_rounded,
                   color: const Color(0xFF9DE7D1),
                 ),
@@ -489,7 +484,7 @@ class _HomePageState extends State<HomePage> {
               Expanded(
                 child: _AccountMetric(
                   label: context.t('expense'),
-                  value: '-\$${_totalExpense.toStringAsFixed(2)}',
+                  value: '-${context.formatAmount(_totalExpense)}',
                   icon: Icons.north_east_rounded,
                   color: const Color(0xFFFDBA74),
                 ),
@@ -599,7 +594,7 @@ class _HomePageState extends State<HomePage> {
               value: topCategoryName,
               caption: topCategory.isEmpty
                   ? 'No spend yet'
-                  : '\$${topCategory.first.value.toStringAsFixed(0)} this period',
+                  : '${context.formatAmount(topCategory.first.value)} this period',
               icon: Icons.category_outlined,
               color: _teal,
               progress: topCategory.isEmpty ? 0 : 1,
@@ -1223,7 +1218,7 @@ class _TransactionCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    '${isIncome ? '+' : '-'}\$${transaction.amount.toStringAsFixed(2)}',
+                    '${isIncome ? '+' : '-'}${context.formatAmount(transaction.amount)}',
                     style: TextStyle(
                       color: color,
                       fontWeight: FontWeight.w900,
@@ -1329,7 +1324,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
       notes: _notesController.text.trim().isNotEmpty
           ? _notesController.text.trim()
           : null,
-      currency: 'USD',
+      currency: context.appCurrency.code,
     );
 
     Navigator.pop(context, transaction);
@@ -1395,7 +1390,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                   ],
                   decoration: InputDecoration(
                     labelText: context.t('amount'),
-                    prefixText: '\$ ',
+                    prefixText: '${context.appCurrency.symbol} ',
                     hintText: '0.00',
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.all(20),

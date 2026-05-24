@@ -179,7 +179,7 @@ class _EditTransactionPageState extends State<EditTransactionPage> {
                         ],
                         decoration: InputDecoration(
                           labelText: context.t('amount'),
-                          prefixText: '\$ ',
+                          prefixText: '${context.appCurrency.symbol} ',
                           hintText: '0.00',
                           border: InputBorder.none,
                           contentPadding: const EdgeInsets.all(20),
