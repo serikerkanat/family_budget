@@ -42,58 +42,58 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
     setState(() => _isLoading = true);
     
     try {
-      print('=== Checking family status ===');
+      debugPrint('=== Checking family status ===');
       
       // Ensure user document exists
       await UserService.createUserDocument();
       
       // Get current user data first
       final currentUserData = await UserService.getCurrentUserData();
-      print('Current user data: $currentUserData');
+      debugPrint('Current user data: $currentUserData');
       
       final isInFamily = await FamilyService.isUserInFamily();
-      print('User is in family: $isInFamily');
+      debugPrint('User is in family: $isInFamily');
       
       setState(() => _isInFamily = isInFamily);
       
       if (isInFamily) {
         final family = await FamilyService.getCurrentFamily();
-        print('Current family: $family');
+        debugPrint('Current family: $family');
         setState(() => _currentFamily = family);
         
         if (family != null) {
           // Защита от гонки состояний - проверяем что familyId не null
           final familyId = family['id'];
           if (familyId == null || familyId.toString().isEmpty) {
-            print('Остановка: familyId всё еще пустой, ждем обновления...');
+            debugPrint('Остановка: familyId всё еще пустой, ждем обновления...');
             setState(() => _familyMembers = []);
             return;
           }
           
-          print('Getting family members for family ID: $familyId');
+          debugPrint('Getting family members for family ID: $familyId');
           final members = await FamilyService.getFamilyMembers(familyId);
-          print('Family members retrieved: $members');
-          print('Number of members: ${members.length}');
+          debugPrint('Family members retrieved: $members');
+          debugPrint('Number of members: ${members.length}');
           
           setState(() => _familyMembers = members);
           
           // Debug each member
           for (final member in members) {
-            print('Member: ${member['id']} - ${member['email'] ?? 'No email'} - Role: ${member['role'] ?? 'No role'}');
+            debugPrint('Member: ${member['id']} - ${member['email'] ?? 'No email'} - Role: ${member['role'] ?? 'No role'}');
           }
         } else {
-          print('Family is null, cannot get members');
+          debugPrint('Family is null, cannot get members');
           setState(() => _familyMembers = []);
         }
       } else {
-        print('User is not in any family');
+        debugPrint('User is not in any family');
         setState(() {
           _currentFamily = null;
           _familyMembers = [];
         });
       }
     } catch (e) {
-      print('Error checking family status: $e');
+      debugPrint('Error checking family status: $e');
       _showErrorSnackBar('Error checking family status: $e');
     } finally {
       setState(() => _isLoading = false);
@@ -109,9 +109,9 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
     setState(() => _isLoading = true);
     
     try {
-      print('Creating family with name: ${_familyNameController.text.trim()}');
+      debugPrint('Creating family with name: ${_familyNameController.text.trim()}');
       final familyCode = await FamilyService.createFamily(_familyNameController.text.trim());
-      print('Family created with code: $familyCode');
+      debugPrint('Family created with code: $familyCode');
       
       _showSuccessSnackBar(
         context.tx('familyCreated', {'code': familyCode})
@@ -123,7 +123,7 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
       await Future.delayed(const Duration(milliseconds: 500));
       await _checkFamilyStatus();
     } catch (e) {
-      print('Error creating family: $e');
+      debugPrint('Error creating family: $e');
       _showErrorSnackBar('Error creating family: $e');
     } finally {
       setState(() => _isLoading = false);
@@ -155,7 +155,7 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
         _showErrorSnackBar(context.t('invalidFamilyCode'));
       }
     } catch (e) {
-      print('Error joining family: $e');
+      debugPrint('Error joining family: $e');
       _showErrorSnackBar('Error joining family: $e');
     } finally {
       setState(() => _isLoading = false);
@@ -179,7 +179,7 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
       _showSuccessSnackBar(context.t('roleUpdated'));
       await _checkFamilyStatus();
     } catch (e) {
-      print('Error updating role: $e');
+      debugPrint('Error updating role: $e');
       _showErrorSnackBar(context.t('parentsChangeRoles'));
     }
   }
@@ -210,7 +210,7 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
         _showSuccessSnackBar(context.t('memberRemoved'));
         await _checkFamilyStatus();
       } catch (e) {
-        print('Error removing member: $e');
+        debugPrint('Error removing member: $e');
         _showErrorSnackBar(context.t('parentsRemoveMembers'));
       }
     }
@@ -382,7 +382,7 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
                   _showSuccessSnackBar(context.t('youLeftFamily'));
                   await _checkFamilyStatus();
                 } catch (e) {
-                  print('Error leaving family: $e');
+                  debugPrint('Error leaving family: $e');
                   _showErrorSnackBar('Error leaving family: $e');
                 } finally {
                   setState(() => _isLoading = false);

@@ -19,28 +19,21 @@ class FirestoreService {
   // Get current user ID
   static String? get currentUserId => _auth.currentUser?.uid;
   
-  // Get transactions filtered by family
+  // Get transactions filtered by family (realtime)
   static Stream<List<TransactionModel>> getTransactions() {
-    return UserService.currentUserStream.asyncMap(
-      (userSnapshot) async {
-        final userData = userSnapshot;
-        final familyId = userData?['familyId'] as String?;
-        
-        if (familyId == null) {
-          return <TransactionModel>[];
-        }
-        
-        final transactionsSnapshot = await _db
-            .collection('transactions')
-            .where('familyId', isEqualTo: familyId)
-            .orderBy('date', descending: true)
-            .get();
-            
-        return transactionsSnapshot.docs
-            .map((doc) => _transactionFromDocument(doc))
-            .toList();
-      },
-    );
+    return UserService.currentUserStream.asyncExpand((userData) {
+      final familyId = userData?['familyId'] as String?;
+      if (familyId == null) {
+        return Stream<List<TransactionModel>>.value(<TransactionModel>[]);
+      }
+      return _db
+          .collection('transactions')
+          .where('familyId', isEqualTo: familyId)
+          .orderBy('date', descending: true)
+          .snapshots()
+          .map((snap) =>
+              snap.docs.map((doc) => _transactionFromDocument(doc)).toList());
+    });
   }
   
   // Add transaction
@@ -103,7 +96,7 @@ class FirestoreService {
     try {
       final familyId = await UserService.getUserFamilyId();
       if (familyId == null) {
-        print('User not in family');
+        debugPrint('User not in family');
         return;
       }
 
@@ -128,7 +121,7 @@ class FirestoreService {
               .timeout(
                 const Duration(seconds: 10),
                 onTimeout: () {
-                  print('Gemini parsing timeout, using rule-based parser');
+                  debugPrint('Gemini parsing timeout, using rule-based parser');
                   return null;
                 },
               );
@@ -148,7 +141,7 @@ class FirestoreService {
             );
           }
         } catch (e) {
-          print('Gemini parsing failed, falling back to rule-based parser: $e');
+          debugPrint('Gemini parsing failed, falling back to rule-based parser: $e');
           // Continue to rule-based parser
         }
       }
@@ -158,13 +151,13 @@ class FirestoreService {
         try {
           parsedTransaction = BankNotificationParser.parse(notificationData);
         } catch (e) {
-          print('Rule-based parsing also failed: $e');
+          debugPrint('Rule-based parsing also failed: $e');
           return;
         }
       }
 
       if (parsedTransaction == null) {
-        print('Failed to parse notification with both AI and rule-based parser');
+        debugPrint('Failed to parse notification with both AI and rule-based parser');
         return;
       }
 
@@ -178,7 +171,7 @@ class FirestoreService {
           categoryId = BankNotificationParser.suggestCategory(parsedTransaction);
         }
       } catch (e) {
-        print('Error suggesting category: $e');
+        debugPrint('Error suggesting category: $e');
         categoryId = 'other'; // Fallback to 'other' category
       }
 
@@ -196,9 +189,9 @@ class FirestoreService {
             'USD',
           );
           displayCurrency = 'USD';
-          print('Converted ${parsedTransaction.amount} ${parsedTransaction.currency} to $convertedAmount USD');
+          debugPrint('Converted ${parsedTransaction.amount} ${parsedTransaction.currency} to $convertedAmount USD');
         } catch (e) {
-          print('Currency conversion failed: $e');
+          debugPrint('Currency conversion failed: $e');
           // Keep original amount if conversion fails
           convertedAmount = parsedTransaction.amount;
           displayCurrency = parsedTransaction.currency;
@@ -222,7 +215,7 @@ class FirestoreService {
           return;
         }
       } catch (e) {
-        print('Error merging with existing transaction: $e');
+        debugPrint('Error merging with existing transaction: $e');
         // Continue to create new transaction
       }
 
@@ -257,7 +250,7 @@ class FirestoreService {
           });
         }
       } catch (e) {
-        print('Error saving transaction to Firestore: $e');
+        debugPrint('Error saving transaction to Firestore: $e');
         return;
       }
 
@@ -265,10 +258,10 @@ class FirestoreService {
       try {
         await NotificationPermissionService.updateLastSync();
       } catch (e) {
-        print('Error updating last sync: $e');
+        debugPrint('Error updating last sync: $e');
       }
     } catch (e) {
-      print('Unexpected error in addTransactionFromNotification: $e');
+      debugPrint('Unexpected error in addTransactionFromNotification: $e');
       // Don't rethrow - we don't want to crash the app
     }
   }
@@ -297,6 +290,15 @@ class FirestoreService {
   // Convert transaction from Firestore document
   static TransactionModel _transactionFromDocument(DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data()!;
+    final sourceStr = data['source']?.toString() ?? '';
+    TransactionSource source;
+    if (sourceStr.contains('notification')) {
+      source = TransactionSource.notification;
+    } else if (sourceStr.contains('import')) {
+      source = TransactionSource.import;
+    } else {
+      source = TransactionSource.manual;
+    }
     return TransactionModel(
       id: doc.id, // Always use Firestore document ID for updates/deletes
       title: data['title'] ?? '',
@@ -308,6 +310,9 @@ class FirestoreService {
       categoryId: data['categoryId'] ?? 'other',
       receiptImagePath: data['receiptImagePath'],
       notes: data['notes'],
+      source: source,
+      bankName: data['bankName'] as String?,
+      rawNotificationText: data['rawNotificationText'] as String?,
       currency: data['currency'] ?? 'USD',
     );
   }

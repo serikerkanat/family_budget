@@ -5,6 +5,7 @@ import '../models/category_model.dart';
 import '../services/firestore_service.dart';
 import '../services/prediction_service.dart';
 import '../l10n/app_localizations.dart';
+import '../widgets/ai_insights_card.dart';
 
 class AnalyticsPage extends StatefulWidget {
   const AnalyticsPage({super.key});
@@ -177,11 +178,15 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
             ),
             const SizedBox(height: 24),
 
-            // AI Forecast
+            // AI Forecast (deterministic, fast)
             if (_forecast != null) ...[
               _buildForecastCard(),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
             ],
+
+            // AI Deep Insights (Gemini-powered, on-demand)
+            AiInsightsCard(transactions: _transactions),
+            const SizedBox(height: 24),
 
             // Category Breakdown
             if (expenseCategories.isNotEmpty) ...[

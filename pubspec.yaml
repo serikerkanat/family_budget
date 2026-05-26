@@ -53,6 +53,10 @@ dependencies:
   # AI / Gemini
   google_generative_ai: ^0.4.0
 
+  # Networking
+  http: ^1.2.0
+  logging: ^1.2.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

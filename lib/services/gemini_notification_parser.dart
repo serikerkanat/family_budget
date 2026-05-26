@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import '../models/transaction_model.dart';
 import 'notification_listener_service.dart';
@@ -54,12 +56,12 @@ class GeminiNotificationParser {
     
     try {
       _model = GenerativeModel(
-        model: 'gemini-1.5-flash',
+        model: 'gemini-2.5-flash-lite',
         apiKey: apiKey,
       );
       _isInitialized = true;
     } catch (e) {
-      print('Failed to initialize Gemini: $e');
+      debugPrint('Failed to initialize Gemini: $e');
       _isInitialized = false;
     }
   }
@@ -69,7 +71,7 @@ class GeminiNotificationParser {
     BankingNotificationData notification,
   ) async {
     if (!_isInitialized || _model == null) {
-      print('Gemini not initialized, falling back to rule-based parser');
+      debugPrint('Gemini not initialized, falling back to rule-based parser');
       return null;
     }
 
@@ -91,7 +93,7 @@ class GeminiNotificationParser {
       // Parse the JSON response from Gemini
       return _parseGeminiResponse(responseText, notification);
     } catch (e) {
-      print('Error parsing with Gemini: $e');
+      debugPrint('Error parsing with Gemini: $e');
       return null;
     }
   }
@@ -132,63 +134,53 @@ Rules:
     String responseText,
     BankingNotificationData notification,
   ) {
-    try {
-      // Extract JSON from response (in case there's extra text)
-      final jsonStart = responseText.indexOf('{');
-      final jsonEnd = responseText.lastIndexOf('}');
-      
-      if (jsonStart == -1 || jsonEnd == -1) {
-        throw Exception('No JSON found in response');
-      }
-
-      final jsonString = responseText.substring(jsonStart, jsonEnd + 1);
-      
-      // Parse JSON (simple implementation - in production use dart:convert)
-      final amount = _extractDouble(jsonString, '"amount"');
-      final currency = _extractString(jsonString, '"currency"') ?? 'KZT';
-      final merchant = _extractString(jsonString, '"merchant"');
-      final typeStr = _extractString(jsonString, '"type"') ?? 'expense';
-      final cardLastDigits = _extractString(jsonString, '"cardLastDigits"');
-      final suggestedCategory = _extractString(jsonString, '"suggestedCategory"') ?? 'other';
-      final confidence = _extractString(jsonString, '"confidence"') ?? 'medium';
-
-      final type = typeStr.toLowerCase() == 'income' 
-          ? TransactionType.income 
-          : TransactionType.expense;
-
-      return GeminiParsedTransaction(
-        amount: amount,
-        currency: currency,
-        merchant: merchant,
-        type: type,
-        cardLastDigits: cardLastDigits,
-        bankName: notification.bankName,
-        date: DateTime.fromMillisecondsSinceEpoch(notification.timestamp),
-        rawTitle: notification.title,
-        rawText: notification.text,
-        suggestedCategory: suggestedCategory,
-        confidence: confidence,
-      );
-    } catch (e) {
-      print('Error parsing Gemini response: $e');
-      rethrow;
+    // Extract JSON object substring (LLMs sometimes wrap with markdown).
+    final jsonStart = responseText.indexOf('{');
+    final jsonEnd = responseText.lastIndexOf('}');
+    if (jsonStart == -1 || jsonEnd == -1 || jsonEnd <= jsonStart) {
+      throw const FormatException('No JSON object found in Gemini response');
     }
-  }
+    final jsonString = responseText.substring(jsonStart, jsonEnd + 1);
 
-  // Helper to extract string value from JSON
-  static String? _extractString(String json, String key) {
-    final pattern = '$key\\s*:\\s*"([^"]*)"';
-    final regex = RegExp(pattern);
-    final match = regex.firstMatch(json);
-    return match?.group(1);
-  }
+    final Map<String, dynamic> data;
+    try {
+      data = jsonDecode(jsonString) as Map<String, dynamic>;
+    } catch (e) {
+      throw FormatException('Invalid JSON from Gemini: $e');
+    }
 
-  // Helper to extract double value from JSON
-  static double _extractDouble(String json, String key) {
-    final pattern = '$key\\s*:\\s*([0-9.]+)';
-    final regex = RegExp(pattern);
-    final match = regex.firstMatch(json);
-    return match != null ? double.tryParse(match.group(1)!) ?? 0.0 : 0.0;
+    final rawAmount = data['amount'];
+    final amount = rawAmount is num
+        ? rawAmount.toDouble()
+        : double.tryParse(rawAmount?.toString() ?? '') ?? 0.0;
+
+    final currency = (data['currency'] as String?)?.trim().isNotEmpty == true
+        ? (data['currency'] as String).trim().toUpperCase()
+        : 'KZT';
+    final merchant = (data['merchant'] as String?)?.trim();
+    final typeStr = (data['type'] as String?)?.toLowerCase() ?? 'expense';
+    final cardLastDigits = (data['cardLastDigits'] as String?)?.trim();
+    final suggestedCategory =
+        (data['suggestedCategory'] as String?)?.toLowerCase() ?? 'other';
+    final confidence =
+        (data['confidence'] as String?)?.toLowerCase() ?? 'medium';
+
+    return GeminiParsedTransaction(
+      amount: amount,
+      currency: currency,
+      merchant: (merchant == null || merchant.isEmpty) ? null : merchant,
+      type: typeStr == 'income'
+          ? TransactionType.income
+          : TransactionType.expense,
+      cardLastDigits:
+          (cardLastDigits == null || cardLastDigits.isEmpty) ? null : cardLastDigits,
+      bankName: notification.bankName,
+      date: DateTime.fromMillisecondsSinceEpoch(notification.timestamp),
+      rawTitle: notification.title,
+      rawText: notification.text,
+      suggestedCategory: suggestedCategory,
+      confidence: confidence,
+    );
   }
 
   // Check if Gemini is available and initialized

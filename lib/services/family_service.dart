@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'dart:math';
 import 'user_service.dart';
 import '../models/role_model.dart';
@@ -38,12 +39,12 @@ class FamilyService {
     if (userId == null) throw Exception('User not logged in');
 
     try {
-      print('Creating family for user: $userId');
+      debugPrint('Creating family for user: $userId');
 
       // Ensure user document exists and get user data
       await UserService.createUserDocument();
       final userData = await UserService.getCurrentUserData();
-      print('User data: $userData');
+      debugPrint('User data: $userData');
 
       final familyDoc = await _db.collection('families').add({
         'name': familyName,
@@ -53,7 +54,7 @@ class FamilyService {
         'members': [userId],
       });
 
-      print('Family created with ID: ${familyDoc.id}');
+      debugPrint('Family created with ID: ${familyDoc.id}');
 
       // Update user to be the family creator (parent role)
       await _db.collection('users').doc(userId).update({
@@ -62,11 +63,11 @@ class FamilyService {
         'joinedAt': FieldValue.serverTimestamp(),
       });
 
-      print('User updated with familyId and parent role');
+      debugPrint('User updated with familyId and parent role');
 
       return familyDoc.id;
     } catch (e) {
-      print('Error creating family: $e');
+      debugPrint('Error creating family: $e');
       rethrow;
     }
   }
@@ -176,64 +177,64 @@ class FamilyService {
   // Get family members
   static Future<List<Map<String, dynamic>>> getFamilyMembers(String familyId) async {
     try {
-      print('=== Getting family members for familyId: $familyId ===');
+      debugPrint('=== Getting family members for familyId: $familyId ===');
       
       // Get current user ID first
       final FirebaseAuth auth = FirebaseAuth.instance;
       final currentUserId = auth.currentUser?.uid;
       if (currentUserId == null) {
-        print('No current user found');
+        debugPrint('No current user found');
         return [];
       }
       
-      print('Current user ID: $currentUserId');
+      debugPrint('Current user ID: $currentUserId');
       
       // First verify user exists and has familyId
       final currentUserDoc = await _db.collection('users').doc(currentUserId).get();
       if (!currentUserDoc.exists) {
-        print('Current user document does not exist');
+        debugPrint('Current user document does not exist');
         return [];
       }
       
       final currentUserData = currentUserDoc.data();
       final userFamilyId = currentUserData?['familyId'] as String?;
-      print('User familyId from user doc: $userFamilyId');
-      print('Requested familyId: $familyId');
+      debugPrint('User familyId from user doc: $userFamilyId');
+      debugPrint('Requested familyId: $familyId');
       
       if (userFamilyId != familyId) {
-        print('User does not belong to this family!');
-        print('User belongs to family: $userFamilyId');
+        debugPrint('User does not belong to this family!');
+        debugPrint('User belongs to family: $userFamilyId');
         return [];
       }
       
       final familyDoc = await _familiesRef.doc(familyId).get();
       if (!familyDoc.exists) {
-        print('Family document does not exist');
+        debugPrint('Family document does not exist');
         return [];
       }
       
       final familyData = familyDoc.data();
       final memberIds = List<String>.from(familyData?['members'] ?? []);
-      print('Member IDs from family doc: $memberIds');
-      print('Current user in family members: ${memberIds.contains(currentUserId)}');
+      debugPrint('Member IDs from family doc: $memberIds');
+      debugPrint('Current user in family members: ${memberIds.contains(currentUserId)}');
 
       if (memberIds.isEmpty) {
-        print('No member IDs found');
+        debugPrint('No member IDs found');
         return [];
       }
 
-      print('Starting to fetch individual user documents...');
+      debugPrint('Starting to fetch individual user documents...');
       List<Map<String, dynamic>> members = [];
       
       // Get each user individually to avoid whereIn issues
       for (final memberId in memberIds) {
         try {
-          print('Fetching user: $memberId');
+          debugPrint('Fetching user: $memberId');
           final userDoc = await _db.collection('users').doc(memberId).get();
           
           if (userDoc.exists) {
             final data = userDoc.data() ?? {};
-            print('Raw user data for $memberId: $data');
+            debugPrint('Raw user data for $memberId: $data');
             
             final member = {
               'id': userDoc.id,
@@ -244,25 +245,25 @@ class FamilyService {
               ...data,
             };
             members.add(member);
-            print('Successfully added member: ${member['id']} - ${member['email']} - Role: ${member['role']}');
+            debugPrint('Successfully added member: ${member['id']} - ${member['email']} - Role: ${member['role']}');
           } else {
-            print('User document does not exist for ID: $memberId');
+            debugPrint('User document does not exist for ID: $memberId');
           }
         } catch (e) {
-          print('Error getting user $memberId: $e');
+          debugPrint('Error getting user $memberId: $e');
         }
       }
 
-      print('Final members list: $members');
-      print('Total members count: ${members.length}');
+      debugPrint('Final members list: $members');
+      debugPrint('Total members count: ${members.length}');
       
       // Debug: check if current user is in the list
       final currentUserInList = members.any((member) => member['id'] == currentUserId);
-      print('Current user found in members list: $currentUserInList');
+      debugPrint('Current user found in members list: $currentUserInList');
       
       return members;
     } catch (e) {
-      print('Error getting family members: $e');
+      debugPrint('Error getting family members: $e');
       return [];
     }
   }
