@@ -16,6 +16,7 @@ import 'services/permission_service.dart';
 import 'services/auto_transaction_service.dart';
 import 'services/recurring_payment_service.dart';
 import 'services/gemini_config_service.dart';
+import 'services/currency_conversion_service.dart';
 import 'widgets/category_selector.dart';
 import 'pages/transaction_details_page.dart';
 import 'pages/settings_page.dart';
@@ -25,6 +26,13 @@ import 'pages/family_management_page.dart';
 import 'pages/budget_management_page.dart';
 import 'pages/notification_settings_page.dart';
 import 'pages/recurring_payments_page.dart';
+import 'pages/scan_receipt_page.dart';
+import 'pages/ai_advisor_page.dart';
+import 'pages/kids_home_page.dart';
+import 'pages/parent_kids_page.dart';
+import 'models/role_model.dart';
+import 'services/permission_service.dart';
+import 'services/kids_service.dart';
 import 'l10n/app_localizations.dart';
 
 void main() async {
@@ -51,6 +59,8 @@ class _BudgetAppState extends State<BudgetApp> {
     _currencyController.load();
     // Initialize Gemini AI in background (non-blocking)
     _initializeGemini();
+    // Refresh currency exchange rates in background
+    Future.microtask(() => CurrencyConversionService.ensureLoaded());
     // Process due payments on app start
     _processDuePayments();
   }
@@ -59,9 +69,9 @@ class _BudgetAppState extends State<BudgetApp> {
     Future.microtask(() async {
       try {
         await GeminiConfigService.initializeIfNeeded();
-        print('Gemini initialized successfully');
+        debugPrint('Gemini initialized successfully');
       } catch (e) {
-        print('Error initializing Gemini: $e');
+        debugPrint('Error initializing Gemini: $e');
       }
     });
   }
@@ -71,9 +81,9 @@ class _BudgetAppState extends State<BudgetApp> {
     Future.microtask(() async {
       try {
         await RecurringPaymentService.triggerPaymentProcessing();
-        print('Due payments processed successfully');
+        debugPrint('Due payments processed successfully');
       } catch (e) {
-        print('Error processing due payments on app start: $e');
+        debugPrint('Error processing due payments on app start: $e');
         // Don't block app if this fails
       }
     });
@@ -510,6 +520,24 @@ class _HomePageState extends State<HomePage> {
             onTap: _openAddTransaction,
           ),
           _QuickAction(
+            icon: Icons.document_scanner_outlined,
+            label: context.t('scanReceipt'),
+            color: const Color(0xFF059669),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ScanReceiptPage()),
+            ),
+          ),
+          _QuickAction(
+            icon: Icons.smart_toy_outlined,
+            label: context.t('aiAdvisor'),
+            color: const Color(0xFF6366F1),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const AiAdvisorPage()),
+            ),
+          ),
+          _QuickAction(
             icon: Icons.pie_chart_outline,
             label: context.t('analytics'),
             color: const Color(0xFF2563EB),
@@ -545,6 +573,7 @@ class _HomePageState extends State<HomePage> {
               MaterialPageRoute(builder: (_) => const FamilyManagementPage()),
             ),
           ),
+          _KidsQuickAction(),
           _QuickAction(
             icon: Icons.settings_outlined,
             label: context.t('settings'),
@@ -979,6 +1008,81 @@ class _QuickAction extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+/// Role-aware Kids quick action:
+///   • Parent → opens [ParentKidsPage] with a red badge for pending requests
+///   • Child  → opens [KidsHomePage]
+class _KidsQuickAction extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<UserRole>(
+      stream: PermissionService.currentUserRoleStream,
+      builder: (context, snap) {
+        final isParent = snap.data == UserRole.parent;
+        final color = isParent
+            ? const Color(0xFFEF4444)
+            : const Color(0xFF8B5CF6);
+        final icon = isParent ? Icons.shield_outlined : Icons.child_care;
+        final label = isParent ? context.t('approvals') : context.t('kidsMode');
+
+        final action = _QuickAction(
+          icon: icon,
+          label: label,
+          color: color,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) =>
+                  isParent ? const ParentKidsPage() : const KidsHomePage(),
+            ),
+          ),
+        );
+
+        if (!isParent) return action;
+
+        // Wrap with pending-count badge for parents.
+        return StreamBuilder(
+          stream: _pendingCountStream(),
+          builder: (context, countSnap) {
+            final count = countSnap.data ?? 0;
+            if (count == 0) return action;
+            return Stack(
+              clipBehavior: Clip.none,
+              children: [
+                action,
+                Positioned(
+                  top: 2,
+                  right: 14,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEF4444),
+                      borderRadius: BorderRadius.circular(10),
+                      border:
+                          Border.all(color: Colors.white, width: 1.5),
+                    ),
+                    child: Text(
+                      count > 9 ? '9+' : '$count',
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Stream<int> _pendingCountStream() {
+    return KidsService.pendingRequests().map((list) => list.length);
   }
 }
 
@@ -1533,6 +1637,28 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                     _selectedCategoryId = category.id;
                   });
                 },
+              ),
+              const SizedBox(height: 16),
+
+              // Scan receipt with AI shortcut
+              OutlinedButton.icon(
+                onPressed: () async {
+                  final navigator = Navigator.of(context);
+                  final saved = await navigator.push<bool>(
+                    MaterialPageRoute(
+                        builder: (_) => const ScanReceiptPage()),
+                  );
+                  if (saved == true && mounted) {
+                    navigator.pop(); // close add page; data was saved
+                  }
+                },
+                icon: const Icon(Icons.document_scanner_outlined),
+                label: Text(context.t('scanReceipt')),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFF0F766E),
+                  side: const BorderSide(color: Color(0xFF0F766E)),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
               ),
               const SizedBox(height: 16),
 

@@ -584,6 +584,126 @@ class AppLocalizations {
 
       'tapToAddReceipt': 'Tap to add receipt',
 
+      'scanReceipt': 'Scan Receipt',
+
+      'analyzeWithAI': 'Analyze with AI',
+
+      'analyzingReceipt': 'Analyzing receipt with Gemini…',
+
+      'extractedData': 'Extracted data',
+
+      'lineItemsN': 'Line items ({count})',
+
+      'total': 'Total',
+
+      'noItemsExtracted': 'No items detected. You can add them manually.',
+
+      'addItem': 'Add item',
+
+      'saveNTransactions': 'Save {count} transaction(s)',
+
+      'savedNTransactions': 'Saved {count} transaction(s)',
+
+      'selectAtLeastOne': 'Select at least one item',
+
+      'aiKeyMissing': 'Gemini API key not set. Add it in Settings → AI.',
+
+      'aiAdvisor': 'AI Advisor',
+
+      'askAnything': 'Ask anything about your finances…',
+
+      'suggestOverspend': 'Why did I overspend last month?',
+
+      'suggestAfford': 'Can I afford a 500 000 ₸ vacation in June?',
+
+      'suggestSave': 'How can I save 10% more next month?',
+
+      'suggestBudget': 'Set a food budget for me',
+
+      'proposedBudget': 'Proposed budget',
+
+      'proposedGoal': 'Proposed savings goal',
+
+      'reason': 'Reason',
+
+      'targetAmount': 'Target amount',
+
+      'targetDate': 'Target date',
+
+      'dismiss': 'Dismiss',
+
+      'confirmCreate': 'Confirm & create',
+
+      'budgetCreatedFor': 'Budget created for {category}',
+
+      'goalCreatedFor': 'Goal "{title}" created',
+
+      // Kids mode
+      'kidsMode': 'Kids Mode',
+      'kidsManagement': 'Kids',
+      'approvals': 'Approvals',
+      'hello': 'Hello',
+      'yourBalance': 'Your balance',
+      'yourSavingsTree': 'Your savings tree',
+      'savedTowardsTarget': '{pct}% saved toward {target}',
+      'goalProgress': '{title}: {pct}% saved',
+      'requestMoney': 'Request money',
+      'myBadges': 'My badges',
+      'earned': 'Earned',
+      'myRequests': 'My requests',
+      'send': 'Send',
+      'status_pending': 'Pending',
+      'status_approved': 'Approved',
+      'status_rejected': 'Rejected',
+      'fillAllFields': 'Please fill all fields',
+      'requestSent': 'Request sent — waiting for parent approval',
+      'reasonHint': 'e.g. School snack, new book…',
+      'approve': 'Approve',
+      'reject': 'Reject',
+      'requestApproved': 'Request approved',
+      'requestRejected': 'Request rejected',
+      'noPendingRequests': 'No pending requests',
+      'allCaughtUp': "You're all caught up! Kids will see new requests appear here.",
+      'giveAllowance': 'Give allowance',
+      'chooseChild': 'Choose child',
+      'noChildrenInFamily': 'No children in your family yet. Invite one from Family Management.',
+      'noteOptional': 'Note (optional)',
+      'allowanceGiven': 'Allowance sent',
+
+      // Achievements
+      'ach_firstAllowance_title': 'First Allowance',
+      'ach_firstAllowance_desc': 'Received your first allowance.',
+      'ach_saved7_title': 'Saved 7 Days',
+      'ach_saved7_desc': 'No spending for 7 days in a row.',
+      'ach_bigSaver_title': 'Big Saver',
+      'ach_bigSaver_desc': 'Built up a balance of 5,000.',
+      'ach_smartSpender_title': 'Smart Spender',
+      'ach_smartSpender_desc': '5 approved purchase requests.',
+      'ach_allowanceStreak_title': 'Allowance Streak',
+      'ach_allowanceStreak_desc': 'Got allowance 4 weeks in a row.',
+
+      // AI deep analytics
+      'aiDeepInsights': 'AI Deep Insights',
+      'aiInsightsExplainer': 'Get a detailed Gemini-powered analysis of your spending, savings, and budget health — with concrete findings and actionable recommendations.',
+      'generateInsights': 'Generate insights',
+      'regenerate': 'Regenerate',
+      'analyzingWithGemini': 'Analyzing your finances with Gemini…',
+      'financialHealth': 'Financial health',
+      'summary': 'Summary',
+      'keyFindings': 'Key findings',
+      'categoryInsights': 'Category insights',
+      'recommendations': 'Recommendations',
+      'forecast30d': '30-day outlook',
+      'generatedAt': 'Generated {time}',
+      'retry': 'Retry',
+
+      'chooseReceiptSource': 'Choose a receipt photo',
+
+      'camera': 'Camera',
+
+      'gallery': 'Gallery',
+
+
       'notesOptional': 'Notes (Optional)',
 
       'notesHint': 'Add any additional notes...',
@@ -1015,6 +1135,126 @@ class AppLocalizations {
       'receiptOptional': 'Чек (необязательно)',
 
       'tapToAddReceipt': 'Нажмите, чтобы добавить чек',
+
+      'scanReceipt': 'Сканировать чек',
+
+      'analyzeWithAI': 'Распознать с помощью ИИ',
+
+      'analyzingReceipt': 'Анализ чека через Gemini…',
+
+      'extractedData': 'Распознанные данные',
+
+      'lineItemsN': 'Позиции ({count})',
+
+      'total': 'Итого',
+
+      'noItemsExtracted': 'Позиции не распознаны. Добавьте вручную.',
+
+      'addItem': 'Добавить позицию',
+
+      'saveNTransactions': 'Сохранить операций: {count}',
+
+      'savedNTransactions': 'Сохранено операций: {count}',
+
+      'selectAtLeastOne': 'Выберите хотя бы одну позицию',
+
+      'aiKeyMissing': 'Ключ Gemini не задан. Добавьте его в Настройках → ИИ.',
+
+      'aiAdvisor': 'ИИ-советник',
+
+      'askAnything': 'Спросите что угодно о ваших финансах…',
+
+      'suggestOverspend': 'Почему я перерасходовал в прошлом месяце?',
+
+      'suggestAfford': 'Могу ли я позволить отпуск за 500 000 ₸ в июне?',
+
+      'suggestSave': 'Как сэкономить на 10% больше в следующем месяце?',
+
+      'suggestBudget': 'Установи мне бюджет на продукты',
+
+      'proposedBudget': 'Предлагаемый бюджет',
+
+      'proposedGoal': 'Предлагаемая цель',
+
+      'reason': 'Причина',
+
+      'targetAmount': 'Целевая сумма',
+
+      'targetDate': 'Целевая дата',
+
+      'dismiss': 'Отмена',
+
+      'confirmCreate': 'Подтвердить и создать',
+
+      'budgetCreatedFor': 'Бюджет создан для категории «{category}»',
+
+      'goalCreatedFor': 'Цель «{title}» создана',
+
+      // Kids mode
+      'kidsMode': 'Детский режим',
+      'kidsManagement': 'Дети',
+      'approvals': 'Запросы',
+      'hello': 'Привет',
+      'yourBalance': 'Твой баланс',
+      'yourSavingsTree': 'Дерево накоплений',
+      'savedTowardsTarget': 'Накоплено {pct}% из {target}',
+      'goalProgress': '{title}: накоплено {pct}%',
+      'requestMoney': 'Попросить деньги',
+      'myBadges': 'Мои значки',
+      'earned': 'Получено',
+      'myRequests': 'Мои запросы',
+      'send': 'Отправить',
+      'status_pending': 'На рассмотрении',
+      'status_approved': 'Одобрено',
+      'status_rejected': 'Отклонено',
+      'fillAllFields': 'Заполните все поля',
+      'requestSent': 'Запрос отправлен — ждём одобрения родителей',
+      'reasonHint': 'Например: школьный перекус, новая книга…',
+      'approve': 'Одобрить',
+      'reject': 'Отклонить',
+      'requestApproved': 'Запрос одобрен',
+      'requestRejected': 'Запрос отклонён',
+      'noPendingRequests': 'Нет ожидающих запросов',
+      'allCaughtUp': 'Все запросы обработаны! Новые появятся здесь.',
+      'giveAllowance': 'Дать карманные',
+      'chooseChild': 'Выберите ребёнка',
+      'noChildrenInFamily': 'В вашей семье ещё нет детей. Пригласите их через раздел «Семья».',
+      'noteOptional': 'Заметка (необязательно)',
+      'allowanceGiven': 'Карманные отправлены',
+
+      // Achievements
+      'ach_firstAllowance_title': 'Первые накопления',
+      'ach_firstAllowance_desc': 'Получены первые карманные деньги.',
+      'ach_saved7_title': '7 дней без трат',
+      'ach_saved7_desc': '7 дней подряд без расходов.',
+      'ach_bigSaver_title': 'Большой накопитель',
+      'ach_bigSaver_desc': 'Накопил баланс 5 000.',
+      'ach_smartSpender_title': 'Умный покупатель',
+      'ach_smartSpender_desc': '5 одобренных запросов на покупку.',
+      'ach_allowanceStreak_title': 'Постоянный получатель',
+      'ach_allowanceStreak_desc': 'Получал карманные 4 недели подряд.',
+
+      // AI deep analytics
+      'aiDeepInsights': 'Глубокий ИИ-анализ',
+      'aiInsightsExplainer': 'Получите подробный анализ от Gemini по вашим тратам, накоплениям и бюджету — с конкретными выводами и рекомендациями.',
+      'generateInsights': 'Создать анализ',
+      'regenerate': 'Обновить',
+      'analyzingWithGemini': 'Gemini анализирует ваши финансы…',
+      'financialHealth': 'Финансовое здоровье',
+      'summary': 'Краткое резюме',
+      'keyFindings': 'Ключевые выводы',
+      'categoryInsights': 'По категориям',
+      'recommendations': 'Рекомендации',
+      'forecast30d': 'Прогноз на 30 дней',
+      'generatedAt': 'Сгенерировано {time}',
+      'retry': 'Повторить',
+
+      'chooseReceiptSource': 'Выберите фото чека',
+
+      'camera': 'Камера',
+
+      'gallery': 'Галерея',
+
 
       'notesOptional': 'Заметки (необязательно)',
 
@@ -1449,6 +1689,126 @@ class AppLocalizations {
       'receiptOptional': 'Чек (міндетті емес)',
 
       'tapToAddReceipt': 'Чек қосу үшін басыңыз',
+
+      'scanReceipt': 'Чекті сканерлеу',
+
+      'analyzeWithAI': 'ЖИ-мен талдау',
+
+      'analyzingReceipt': 'Чек Gemini арқылы талдануда…',
+
+      'extractedData': 'Алынған деректер',
+
+      'lineItemsN': 'Жолдар ({count})',
+
+      'total': 'Барлығы',
+
+      'noItemsExtracted': 'Жолдар табылмады. Қолмен қосыңыз.',
+
+      'addItem': 'Жол қосу',
+
+      'saveNTransactions': '{count} операцияны сақтау',
+
+      'savedNTransactions': '{count} операция сақталды',
+
+      'selectAtLeastOne': 'Кем дегенде бір жолды таңдаңыз',
+
+      'aiKeyMissing': 'Gemini кілті орнатылмаған. Параметрлер → ЖИ ішінде қосыңыз.',
+
+      'aiAdvisor': 'ЖИ-кеңесшi',
+
+      'askAnything': 'Қаржыңыз туралы кез келген сұрақ қойыңыз…',
+
+      'suggestOverspend': 'Өткен айда неге шығынданып кеттім?',
+
+      'suggestAfford': 'Маусымда 500 000 ₸ демалысқа шамам жете ме?',
+
+      'suggestSave': 'Келесі айда 10%-ға қалай көбірек үнемдеуге болады?',
+
+      'suggestBudget': 'Маған азық-түлікке бюджет белгілеп бер',
+
+      'proposedBudget': 'Ұсынылған бюджет',
+
+      'proposedGoal': 'Ұсынылған мақсат',
+
+      'reason': 'Себебі',
+
+      'targetAmount': 'Мақсатты сома',
+
+      'targetDate': 'Мақсатты күн',
+
+      'dismiss': 'Бас тарту',
+
+      'confirmCreate': 'Растау және құру',
+
+      'budgetCreatedFor': '«{category}» санаты үшін бюджет құрылды',
+
+      'goalCreatedFor': '«{title}» мақсаты құрылды',
+
+      // Kids mode
+      'kidsMode': 'Балалар режимі',
+      'kidsManagement': 'Балалар',
+      'approvals': 'Сұраулар',
+      'hello': 'Сәлем',
+      'yourBalance': 'Сенің балансың',
+      'yourSavingsTree': 'Жинақ ағашың',
+      'savedTowardsTarget': '{target}-ден {pct}% жиналды',
+      'goalProgress': '{title}: {pct}% жиналды',
+      'requestMoney': 'Ақша сұрау',
+      'myBadges': 'Менің төсбелгілерім',
+      'earned': 'Алынды',
+      'myRequests': 'Менің сұрауларым',
+      'send': 'Жіберу',
+      'status_pending': 'Күтуде',
+      'status_approved': 'Мақұлданды',
+      'status_rejected': 'Қабылданбады',
+      'fillAllFields': 'Барлық өрістерді толтырыңыз',
+      'requestSent': 'Сұрау жіберілді — ата-ананың мақұлдауын күтіңіз',
+      'reasonHint': 'Мысалы: мектеп тағамы, жаңа кітап…',
+      'approve': 'Мақұлдау',
+      'reject': 'Қабылдамау',
+      'requestApproved': 'Сұрау мақұлданды',
+      'requestRejected': 'Сұрау қабылданбады',
+      'noPendingRequests': 'Күтудегі сұраулар жоқ',
+      'allCaughtUp': 'Барлығы өңделді! Жаңалары осында пайда болады.',
+      'giveAllowance': 'Қалта ақшасын беру',
+      'chooseChild': 'Баланы таңдаңыз',
+      'noChildrenInFamily': 'Отбасында балалар жоқ. «Отбасы» бөлімінен шақырыңыз.',
+      'noteOptional': 'Ескертпе (міндетті емес)',
+      'allowanceGiven': 'Қалта ақшасы жіберілді',
+
+      // Achievements
+      'ach_firstAllowance_title': 'Алғашқы қалта ақшасы',
+      'ach_firstAllowance_desc': 'Алғашқы қалта ақшасы алынды.',
+      'ach_saved7_title': '7 күн шығынсыз',
+      'ach_saved7_desc': '7 күн қатарынан шығынсыз.',
+      'ach_bigSaver_title': 'Үлкен жинақшы',
+      'ach_bigSaver_desc': '5 000 балансқа жеттің.',
+      'ach_smartSpender_title': 'Ақылды сатып алушы',
+      'ach_smartSpender_desc': '5 мақұлданған сатып алу сұрауы.',
+      'ach_allowanceStreak_title': 'Тұрақты алушы',
+      'ach_allowanceStreak_desc': '4 апта қатарынан қалта ақшасын алдың.',
+
+      // AI deep analytics
+      'aiDeepInsights': 'Терең ЖИ талдауы',
+      'aiInsightsExplainer': 'Gemini арқылы шығындар, жинақтар мен бюджет жағдайын егжей-тегжейлі талдаңыз — нақты тұжырымдар мен ұсыныстармен.',
+      'generateInsights': 'Талдау жасау',
+      'regenerate': 'Жаңарту',
+      'analyzingWithGemini': 'Gemini қаржыңызды талдауда…',
+      'financialHealth': 'Қаржылық денсаулық',
+      'summary': 'Қысқаша түйін',
+      'keyFindings': 'Негізгі тұжырымдар',
+      'categoryInsights': 'Санаттар бойынша',
+      'recommendations': 'Ұсыныстар',
+      'forecast30d': '30 күндік болжам',
+      'generatedAt': '{time} жасалды',
+      'retry': 'Қайталау',
+
+      'chooseReceiptSource': 'Чек суретін таңдаңыз',
+
+      'camera': 'Камера',
+
+      'gallery': 'Галерея',
+
 
       'notesOptional': 'Ескертулер (міндетті емес)',
 

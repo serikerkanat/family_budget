@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import '../models/recurring_payment_model.dart';
 import '../models/transaction_model.dart';
 import '../services/firestore_service.dart';
@@ -21,11 +22,11 @@ class RecurringPaymentService {
           final familyId = userData?['familyId'] as String?;
           
           if (familyId == null) {
-            print('No familyId found for user');
+            debugPrint('No familyId found for user');
             return <RecurringPaymentModel>[];
           }
           
-          print('Getting recurring payments for familyId: $familyId');
+          debugPrint('Getting recurring payments for familyId: $familyId');
 
           // Get all payments first, then filter in memory to avoid index issues
           final paymentsSnapshot = await _db
@@ -49,10 +50,10 @@ class RecurringPaymentService {
               .map((doc) => RecurringPaymentModel.fromFirestore(doc))
               .toList();
               
-          print('Found ${payments.length} active recurring payments');
+          debugPrint('Found ${payments.length} active recurring payments');
           return payments;
         } catch (e) {
-          print('Error getting recurring payments: $e');
+          debugPrint('Error getting recurring payments: $e');
           return <RecurringPaymentModel>[];
         }
       },

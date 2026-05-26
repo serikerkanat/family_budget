@@ -1,0 +1,262 @@
+rules_version = '2';
+
+// Family Budget — Firestore security rules.
+//
+// Data model assumptions (matching current Flutter code):
+//   /users/{uid}                       -> { familyId, role: 'parent'|'child'|'owner', ... }
+//   /families/{familyId}               -> { name, code, members: [uid, ...], createdBy }
+//   /transactions/{txId}               -> { familyId, createdBy, ... }
+//   /budgets/{budgetId}                -> { familyId, createdBy, ... }
+//   /recurring_payments/{paymentId}    -> { familyId, createdBy, ... }
+//   /savings_goals/{goalId}            -> { familyId, createdBy, ... }
+//
+// Principles:
+//   - Authentication required everywhere.
+//   - A user can only read/write resources belonging to their own family.
+//   - Only "parent" / "owner" roles can mutate shared family settings,
+//     create/edit budgets and recurring payments, change member roles,
+//     remove members, or change family currency.
+//   - Children can read everything in their family and create their own
+//     transactions, but cannot edit/delete others' transactions or change
+//     family-level configuration.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- Helpers ----------
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function myUid() {
+      return request.auth.uid;
+    }
+
+    function myUserDoc() {
+      return get(/databases/$(database)/documents/users/$(myUid())).data;
+    }
+
+    function myFamilyId() {
+      return myUserDoc().familyId;
+    }
+
+    function myRole() {
+      return myUserDoc().role;
+    }
+
+    function isParent() {
+      return isSignedIn() && (myRole() == 'parent' || myRole() == 'owner');
+    }
+
+    function familyMatches(famId) {
+      return isSignedIn() && famId != null && myFamilyId() == famId;
+    }
+
+    function isFamilyMember(familyId) {
+      return isSignedIn()
+        && familyId != null
+        && myUid() in get(/databases/$(database)/documents/families/$(familyId)).data.members;
+    }
+
+    // ---------- Users ----------
+    match /users/{userId} {
+      // A user can read their own document. Family members can read each
+      // other's basic profile (used by family management screen).
+      allow read: if isSignedIn()
+        && (
+          userId == myUid()
+          || (
+            resource.data.familyId != null
+            && resource.data.familyId == myFamilyId()
+          )
+        );
+
+      // A user can create only their own document.
+      allow create: if isSignedIn() && userId == myUid();
+
+      // A user can update their own document. Parents may also update
+      // role / familyId fields of users in their family (used for
+      // promoting/demoting children and removing members).
+      allow update: if isSignedIn() && (
+        userId == myUid()
+        || (
+          isParent()
+          && resource.data.familyId == myFamilyId()
+        )
+      );
+
+      allow delete: if isSignedIn() && userId == myUid();
+    }
+
+    // ---------- Families ----------
+    match /families/{familyId} {
+      // Only members of the family can read it.
+      allow read: if isSignedIn() && (
+        myUid() in resource.data.members
+        || myFamilyId() == familyId
+      );
+
+      // Any signed-in user can create a family (they become the first member).
+      allow create: if isSignedIn()
+        && request.resource.data.createdBy == myUid()
+        && myUid() in request.resource.data.members;
+
+      // Updates: parents only, OR a member changing the members array
+      // when they themselves are joining/leaving.
+      allow update: if isSignedIn() && (
+        // Parents (in this family) can update anything.
+        (isParent() && myFamilyId() == familyId)
+        // Or: any signed-in user adding/removing only themselves to/from members.
+        || (
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['members'])
+          && (
+            // Joining: was not a member, now is, only added self.
+            (
+              !(myUid() in resource.data.members)
+              && (myUid() in request.resource.data.members)
+            )
+            // Leaving: was a member, now is not, only removed self.
+            || (
+              (myUid() in resource.data.members)
+              && !(myUid() in request.resource.data.members)
+            )
+          )
+        )
+      );
+
+      // Only the creator (parent) can delete the family.
+      allow delete: if isSignedIn()
+        && resource.data.createdBy == myUid()
+        && isParent();
+    }
+
+    // ---------- Transactions ----------
+    match /transactions/{txId} {
+      allow read: if familyMatches(resource.data.familyId);
+
+      // Anyone in the family can create a transaction. Must stamp it
+      // with their own uid and family.
+      allow create: if isSignedIn()
+        && request.resource.data.familyId == myFamilyId()
+        && request.resource.data.createdBy == myUid();
+
+      // Update / delete: the creator OR a parent in the same family.
+      allow update, delete: if isSignedIn()
+        && resource.data.familyId == myFamilyId()
+        && (resource.data.createdBy == myUid() || isParent());
+    }
+
+    // ---------- Budgets (parents only manage) ----------
+    match /budgets/{budgetId} {
+      allow read: if familyMatches(resource.data.familyId);
+
+      allow create: if isParent()
+        && request.resource.data.familyId == myFamilyId()
+        && request.resource.data.createdBy == myUid();
+
+      // Allow internal updates of currentSpent by anyone in family
+      // (BudgetService updates spending when a child adds an expense).
+      allow update: if isSignedIn()
+        && resource.data.familyId == myFamilyId()
+        && (
+          isParent()
+          // Children can only touch the spending counter.
+          || request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['currentSpent', 'updatedAt'])
+        );
+
+      allow delete: if isParent()
+        && resource.data.familyId == myFamilyId();
+    }
+
+    // ---------- Recurring payments (parents only) ----------
+    match /recurring_payments/{paymentId} {
+      allow read: if familyMatches(resource.data.familyId);
+
+      allow create: if isParent()
+        && request.resource.data.familyId == myFamilyId()
+        && request.resource.data.createdBy == myUid();
+
+      allow update, delete: if isParent()
+        && resource.data.familyId == myFamilyId();
+    }
+
+    // ---------- Savings goals ----------
+    match /savings_goals/{goalId} {
+      allow read: if familyMatches(resource.data.familyId);
+
+      allow create: if isSignedIn()
+        && request.resource.data.familyId == myFamilyId()
+        && request.resource.data.createdBy == myUid();
+
+      // Members can contribute (update currentAmount); parents can edit fully.
+      allow update: if isSignedIn()
+        && resource.data.familyId == myFamilyId()
+        && (
+          isParent()
+          || resource.data.createdBy == myUid()
+          || request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['currentAmount', 'updatedAt'])
+        );
+
+      allow delete: if isSignedIn()
+        && resource.data.familyId == myFamilyId()
+        && (isParent() || resource.data.createdBy == myUid());
+    }
+
+    // ---------- Notification settings (per-user, optional) ----------
+    match /notification_settings/{docId} {
+      allow read, write: if isSignedIn() && docId == myUid();
+    }
+
+    // ---------- Allowances (parent -> child money transfers) ----------
+    match /allowances/{allowanceId} {
+      allow read: if familyMatches(resource.data.familyId);
+
+      // Only parents can give allowance. Must stamp own uid + family.
+      allow create: if isParent()
+        && request.resource.data.familyId == myFamilyId()
+        && request.resource.data.givenBy == myUid();
+
+      allow update, delete: if isParent()
+        && resource.data.familyId == myFamilyId();
+    }
+
+    // ---------- Withdrawal requests (child -> parent approval flow) ----------
+    match /withdrawal_requests/{requestId} {
+      allow read: if familyMatches(resource.data.familyId);
+
+      // Children can create their own pending requests.
+      allow create: if isSignedIn()
+        && request.resource.data.familyId == myFamilyId()
+        && request.resource.data.childUid == myUid()
+        && request.resource.data.status == 'pending';
+
+      // Parents in same family can change status (approve/reject) and add
+      // a decision note. Children can cancel only their OWN still-pending
+      // request (i.e. delete or leave pending unchanged).
+      allow update: if isSignedIn()
+        && resource.data.familyId == myFamilyId()
+        && (
+          isParent()
+          || (
+            resource.data.childUid == myUid()
+            && resource.data.status == 'pending'
+            && request.resource.data.status == 'pending'
+          )
+        );
+
+      allow delete: if isSignedIn()
+        && resource.data.familyId == myFamilyId()
+        && (
+          isParent()
+          || (resource.data.childUid == myUid()
+              && resource.data.status == 'pending')
+        );
+    }
+
+    // Default deny-all for any other path.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

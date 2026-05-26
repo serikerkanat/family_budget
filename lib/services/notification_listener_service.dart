@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 class BankingNotificationData {
@@ -76,7 +77,7 @@ class NotificationListenerService {
       final bool result = await _channel.invokeMethod('isPermissionGranted');
       return result;
     } on PlatformException catch (e) {
-      print('Error checking permission: ${e.message}');
+      debugPrint('Error checking permission: ${e.message}');
       return false;
     }
   }
@@ -86,7 +87,7 @@ class NotificationListenerService {
     try {
       await _channel.invokeMethod('openPermissionSettings');
     } on PlatformException catch (e) {
-      print('Error opening settings: ${e.message}');
+      debugPrint('Error opening settings: ${e.message}');
       rethrow;
     }
   }
