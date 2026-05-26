@@ -137,7 +137,7 @@ class TransactionDetailsPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '${isIncome ? '+' : '-'}\$${transaction.amount.toStringAsFixed(2)}',
+                    '${isIncome ? '+' : '-'}${context.formatAmount(transaction.amount)}',
                     style: const TextStyle(
                       fontSize: 36,
                       fontWeight: FontWeight.w800,

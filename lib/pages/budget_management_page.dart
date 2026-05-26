@@ -65,7 +65,7 @@ class _BudgetManagementPageState extends State<BudgetManagementPage> {
         categoryName: categoryName,
         monthlyLimit: limit,
         currentSpent: 0.0,
-        currency: 'USD',
+        currency: context.appCurrency.code,
         createdAt: DateTime.now(),
         createdBy: UserService.currentUserId ?? '',
         familyId: familyId,
@@ -243,7 +243,7 @@ class _BudgetManagementPageState extends State<BudgetManagementPage> {
                         categoryName: context.categoryName(category.id),
                         monthlyLimit: 0,
                         currentSpent: 0,
-                        currency: 'USD',
+                        currency: context.appCurrency.code,
                         createdAt: DateTime.now(),
                         createdBy: '',
                         familyId: '',
@@ -308,7 +308,7 @@ class _BudgetManagementPageState extends State<BudgetManagementPage> {
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        '\$${existingBudget.currentSpent.toStringAsFixed(2)}',
+                                        context.formatAmount(existingBudget.currentSpent),
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
@@ -316,7 +316,7 @@ class _BudgetManagementPageState extends State<BudgetManagementPage> {
                                         ),
                                       ),
                                       Text(
-                                        context.tx('ofAmount', {'amount': '\$${existingBudget.monthlyLimit.toStringAsFixed(2)}'}),
+                                        context.tx('ofAmount', {'amount': context.formatAmount(existingBudget.monthlyLimit)}),
                                         style: TextStyle(
                                           fontSize: 16,
                                           color: Colors.grey[600],
@@ -345,7 +345,7 @@ class _BudgetManagementPageState extends State<BudgetManagementPage> {
                                         ),
                                       ),
                                       Text(
-                                        context.tx('amountRemaining', {'amount': '\$${existingBudget.remaining.toStringAsFixed(2)}'}),
+                                        context.tx('amountRemaining', {'amount': context.formatAmount(existingBudget.remaining)}),
                                         style: TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w600,
@@ -368,7 +368,7 @@ class _BudgetManagementPageState extends State<BudgetManagementPage> {
                                       controller: _limitControllers[category.id],
                                       keyboardType: TextInputType.number,
                                       decoration: InputDecoration(
-                                        labelText: context.t('monthlyLimit'),
+                                        labelText: '${context.t('monthlyLimit')} (${context.appCurrency.symbol})',
                                         prefixIcon: const Icon(Icons.attach_money),
                                         border: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(12),
