@@ -638,6 +638,8 @@ class AppLocalizations {
 
       'goalCreatedFor': 'Goal "{title}" created',
 
+      'transactionCreated': 'Transaction "{title}" added',
+
       // Kids mode
       'kidsMode': 'Kids Mode',
       'kidsManagement': 'Kids',
@@ -1189,6 +1191,8 @@ class AppLocalizations {
       'budgetCreatedFor': 'Бюджет создан для категории «{category}»',
 
       'goalCreatedFor': 'Цель «{title}» создана',
+
+      'transactionCreated': 'Транзакция «{title}» добавлена',
 
       // Kids mode
       'kidsMode': 'Детский режим',
@@ -1743,6 +1747,8 @@ class AppLocalizations {
       'budgetCreatedFor': '«{category}» санаты үшін бюджет құрылды',
 
       'goalCreatedFor': '«{title}» мақсаты құрылды',
+
+      'transactionCreated': '«{title}» транзакциясы қосылды',
 
       // Kids mode
       'kidsMode': 'Балалар режимі',

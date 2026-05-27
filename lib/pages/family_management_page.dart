@@ -464,7 +464,7 @@ class _FamilyManagementPageState extends State<FamilyManagementPage> {
       return Center(child: Text(context.t('errorLoadingFamily')));
     }
 
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [

@@ -28,7 +28,7 @@ class ChatMessage {
 
 /// A structured action proposed by the AI that the user can confirm.
 class AdvisorAction {
-  /// One of: create_budget, create_goal, none
+  /// One of: create_budget, create_goal, create_transaction, none
   final String type;
   final Map<String, dynamic> args;
 
@@ -150,7 +150,7 @@ OUTPUT FORMAT: Always respond with ONLY a single JSON object matching:
 {
   "reply": string,                  // your natural-language answer (markdown OK)
   "action": null | {
-    "type": "create_budget" | "create_goal",
+    "type": "create_budget" | "create_goal" | "create_transaction",
     "args": {
       // for create_budget:
       "categoryId": string,         // one of: groceries, transport, shopping,
@@ -167,13 +167,23 @@ OUTPUT FORMAT: Always respond with ONLY a single JSON object matching:
       // "targetDate": "YYYY-MM-DD",
       // "category": "vacation" | "car" | "emergency" | "education" | "home" | "other",
       // "reason": string
+
+      // for create_transaction:
+      // "title": string,           // merchant or description
+      // "amount": number,          // positive value
+      // "type": "income" | "expense",
+      // "categoryId": string,      // one of the valid expense category ids, or "other"
+      // "date": "YYYY-MM-DD",      // defaults to today
+      // "notes": string            // optional extra info
     }
   }
 }
 
 Only propose an action when the user clearly asked you to create or set
-something up (e.g. "set a food budget", "save for a vacation"). Otherwise
-"action" must be null.
+something up (e.g. "set a food budget", "save for a vacation",
+"create a transaction", "add this transfer"). Otherwise "action" must be null.
+For create_transaction: use data the user mentions or data visible in
+recentTransactions. Never invent amounts not mentioned by the user.
 
 Never wrap the JSON in markdown fences. Never add prose before/after the JSON.
 ''';
