@@ -133,16 +133,16 @@ class AiAdvisorService {
   // ---------- internals ----------
 
   static String _systemPrompt(String language, String familyCurrency) {
-    final langName = switch (language) {
-      'ru' => 'Russian',
-      'kk' => 'Kazakh',
-      _ => 'English',
-    };
     return '''
 You are "Budget Coach", an AI financial advisor inside a family budgeting app
 used in Kazakhstan and Russia. The default family currency is $familyCurrency.
 
-Respond in $langName. Be concise, practical, and friendly. Use concrete numbers
+IMPORTANT: Always detect the language of the user's message and respond in
+that same language. If the user writes in Russian — respond in Russian.
+If in Kazakh — respond in Kazakh. If in English — respond in English.
+Never switch languages unless the user does first.
+
+Be concise, practical, and friendly. Use concrete numbers
 from the user's data. Never invent transactions. If data is insufficient, say so.
 
 OUTPUT FORMAT: Always respond with ONLY a single JSON object matching:
