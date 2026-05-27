@@ -161,6 +161,7 @@ class _AiAdvisorPageState extends State<AiAdvisorPage> {
     final fallbackCurrency = context.appCurrency.code;
     final budgetCreatedTemplate = context.t('budgetCreatedFor');
     final goalCreatedTemplate = context.t('goalCreatedFor');
+    final txCreatedMsg = context.t('transactionCreated');
     final messenger = ScaffoldMessenger.of(context);
 
     try {
@@ -225,6 +226,34 @@ class _AiAdvisorPageState extends State<AiAdvisorPage> {
             category: category,
           ));
           successMsg = goalCreatedTemplate.replaceAll('{title}', title);
+          break;
+
+        case 'create_transaction':
+          final title = (action.args['title'] as String?)?.trim() ?? 'AI Transaction';
+          final amount = (action.args['amount'] as num?)?.toDouble() ?? 0;
+          final typeStr = (action.args['type'] as String?)?.toLowerCase() ?? 'expense';
+          final categoryId = (action.args['categoryId'] as String?) ?? 'other';
+          final dateStr = action.args['date'] as String?;
+          final date = DateTime.tryParse(dateStr ?? '') ?? DateTime.now();
+          final notes = (action.args['notes'] as String?) ?? 'Created by AI Advisor';
+          if (amount <= 0) throw Exception('Invalid amount');
+          final category = defaultCategories.firstWhere(
+            (c) => c.id == categoryId,
+            orElse: () => defaultCategories.firstWhere((c) => c.id == 'other'),
+          );
+          await FirestoreService.addTransaction(TransactionModel(
+            id: const Uuid().v4(),
+            title: title,
+            amount: amount,
+            date: date,
+            type: typeStr == 'income'
+                ? TransactionType.income
+                : TransactionType.expense,
+            categoryId: category.id,
+            notes: notes,
+            currency: fallbackCurrency,
+          ));
+          successMsg = txCreatedMsg.replaceAll('{title}', title);
           break;
 
         default:

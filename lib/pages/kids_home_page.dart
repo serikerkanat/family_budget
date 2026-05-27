@@ -305,7 +305,7 @@ class _KidsHomePageState extends State<KidsHomePage> {
               crossAxisCount: 2,
               mainAxisSpacing: 12,
               crossAxisSpacing: 12,
-              childAspectRatio: 1.55,
+              childAspectRatio: 1.2,
             ),
             itemCount: ach.length,
             itemBuilder: (context, i) => _BadgeTile(achievement: ach[i]),
@@ -423,7 +423,7 @@ class _BadgeTile extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             children: [
@@ -454,6 +454,7 @@ class _BadgeTile extends StatelessWidget {
               ),
             ],
           ),
+          const SizedBox(height: 6),
           Text(
             context.t(achievement.descriptionKey),
             maxLines: 2,
@@ -461,47 +462,43 @@ class _BadgeTile extends StatelessWidget {
             style: const TextStyle(
                 fontSize: 11, color: Color(0xFF6B7280), height: 1.2),
           ),
+          const SizedBox(height: 6),
           if (!earned)
-            Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
-                    child: LinearProgressIndicator(
-                      value: achievement.progress,
-                      minHeight: 6,
-                      backgroundColor: const Color(0xFFE5E7EB),
-                      valueColor: AlwaysStoppedAnimation(achievement.color),
-                    ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: achievement.progress,
+                    minHeight: 5,
+                    backgroundColor: const Color(0xFFE5E7EB),
+                    valueColor: AlwaysStoppedAnimation(achievement.color),
                   ),
-                  if (achievement.progressLabel != null)
-                    Text(
-                      achievement.progressLabel!,
-                      style: const TextStyle(
-                          fontSize: 10, color: Color(0xFF6B7280)),
-                    ),
-                ],
-              ),
+                ),
+                if (achievement.progressLabel != null)
+                  Text(
+                    achievement.progressLabel!,
+                    style: const TextStyle(
+                        fontSize: 10, color: Color(0xFF6B7280)),
+                  ),
+              ],
             )
           else
-            Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Row(
-                children: [
-                  Icon(Icons.check_circle,
-                      color: achievement.color, size: 14),
-                  const SizedBox(width: 4),
-                  Text(
-                    context.t('earned'),
-                    style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: achievement.color),
-                  ),
-                ],
-              ),
+            Row(
+              children: [
+                Icon(Icons.check_circle,
+                    color: achievement.color, size: 14),
+                const SizedBox(width: 4),
+                Text(
+                  context.t('earned'),
+                  style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: achievement.color),
+                ),
+              ],
             ),
         ],
       ),
