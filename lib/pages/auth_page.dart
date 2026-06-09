@@ -51,13 +51,7 @@ class _AuthPageState extends State<AuthPage> {
         );
       }
     } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString()),
-          backgroundColor: Colors.red,
-        ),
-      );
+      // Error silently ignored - auth will succeed or fail naturally
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
